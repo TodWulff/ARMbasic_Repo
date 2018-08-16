@@ -1,0 +1,280 @@
+#ifndef FAT_Verbose_defs
+#define FAT_Verbose_defs
+
+#ifndef enable_fat_verbose
+	#define enable_fat_verbose 0
+#endif
+
+#if (enable_fat_verbose == 1)
+
+	#define FAT_NO_ERR_MSGS					115
+	#define FAT_NO_ERR_WORDS				227
+
+' ==============================================================================
+' ------------------------ FAT VERBOSE ERROR DATA ------------------- 2007-07-04
+' ==============================================================================
+
+' 115 error codes verbose strings & POINTERS
+
+Data $0000004A, 0  ' OK No
+Data $0000575E, 1  ' Sector Read
+Data $0000775E, 2  ' Sector Write
+Data $00001D5E, 3  ' Sector Erase
+Data $00755C3F, 4  ' Media Return Value
+Data $004C6A3F, 5  ' Media Time Out
+Data $3B07633F, 6  ' Media Set Block Length
+Data $3F6C1060, 7  ' Send Command to Media
+Data $005E0804, 16  ' Bad Boot Sector
+Data $00643E04, 17  ' Bad MBR Signature
+Data $645E0804, 18  ' Bad Boot Sector Signature
+Data $00655E04, 19  ' Bad Sector Size
+Data $00342C04, 20  ' Bad FS Info
+Data $00694722, 21  ' Fat12 Not Supported
+Data $00694723, 22  ' Fat16 Not Supported
+Data $554D750F, 33  ' Cluster Value Over Range
+Data $5571750F, 34  ' Cluster Value Under Range
+Data $554D7545, 35  ' NextCluster Value Over Range
+Data $55717545, 36  ' NextCluster Value Under Range
+Data $00002D3F, 37  ' Media Full
+Data $000C4225, 49  ' File Name Case
+Data $003B4225, 50  ' File Name Length
+Data $003B2025, 51  ' File Extension Length
+Data $00484225, 52  ' File Name Null
+Data $00002D3F, 53  ' Media Full
+Data $00001F26, 64  ' File/Folder Exists
+Data $002B4726, 65  ' File/Folder Not Found
+Data $00001429, 66  ' Folder Corrupt
+Data $00001429, 67  ' Folder Corrupt
+Data $00001429, 68  ' Folder Corrupt
+Data $002D195D, 69  ' Root Directory Full
+Data $00004B25, 70  ' File Open
+Data $00007725, 71  ' File Write
+Data $004B4725, 72  ' File Not Open
+Data $0000755F, 73  ' Seek Value
+Data $001A4729, 74  ' Folder Not Empty
+Data $00294742, 75  ' Name Not Folder
+Data $00404B25, 76  ' File Open Mode
+Data $0000001C, 77  ' EOF
+Data $00502504, 78  ' Bad File Parameter(s)
+Data $0074332F, 79  ' Handle In Use
+Data $00002548, 80  ' Null File
+Data $00004025, 81  ' File Mode
+Data $00001425, 82  ' File Corrupt
+Data $00555325, 83  ' File Pointer Range
+Data $00001072, 97	' Unknown Command
+Data $00003B10, 98  ' Command Length
+Data $00004204, 99  ' Bad Name
+Data $00004904, 100  ' Bad Number
+Data $00001177, 101  ' Write Complete
+Data $00004B3F, 103  ' Media Open
+Data $00005004, 104  ' Bad Parameter(s)
+Data $00000E04, 105  ' Bad Checksum
+Data $5273246E, 113  ' Too Few USB Pipes
+Data $0074332F, 114  ' Handle In Use
+Data $00177304, 115  ' Bad USB Descriptor
+Data $00792A2E, 116  ' Function For Xfer
+Data $001B0516, 117  ' Data Beyond Endpoint
+Data $006B1873, 118  ' USB Device Timeout
+Data $005A7913, 119  ' Control Xfer Required
+Data $00004173, 120  ' USB NACK
+Data $002F7314, 121  ' Corrupt USB Handle
+Data $00177314, 122  ' Corrupt USB Descriptor
+Data $2B471773, 123  ' USB Descriptor Not Found
+Data $002B4732, 124  ' HUB Not Found
+Data $12471830, 125  ' HCD Device Not Connected
+Data $00213F73, 129  ' USB Media Failed
+Data $00213F73, 130  ' USB Media Failed
+Data $00213F73, 131  ' USB Media Failed
+Data $00753C04, 132  ' Bad LUN Value
+Data $00213F73, 133  ' USB Media Failed
+Data $00213F73, 134  ' USB Media Failed
+Data $21350A73, 144  ' USB BridgeIC Initialize Failed
+Data $67703331, 145  ' HDC In Undefined State
+Data $58471873, 160  ' USB Device Not Ready
+Data $54187304, 161  ' Bad USB Device Protocol
+Data $68187304, 162  ' Bad USB Device Subclass
+Data $00006104, 163  ' Bad Sense
+Data $5B187304, 164  ' Bad USB Device Response
+Data $2B471873, 165  ' USB Device Not Found
+Data $00000B30, 177  ' HCD Busy
+Data $00005930, 178  ' HCD Request
+Data $00003070, 179  ' Undefined HCD
+Data $00004130, 180  ' HCD NACK
+Data $00006630, 181  ' HCD Stalled
+Data $00006D30, 182  ' HCD Toggle
+Data $00517830, 183  ' HCD Wrong PID
+Data $00000930, 184  ' HCD BootSector
+Data $00510430, 185  ' HCD Bad PID
+Data $004E4F30, 186  ' HCD Pad Packet
+Data $00001530, 187  ' HCD CRC
+Data $00003930, 188  ' HCD K
+Data $00003830, 189  ' HCD J
+Data $00006B30, 190  ' HCD Timeout
+Data $00000330, 191  ' HCD Babble
+Data $00003B42, 192  ' Name Length
+Data $00370D3A, 193  ' Lead Character Invalid
+Data $00370D6F, 194  ' Trail Character Invalid
+Data $0056433D, 197  ' Max Names Reached
+Data $00550204, 208  ' Bad Address Range
+Data $00064728, 209  ' Flash Not Blank
+Data $00000076, 210  ' Verify
+Data $00000036, 211  ' Internal
+Data $0000000E, 212  ' Checksum
+Data $0000001D, 213  ' Erase
+Data $00046201, 214  ' Active Sequence Bad
+Data $00003727, 215  ' Firmware Invalid
+Data $00000010, 216  ' Command
+Data $00001A25, 218  ' File Empty
+Data $002B4725, 219  ' File Not Found
+Data $00001072, 222  ' Unknown Command
+Data $002B4718, 229  ' Device Not Found
+Data $00007504, 240  ' Bad Value
+Data $00001072, 253  ' Unknown Command
+DATA $7E7D7C7B, 254
+Data $0000007A, 255  ' UNDEFINED ERROR
+
+' 126 verbose error codes words OCCUPYING 227 32BIT VALUES
+
+' EACH 32 BIT WORD BELOW HAS THE FOLLOWING STRUCTURE
+' 3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0
+' 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+'|ptr|idx|	CHARACTER  |  CHARACTER  |	CHARACTER  | CHARACTER   |
+
+' each 'word' is made up up at least one 32 bit word and up to 4 32 bit words
+' each 32 bit word can hold up to 4 characters.  idx holds the # of 32 bit words
+' that make up the current 'word'.  ptr is a counter detailing which 32-bit word
+' we are currently in.  each 'word' can be up to 15 characters long.
+
+DATA $0
+Data $1838FA69, $5ED94000 ' Active
+Data $18393272, $5CBCF980 ' Address
+Data $18587162, $5D994000 ' Babble
+Data $08587200 ' Bad
+Data $18597CEF, $5DD90000 ' Beyond
+Data $185B30EE, $5D600000 ' Blank
+Data $185B37E3, $5D600000 ' Block
+Data $085BF7F4 ' Boot
+Data $285BF7F4, $6A7971F4, $ADFC8000 ' BootSector
+Data $185CB4E4, $5CF964C3 ' BridgeIC
+Data $085D79F9 ' Busy
+Data $087879E5 ' Case
+Data $287A30F2, $6C38FA65, $AE400000 ' Character
+Data $187A32E3, $5D7CFAED ' Checksum
+Data $187B3AF3, $5E997900 ' Cluster
+Data $187BF6ED, $5C3BB200 ' Command
+Data $187BF6F0, $5D997A65 ' Complete
+Data $287BF76E, $6CB8FA65, $AC800000 ' Connected
+Data $187BF774, $5E5BF600 ' Control
+Data $187BF972, $5EBC3A00 ' Corrupt
+Data $0874A180 ' CRC
+Data $08987A61 ' Data
+Data $289979E3, $6E5A7874, $ADFC8000 ' Descriptor
+Data $18997B69, $5C794000 ' Device
+Data $289A7965, $6C7D37F2, $AF200000 ' Directory
+Data $18BB7874, $5F200000 ' Empty
+Data $18BBB270, $5DFA7774 ' Endpoint
+Data $08B3E300 ' EOF
+Data $18BCB0F3, $5CA00000 ' Erase
+Data $18BCB96F, $5E400000 ' Error
+Data $18BE34F3, $5E9CC000 ' Exists
+Data $28BE3A65, $6DDCF4EF, $ADC00000 ' Extension
+Data $18D874EC, $5CB90000 ' Failed
+Data $18D87A31, $56400000 ' Fat12
+Data $18D87A31, $56C00000 ' Fat16
+Data $08D97B80 ' Few
+Data $08DA7665 ' File
+Data $28DA7665, $65F1B7EC, $AC997900 ' File/Folder
+Data $18DA796D, $5EF87965 ' Firmware
+Data $18DB30F3, $5D000000 ' Flash
+Data $18DBF664, $5CBC8000 ' Folder
+Data $08DBF900 ' For
+Data $18DBFAEE, $5C800000 ' Found
+Data $08D4C000 ' FS
+Data $08DD766C ' Full
+Data $18DD7763, $5E9A77EE ' Function
+Data $19187764, $5D994000 ' Handle
+Data $0910E200 ' HCD
+Data $09112180 ' HDC
+Data $09156100 ' HUB
+Data $093B8000 ' In
+Data $093BB36F ' Info
+Data $293BB4F4, $6D387669, $AF594000 ' Initialize
+Data $193BBA65, $5E5BB0EC ' Internal
+Data $193BBB61, $5D9A7200 ' Invalid
+Data $09400000 ' J
+Data $09600000 ' K
+Data $099970E4 ' Lead
+Data $19997767, $5E9A0000 ' Length
+Data $09956700 ' LUN
+Data $09B87C00 ' Max
+Data $09B0A900 ' MBR
+Data $19B97269, $5C200000 ' Media
+Data $09BBF265 ' Mode
+Data $09D061CB ' NACK
+Data $09D876E5 ' Name
+Data $19D876E5, $5E600000 ' Names
+Data $09D97C74 ' Next
+Data $29D97C74, $687B3AF3, $AE997900 ' NextCluster
+Data $09DBC000 ' No
+Data $09DBFA00 ' Not
+Data $09DD766C ' Null
+Data $19DD76E2, $5CBC8000 ' Number
+Data $09F2C000 ' OK
+Data $09FC32EE ' Open
+Data $09FD7A00 ' Out
+Data $09FDB2F2 ' Over
+Data $1A1871EB, $5CBD0000 ' Packet
+Data $0A187200 ' Pad
+Data $2A187961, $6DB97A65, $AE4A39A9 ' Parameter(s)
+Data $0A126200 ' PID
+Data $1A1A7865, $5E600000 ' Pipes
+Data $1A1BF4EE, $5E997900 ' Pointer
+Data $1A1CB7F4, $5DF8F7EC ' Protocol
+Data $1A587767, $5CA00000 ' Range
+Data $1A5970E3, $5D197200 ' Reached
+Data $0A5970E4 ' Read
+Data $1A5970E4, $5F200000 ' Ready
+Data $1A5978F5, $5CBCFA00 ' Request
+Data $1A5978F5, $5D3CB2E4 ' Required
+Data $1A5979F0, $5DFBB9E5 ' Response
+Data $1A597A75, $5E5B8000 ' Return
+Data $0A5BF7F4 ' Root
+Data $1A7971F4, $5DFC8000 ' Sector
+Data $0A7972EB ' Seek
+Data $0A797764 ' Send
+Data $1A797773, $5CA00000 ' Sense
+Data $1A7978F5, $5CBBB1E5 ' Sequence
+Data $0A797A00 ' Set
+Data $2A7A73EE, $6C3D3AF2, $ACA00000 ' Signature
+Data $0A7A7D65 ' Size
+Data $1A7D30EC, $5D997200 ' Stalled
+Data $1A7D30F4, $5CA00000 ' State
+Data $1A7D7163, $5D9879F3 ' Subclass
+Data $2A7D7870, $6DFCBA65, $AC800000 ' Supported
+Data $0A9A76E5 ' Time
+Data $1A9A76E5, $5DFD7A00 ' Timeout
+Data $0A9BC000 ' To
+Data $1A9BF3E7, $5D994000 ' Toggle
+Data $0A9BF780 ' Too
+Data $1A9CB0E9, $5D800000 ' Trail
+Data $2ABBB265, $6CDA7765, $AC800000 ' Undefined
+Data $1ABBB265, $5E400000 ' Under
+Data $1ABBB5EE, $5DFDF700 ' Unknown
+Data $0AB4E100 ' USB
+Data $0ABCF280 ' Use
+Data $1AD87675, $5CA00000 ' Value
+Data $1AD97969, $5CDE4000 ' Verify
+Data $1AFCB4F4, $5CA00000 ' Write
+Data $1AFCB7EE, $5CE00000 ' Wrong
+Data $0B19B2F2 ' Xfer
+Data $3AB3A245, $78D26745, $B88822D2, $FA53E900	' UNDEFINED ERROR
+
+Data $3A9224D3, $741524D3, $B4105056, $F8B4AC80 ' THIS TIS A VERY
+Data $3993E747, $74116952, $B9F4904D, $FA71E980 ' LONG ERROR MSGS
+Data $3A9220D4, $74F4D047, $B935A4CE, $F8E82080 ' THAT'S GIVING A
+Data $3A9169D4, $7933A3A0, $B87220CE, $F8716980 ' TESTING CHANCES
+
+
+#endif
+
+#endif

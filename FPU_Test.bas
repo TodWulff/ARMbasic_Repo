@@ -1,0 +1,101 @@
+#ifndef _FPU_TEST
+#define _FPU_TEST
+
+'------------------------ IO DEFINITIONS --------------------------------------
+
+#define _FPU_RSET	 			16   ' RESET -also grn led
+#define _FPU_MISO	 			27   ' SPI DATA IN
+#define _FPU_MOSI	 			26   ' SPI DATA OUT
+#define _FPU_SCLK	 			25   ' SPI CLOCK
+#define _FPU_CSEL	 			24   ' SPI SLAVE SELECT
+
+#define _SPK_OUT				15   ' 'Speaker' Out, - also red led
+
+MAIN:
+GOSUB FPU_START
+
+PRINT "STARTING APP ..."
+LOOPS=0
+HOUR=0
+MINUTE=0
+SECOND=0
+
+DO
+
+LOOP
+
+SPI_MODE_SETUP:
+	SELECT SPI_MODE
+		CASE 0
+			SPI_CPOL = 0
+			SPI_CPHA = 0
+			SPI_DORD = 0
+		CASE 1
+			SPI_CPOL = 1
+			SPI_CPHA = 0
+			SPI_DORD = 0
+		CASE 2
+			SPI_CPOL = 0
+			SPI_CPHA = 1
+			SPI_DORD = 0
+		CASE 3
+			SPI_CPOL = 1
+			SPI_CPHA = 1
+			SPI_DORD = 0
+		CASE 4
+			SPI_CPOL = 0
+			SPI_CPHA = 0
+			SPI_DORD = 1
+		CASE 5
+			SPI_CPOL = 1
+			SPI_CPHA = 0
+			SPI_DORD = 1
+		CASE 6
+			SPI_CPOL = 0
+			SPI_CPHA = 1
+			SPI_DORD = 1
+		CASE ELSE
+			SPI_CPOL = 1
+			SPI_CPHA = 1
+			SPI_DORD = 1
+	ENDSELECT
+RETURN
+'------------------------------------------------------------------------------
+SPI_TX_BYTE:	'FROM ELSEWHERE SPI_CPOL, SPI_CPHA, SPI_DORD, SPI_SSEL, SPI_SCLK, SPI_MISO, SPI_MOSI, SPI_DATA
+	BIT2IO(SPI_CPOL,0,SPI_SCLK) 									'SET INIT CLOCK IDLE STATE
+	IF SPI_SSEL <> -1 THEN OUT(SPI_SSEL) = LO 						'PULL SLAVE SEL LINE LOW
+	FOR SPI_TX_LOOP = 7 DOWNTO 0									'SETUP LOOP
+		IF SPI_CPHA = 0 THEN BIT2IO(SPI_DATA,ABS(SPI_TX_LOOP-(SPI_DORD * 7)),SPI_MOSI)	'SET MOSI TO ALLOW SLAVE TO CLOCK IN DATA ON LE IF CPHA = 0
+		_BIT2IO(SPI_CPOL,0,SPI_SCLK) 								'TOGGLE CLOCK
+		IF SPI_CPHA = 1 THEN BIT2IO(SPI_DATA,ABS(SPI_TX_LOOP-(SPI_DORD * 7)),SPI_MOSI)	'SET MOSI TO ALLOW SLAVE TO CLOCK IN DATA ON TE IF CPHA = 1
+		BIT2IO(SPI_CPOL,0,SPI_SCLK) 								'COMPLETE CLOCK CYCLE
+	NEXT SPI_TX_LOOP												'CONTINUE THRU REST OF BYTE
+	IF SPI_SSEL <> -1 THEN OUT(SPI_SSEL) = HI						'PUSH SLAVE SEL LINE BACK HI
+RETURN
+'------------------------------------------------------------------------------
+SPI_RX_BYTE:	'FROM ELSEWHERE SPI_CPOL, SPI_CPHA, SPI_DORD, SPI_SSEL, SPI_SCLK, SPI_MISO, SPI_MOSI.  SPI_DATA SET ON EXIT
+	SPI_DATA = 0
+	BIT2IO(SPI_CPOL,0,SPI_SCLK) 									'SET INIT CLOCK IDLE STATE
+	IF SPI_SSEL <> -1 THEN OUT(SPI_SSEL) = LO 						'PULL SLAVE SEL LINE LOW
+	FOR SPI_RX_LOOP = 7 DOWNTO 0									'SETUP LOOP
+		_BIT2IO(SPI_CPOL,0,SPI_SCLK) 								'TOGGLE CLOCK
+		IF SPI_CPHA = 0 THEN IO2BIT(SPI_DATA,ABS(SPI_RX_LOOP-(SPI_DORD * 7)),SPI_MISO)	'SET MOSI TO ALLOW SLAVE TO CLOCK IN DATA ON LE IF CPHA = 0
+		BIT2IO(SPI_CPOL,0,SPI_SCLK) 								'COMPLETE CLOCK CYCLE
+		IF SPI_CPHA = 1 THEN IO2BIT(SPI_DATA,ABS(SPI_RX_LOOP-(SPI_DORD * 7)),SPI_MISO)	'SET MOSI TO ALLOW SLAVE TO CLOCK IN DATA ON TE IF CPHA = 1
+	NEXT SPI_RX_LOOP												'CONTINUE THRU REST OF BYTE
+	IF SPI_SSEL <> -1 THEN OUT(SPI_SSEL) = HI						'PUSH SLAVE SEL LINE BACK HI
+RETURN
+'------------------------------------------------------------------------------
+
+
+
+
+
+END
+
+
+
+
+'-----------------------------------------------------------------------------------------------------------------------------
+
+#endif

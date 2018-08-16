@@ -1,0 +1,70 @@
+#ifndef SPK_support
+#define SPK_support
+#include "spk\SPK_defs.lib"
+
+'==============================================================================
+' @file:		SPK_lib.bas
+' @target:		ARMbasic circa 2018 Targets
+' @language:	ARMbasic
+'
+' This lib file provides support routines for making use of a speaker hooked to
+' a GPIO line - in this case, it is a piezo buzzer actually...
+'
+' @author Tod Wulff
+' @version
+'	12Aug18
+'	Revised for used with circa 2018 ARMbasic devices from Coridium
+'    This revision effort led me to understand that each device type has different timing models.  Might need
+'    to revise this for additional devices, beyond the LPC800-DIP stams (LPC824 thereon).
+'==============================================================================
+
+' FREQ 0-10,000HZ
+' VOL 0-50
+' Dur in MS
+
+function spk_beep(spk_beep_freq as integer, spk_beep_volume as integer,spk_beep_duration as integer) as integer
+	if(if((spk_beep_freq<=0)+(spk_beep_freq>10000),1,0)+if((spk_beep_volume<=0)+(spk_beep_volume>50),1,0)+if(spk_beep_duration<=0,1,0)) then return 1
+	dim spk_beep_start as integer
+	dim spk_pulse_start as integer
+	dim spk_pulse_period as integer
+	dim spk_pulse_hi as integer
+	dim spk_pulse_lo as integer
+	spk_pulse_period = 1000000/spk_beep_freq
+	spk_pulse_hi = spk_beep_volume * (10000/spk_beep_freq)
+	spk_pulse_lo = spk_pulse_period-spk_pulse_hi
+	output(_SPK_IO_PORT)
+	spk_beep_start = timer
+	while timer-spk_beep_start < spk_beep_duration * 1000
+		if spk_pulse_hi=1 then
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0
+		elseif spk_pulse_hi=2 then
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0	
+		elseif spk_pulse_hi=3 then
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0		
+		elseif spk_pulse_hi=4 then
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0		
+		else
+			spk_pulse_start = timer
+			out(_SPK_IO_PORT) = 1
+			while timer - spk_pulse_start < spk_pulse_hi
+			loop
+			out(_SPK_IO_PORT) = 0
+		endif
+		spk_pulse_start = timer
+		while timer - spk_pulse_start < spk_pulse_lo
+		loop
+	loop
+	out(_SPK_IO_PORT) = 1
+	return 0
+endfunction
+#endif

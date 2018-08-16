@@ -1,0 +1,193 @@
+#ifndef USE_SERIAL
+#define USE_SERIAL
+
+DIM BAUD(16) AS INTEGER
+DIM SERINtimeout AS INTEGER
+DIM lastSERpin AS INTEGER
+DIM lastBitTime AS INTEGER
+DIM lastNegTrue AS INTEGER
+
+SUB InitSerial
+
+	SERINtimeout = 500000		' this should be initialized
+	lastSERpin = -1				' last pin serial input from, this saves time when restarting -- add 1 as 0 is initial value
+	lastBitTime = 0				' last bit time
+	lastNegTrue = 0				' set this to be 1 for negative true serial -- default positive true
+
+ENDSUB	
+
+#ifndef CR
+	#define CR	chr(13)
+	#define	LF	chr(10)
+#endif
+
+' bit banged serial input
+
+FUNCTION RXD(pin)
+	DIM  ch AS INTEGER
+	DIM  i AS INTEGER
+	DIM  start AS INTEGER
+
+'**
+' this checks to see if we are working with the same IO pin as the last visit to this func.
+' if so the skip setting the direction and timing parameters, saving time...
+	
+	if (lastSERpin -1 <> pin) then
+		lastSERpin = pin+1
+		if SERINtimeout = 0 then SERINtimeout = 500000	' it may not be initialized on the first call
+		INPUT pin
+		lastBitTime = ( 2000000 / BAUD(pin) + 1) >>1	' round the value up gets within 3% for 115Kb
+	endif		
+'*	
+
+	start = TIMER
+	' look for stop/idle
+	i = SERINtimeout>>3
+	if (lastNegTrue) then
+   		while IN(pin)  
+	   		if (TIMER-start > i) then return -1
+		loop
+	else                                                            
+   		while IN(pin) = 0
+	   		if (TIMER-start > i) then return -1
+		loop
+	endif
+
+	' look for start bit	
+	if (lastNegTrue) then
+   		while IN(pin) = 0
+	   		if (TIMER-start > SERINtimeout) then return -1
+	   	loop
+	else                                                            
+   		while IN(pin)  
+	   		if (TIMER-start > SERINtimeout) then return -1
+	   	loop
+	endif
+
+	INTERRUPT 0					' takes 2.5 uSec  
+	start = TIMER-3				' compensate for startup time
+	i = lastBitTime >> 1
+	while ((TIMER-start) < i)	' waits 1/2 baud time -- using the 1usec ticker
+	loop
+
+	ch = 0
+	start = TIMER
+	i = 1
+	while i < $100
+		while ((TIMER - start) < lastBitTime) 
+		loop
+   		if IN(pin) then	ch = i or ch
+   		i = i << 1
+		start = start + lastBitTime
+	loop
+	INTERRUPT 1
+   		
+	if lastNegTrue then ch = ch xor 0xFF
+	
+	return ch
+ENDFUNCTION
+
+' if cnt = 0 then read until carriage-return or 0
+
+FUNCTION SERIN (pin, bd, posTrue, INcnt, BYREF INlist as string) 
+
+	DIM  ch AS INTEGER
+	DIM  timeout AS INTEGER
+	DIM  j AS INTEGER
+	
+	if posTrue then lastNegTrue = 0 else lastNegTrue = 1
+	BAUD(pin) = bd
+	
+	timeout = 0
+	ch = 0
+	j = 0
+	do 
+		ch = RXD(pin)
+		if ch = -1 then 
+			INlist(j) = 255
+			j = j+1
+			timeout = -1
+			exit
+		endif
+		
+		if (INcnt = 0) then
+			if ch = 0 then exit
+ #ifndef TERMINATE_ON_0_ONLY				
+			if ~CR = ch or ~LF = ch then exit
+ #endif
+			
+		endif
+
+		INlist(j) = ch		
+		j = j+1
+	until j = INcnt
+	
+	INlist(j) = 0
+	
+	return timeout
+ENDFUNCTION
+
+' send a single character
+
+SUB TXD(pin, ch)
+	DIM  start AS INTEGER
+	DIM  i AS INTEGER
+
+	if (lastSERpin-1 <> pin) then
+		lastSERpin = pin+1
+		OUTPUT pin
+		lastBitTime = ( 2000000 / BAUD(pin) + 1) >>1	' round the value up gets within 3% for 115Kb
+	endif		
+	
+	ch = (ch<<1) + $600		' add start and stop bit  -- 2 stop bits needed??, no but have to wait for 1 to go out
+	if lastNegTrue then ch = not ch
+
+	INTERRUPT 0
+	
+	i = 1		
+	start = TIMER
+	
+	while i < $800
+		if(ch and i) then
+			HIGH pin
+		else
+			LOW pin
+		endif
+				
+	   	i = i << 1
+	    
+		while ((TIMER - start) < lastBitTime) 
+		loop
+		start = start + lastBitTime
+	loop
+	
+	INTERRUPT 1
+
+ENDSUB
+
+' if cnt = 0 then write until carriage-return or 0
+
+SUB SEROUT( pin, bd, posTrue, cnt, BYREF s AS STRING)
+
+	DIM  j AS INTEGER
+		
+	if posTrue then lastNegTrue = 0 else lastNegTrue = 1
+	BAUD(pin) = bd
+
+	j = 0
+	
+	do
+		if cnt = 0 then
+			if s(j) = 0 then exit
+		endif
+		TXD(pin, s(j))
+		
+		j=j+1
+		
+	until j = cnt
+	
+ENDSUB
+
+GOSUB InitSerial
+
+#endif

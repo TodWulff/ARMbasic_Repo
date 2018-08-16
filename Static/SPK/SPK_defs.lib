@@ -1,0 +1,52 @@
+#ifndef SPK_defs
+#define SPK_defs
+'==============================================================================
+' @file:		SPK_lib.bas
+' @target:		ARMbasic v7 Target
+' @language:	ARMbasic
+'
+' This lib file provides support defines and other support data for making use  
+' of a spkr hooked to a GPIO line - in this case, it is a piezo buzzer actually
+'
+' @author Tod Wulff, Balance Systems, LLC
+' @version
+'	29Dec08
+'	- original version
+'==============================================================================
+'------------------------ IO Definitions --------------------------------------
+#define		_SPK_IO_PORT			15
+
+
+' ---- Timer 1 --------------------------------------------
+' #define T1_IR			* $E0008000
+
+' #define T1_TCR          * $E0008004
+' #define T1_TC           * $E0008008
+
+' #define T1_PR           * $E000800C
+' #define T1_PC			* $E0008010
+
+' #define T1_MCR          * $E0008014
+' #define T1_MR0          * $E0008018
+' #define T1_MR1          * $E000801C
+' #define T1_MR2          * $E0008020
+' #define T1_MR3          * $E0008024
+
+' #define T1_CCR          * $E0008028
+' #define T1_CR0          * $E000802C
+' #define T1_CR1          * $E0008030
+' #define T1_CR2          * $E0008034
+' #define T1_CR3          * $E0008038
+
+' #define T1_EMR          * $E000803C
+
+' #define T1_CTCR         * $E0008070
+
+' #define T1_PWMCON      	* $E0008074
+
+
+
+
+
+
+#endif

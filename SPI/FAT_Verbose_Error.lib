@@ -1,0 +1,142 @@
+#ifndef FAT_VERBOSE_ERROR_CODE
+#define FAT_VERBOSE_ERROR_CODE
+#include "C:\MY_CODE\ARMBASIC\lib/ARMbasic_Extensions.lib"
+
+#ifndef enable_fat_verbose
+	#define enable_fat_verbose 0
+#endif
+
+#if enable_fat_verbose != 1
+
+#warning "FAT VERBOSE ERRORS DISABLED..."
+
+#else
+
+#warning "FAT VERBOSE ERRORS ENABLED..."
+
+#include "C:\MY_CODE\ARMBASIC\fat\FAT_Verbose_defs.lib"
+
+'==============================================================================
+'--------------------- FAT VERBOSE ERROR ROUTINES ------------------ 2007-07-04
+'==============================================================================
+
+DIM FAT_ERR_CHR$(1) AS STRING
+DIM FAT_ERR_STR$(63) AS STRING
+DIM FAT_ERR_WRD$(15) AS STRING
+DIM FAT_ERR_MSG(FAT_NO_ERR_MSGS) AS INTEGER
+DIM FAT_ERR_VAL(FAT_NO_ERR_MSGS) AS INTEGER
+DIM FAT_ERR_WORDS(FAT_NO_ERR_WORDS) AS INTEGER
+DIM FAT_ERR_WORD(4) AS INTEGER
+DIM FAT_TEMP AS INTEGER
+DIM FAT_TEMP$(16) AS STRING
+
+'==============================================================================
+
+FUNCTION FAT_DECODE_WORD (FAT_WORD_TO_DECODE AS INTEGER) AS STRING
+
+DIM FAT_ERR_CHR_PTR AS INTEGER
+DIM FAT_ERR_CHR_PTR_ADJ AS INTEGER
+DIM FAT_ERR_WORD_PTR AS INTEGER
+DIM FAT_WORD_DONE AS INTEGER
+DIM FAT_TEMP1 AS INTEGER
+
+	FAT_ERR_WRD$=""
+	IF FAT_WORD_TO_DECODE = 0 THEN RETURN ""
+	FAT_ERR_CHR_PTR = 1
+	FAT_ERR_WORD_PTR = 1
+
+' DERIVE_CHR_PTR
+
+	WHILE FAT_WORD_TO_DECODE <> FAT_ERR_WORD_PTR
+		FAT_ERR_CHR_PTR_ADJ = BITTEST(FAT_ERR_WORDS(FAT_ERR_CHR_PTR),28)
+		FAT_ERR_CHR_PTR_ADJ = FAT_ERR_CHR_PTR_ADJ + (BITTEST(FAT_ERR_WORDS(FAT_ERR_CHR_PTR),29)*2) + 1
+		FAT_ERR_CHR_PTR = FAT_ERR_CHR_PTR + FAT_ERR_CHR_PTR_ADJ
+		FAT_ERR_WORD_PTR = FAT_ERR_WORD_PTR + 1
+	LOOP
+
+	FAT_ERR_WRD$=""
+	FAT_WORD_DONE = 0
+
+FAT_BUILD_WORD:
+
+	FOR FAT_TEMP1 = 3 DOWNTO 0
+	FAT_ERR_WRD$ = FAT_ERR_WRD$ + CHR(((FAT_ERR_WORDS(FAT_ERR_CHR_PTR) AND ($7F<<(7*FAT_TEMP1)))>>(7*FAT_TEMP1)))
+	NEXT FAT_TEMP1
+	
+	IF (((FAT_ERR_WORDS(FAT_ERR_CHR_PTR+1) AND ($C0000000))>>29) = 0) OR ((FAT_ERR_WORDS(FAT_ERR_CHR_PTR) AND $7F)=0) THEN RETURN FAT_ERR_WRD$ & " "
+	FAT_ERR_CHR_PTR = FAT_ERR_CHR_PTR + 1
+	GOTO FAT_BUILD_WORD
+	
+ENDFUNCTION
+
+'==============================================================================
+
+SUB FAT_ERR_INIT
+
+	RESTORE
+
+	FOR FAT_TEMP=0 TO FAT_NO_ERR_MSGS
+		READ FAT_ERR_MSG(FAT_TEMP)
+		READ FAT_ERR_VAL(FAT_TEMP)
+	NEXT FAT_TEMP
+
+	FOR FAT_TEMP=0 TO FAT_NO_ERR_WORDS
+		READ FAT_ERR_WORDS(FAT_TEMP)
+	NEXT FAT_TEMP
+
+ENDSUB
+
+'==============================================================================
+
+FUNCTION FAT_GET_ERR_PTR (FAT_ERR_CODE AS INTEGER) AS INTEGER
+
+	DIM FAT_GET_ERR_PTR_LOOP AS INTEGER
+
+	FOR FAT_GET_ERR_PTR_LOOP=0 TO FAT_NO_ERR_MSGS-1
+		IF FAT_ERR_CODE = FAT_ERR_VAL(FAT_GET_ERR_PTR_LOOP) THEN EXIT
+	NEXT FAT_GET_ERR_PTR_LOOP
+
+	RETURN FAT_GET_ERR_PTR_LOOP
+
+ENDFUNCTION
+
+'==============================================================================
+
+FUNCTION FAT_GET_ERR_WORDS (FAT_ERR_PTR AS INTEGER)
+
+	FOR FAT_TEMP = 0 TO 3
+		FAT_ERR_WORD(FAT_TEMP) = ((FAT_ERR_MSG(FAT_ERR_PTR) AND ($FF << (FAT_TEMP * 8))) >> (FAT_TEMP * 8))
+	NEXT FAT_TEMP
+	
+ENDSUB
+
+'==============================================================================
+
+FUNCTION FAT_DECODE_ERR_STR (FAT_ERR_CODE AS INTEGER) AS STRING
+
+	FAT_ERR_STR$=""
+	FOR FAT_TEMP = 0 TO 3
+		FAT_TEMP$ = FAT_DECODE_WORD(FAT_ERR_WORD(FAT_TEMP))
+		FAT_ERR_STR$=FAT_ERR_STR$ & FAT_TEMP$
+	NEXT FAT_TEMP
+	FAT_TEMP$ = HEX(FAT_ERR_CODE)
+	IF STRCOMP(FAT_ERR_STR$,"OK ") <> 0 THEN FAT_ERR_STR$ = "Error 0x" + FAT_TEMP$ + "(" + STR(FAT_ERR_CODE) +  "): " + FAT_ERR_STR$ + "Error"
+
+	RETURN FAT_ERR_STR$
+
+ENDFUNCTION
+
+'==============================================================================
+
+FUNCTION FAT_GET_ERR_STG (FAT_ERR_CODE AS INTEGER) AS STRING
+
+	GOSUB FAT_GET_ERR_WORDS(FAT_GET_ERR_PTR(FAT_ERR_CODE))
+	RETURN FAT_DECODE_ERR_STR(FAT_ERR_CODE)
+	
+ENDSUB
+
+'==============================================================================
+
+#endif
+
+#endif
