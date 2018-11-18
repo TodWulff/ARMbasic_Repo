@@ -1,0 +1,29 @@
+
+WE NEVER SWITCH MODES, ALWAYS IN SYSTEM MODE 
+
+
+this version has AddressOf as well as &
+
+and it returns the correct address for sub/functions (it wasn't before)
+
+and CALL (expr) works
+
+INTERRUPT SUB name ...
+
+compiles the correct code (I think), but have not tested it other than to 
+see you can't call a SUB defined as INTERRUPT, not sure it would work in 
+C (when I get a chance I'll try it)
+
+the interrupt routine does not do the below operation before exit (it 
+will need to be done in BASIC, because not all LPC parts do it this way)
+
+   VicVectorAddr = 0   // acknowledge and clear the interrupt
+
+   
+INT SETUP
+disable INTERRUPTs , not with INTERRUPT OFF -- thats done in firmware and probably does not restore them the way you want
+enable the interrupt bit
+set VicVectorAddrX for whatever bit
+re-enable interrupts
+
+ISR TEMPLATE

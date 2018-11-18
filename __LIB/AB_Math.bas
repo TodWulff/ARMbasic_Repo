@@ -109,7 +109,7 @@ goto jump_around_ABmath
 ' if a = 1, it is a quiet nan; if a is zero and the payload is nonzero, 
 ' then it is a signaling nan.
 
-' ARMbasic only repoarts NAN.
+' ARMbasic only reports NAN.
 ' It ignores the sign bit and does not differentiate between +/-NAN, +/-qNAN, nor +/- sNAN.
 ' For ARMbasic, the user will need to implement functions to drill down into the sign, type,
 ' and payload of a NAN, if needed by user's code.
@@ -820,7 +820,7 @@ function acoth(x as single) as single
 '  good the distribution is. Take a peek at the following screeny
 '  http://gyazo.com/83546e60d2dfeaa97b0ddc41f4edc269
 '  I got the code from here and ported it to ARMbasic.
-'  http://www.bobwheeler.com/statistics/Password/MarsagliaPost.txt
+'  http://web.archive.org/web/20120318073935/http://www.bobwheeler.com/statistics/Password/MarsagliaPost.txt
 '  http://school.anhb.uwa.edu.au/personalpages/kwessen/shared/Marsaglia03.html
 
 

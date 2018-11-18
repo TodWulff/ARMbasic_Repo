@@ -1,0 +1,97 @@
+#ifndef ARMbasicTargetVitals
+	#define ARMbasicTargetVitals
+
+	#if defined LPC2103		' ARMmite | ARMexpress Lite | ARMpro | 
+		#define LPC2103 LPC2103
+		#warning TARGET: LPC2103
+		#define _tgtid	"LPC2103"
+		#define _tgtnm	"NXP LPC2103"
+		#define _tgtspecs "70MHz 32K * 8K"
+		#define _tgtmem	32
+		
+	#elif defined LPC2106	' ARMexpress
+		#define LPC2106 LPC2106
+		#warning TARGET: LPC2106
+		#define _tgtid	"LPC2106"
+		#define _tgtnm	"NXP LPC2106"
+		#define _tgtspecs "60MHz 128K * 64K"
+		#define _tgtmem	128
+		
+	#elif defined LPC2138	' ARMweb/ARMconnect | DINbase
+		#define LPC2138 LPC2138
+		#warning TARGET: LPC2138
+		#define _tgtid	"LPC2138"
+		#define _tgtnm	"NXP LPC2138"
+		#define _tgtspecs "60MHz 512K * 32K"
+		#define _tgtmem	512
+
+	#elif defined LPC1114	' BASICchip | PROstart
+		#define LPC1114 LPC1114
+		#warning TARGET: LPC1114
+		#define _tgtid	"LPC1114"
+		#define _tgtnm	"NXP LPC1114"
+		#define _tgtspecs "50MHz 32K * 8K"
+		#define _tgtmem	32
+
+	#elif defined LPC1751 || defined LPC1756 || defined LPC1758 || defined LPC4078  ' Super8 | Super Pro | ...
+		#define LPC1751 LPC1751
+		#define LPC1756 LPC1756
+		#define LPC1758 LPC1758
+		#define LPC4078 LPC4078
+		#warning TARGET: LPC1751, LPC1756, LPC1758, or LPC4078
+		#define _tgtid	"LPC1751, LPC1756, LPC1758, or LPC4078"
+		#define _tgtnm	"NXP LPCmany"
+		#define _tgtspecs "Multiple"
+		#define _tgtmem	0
+		
+	#elif defined LPC1768	' ???
+		#define LPC1768 LPC1768
+		#warning TARGET: LPC1768
+		#define _tgtid	"LPC1768"
+		#define _tgtnm	"NXP LPC1768"
+		#define _tgtspecs "TBD"
+		#define _tgtmem	0
+		
+	#elif defined MK20DX128 || defined MK20DX256	' ????
+		#define MK20DX128 MK20DX128
+		#define MK20DX256 MK20DX256
+		#warning TARGET: MK20DX128, or MK20DX256
+		#define _tgtid	"MK20DX128, or MK20DX256"
+		#define _tgtnm	"MK20DX128, or MK20DX256"
+		#define _tgtspecs "TBD"
+		#define _tgtmem	0
+
+	#elif defined LPC4330	' DATAlog???
+		#define LPC4330 LPC4330
+		#warning TARGET: LPC4330
+		#define _tgtid	"LPC4330"
+		#define _tgtnm	"NXP LPC4330"
+		#define _tgtspecs "TBD"
+		#define _tgtmem	0
+
+	#elif defined LPC824	' LPC800-DIP
+		#define LPC824 LPC824
+		#warning TARGET: LPC824
+		#define _tgtid	"LPC824"
+		#define _tgtnm	"NXP LPC824"
+		#define _tgtspecs "30MHz 32K * 8K"
+		#define _tgtmem 32
+		
+	#elif defined LPC11U37 || defined LPC1137 ' ARMstamp
+		#define LPC11U37 LPC11U37
+		#define LPC1137 LPC1137
+		#define _tgtid	"LPC11U37/LPC1137"
+		#define _tgtnm	"NXP LPC11U37/LPC1137"
+		#define _tgtspecs "50MHz 128K * 8K+2K (w/ 4K EPROM)"
+		#define _tgtmem 128
+
+	#elif defined LPC54102	' ARMdrino | ARMniobe
+		#define LPC54102 LPC54102
+		#warning TARGET: LPC54102
+		#define _tgtid	"LPC54102"
+		#define _tgtnm	"NXP LPC54102"
+		#define _tgtspecs "100MHz 512K x 104K | Cortex M4 (r0p1) w/ IEEE754 FPU & Thumb|Thumb-2/NVIC/AMBA/MPU/SWD | Cortex M0+ (r0p1) w/ Thumb|Thumb-2/NVIC/AMBA/SWD"
+		#define _tgtmem 512
+
+	#endif ' done with verbosity stuffs
+#endif

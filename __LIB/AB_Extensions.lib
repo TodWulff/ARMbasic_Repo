@@ -1,583 +1,1291 @@
 #ifndef ARMbasic_Extensions
-#define ARMbasic_Extensions
-
-'TO DO:  Have #ifdef conditional to load segments of this extension vs. the whole damn thing
-'or split it to separate sub-lib files (te ease mx and future reuse)
-
-' Aug'18 comments - ripped out filepp maths stuff, bitbanged & shared spi stuff, and random stuff,
-
-#define GlbStrLenLim 48
-Const GlbStr_Lim = GlbStrLenLim
-dim Global$(GlbStrLenLim) as string	' // a GlbStr_Lim byte scratchpad that can be used as deemed fit by any functions - contents volatile
-dim NStr(1) as string
-dim NInt as integer
-dim NSgl as single
-dim PIN_DATA_DIR_REG as integer
-
-'==============================================================================
- '-------------------- ARMBASIC GENERIC DEFINITIONS--------------- 2012-05-20
-'==============================================================================
-#define one 1
-#define One 1
-#define ONE 1
-#define zero 0
-#define Zero 0
-#define ZERO 0
-#define hi ONE
-#define Hi ONE
-#define HI ONE
-#define lo ZERO
-#define Lo ZERO
-#define LO ZERO
-#define outp HI
-#define Outp HI
-#define OUTP HI
-#define inpt LO
-#define Inpt LO
-#define INPT LO
-#define false LO
-#define False LO
-#define FALSE LO
-#define true ((NOT(FALSE)) and 1)
-#define True ((NOT(FALSE)) and 1)
-#define TRUE ((NOT(FALSE)) and 1)
-
-#define PEEK(addr) (*(addr)) ' the () ensure only addr is used in the address calculation
-#define POKE(addr,value) *(addr) = value
-
-#define paws pauze
-'==============================================================================
-'---------------------- ARMBASIC DEBUG EXTENSIONS ------------------ 2007-08-02
-'==============================================================================
-#define debug	DEBUG
-#define Debug	DEBUG
-#define production PRODUCTION
-#define Production PRODUCTION
-
-#if enabledebug != 0		' need to be #def'd prior to including this lib...
-	#include "__lib/debugger.lib"
-	#define DEBUG(args...)	args
-	#define PRODUCTION(args...)
-	#warning " "
-	#warning "DEBUG FACILITIES ARE ENABLED"
-	#warning " "
-#else
-	#define DEBUG(args...)
-	#define PRODUCTION(args...)	args
-	#warning " "
-	#warning "DEBUG FACILITIES ARE DISABLED"
-	#warning " "
-#endif
-'==============================================================================
-'-------------------- ARMBASIC BITWISE EXTENSIONS ------------------ 2007-08-02
-'==============================================================================
-#define  bittest	 BITTEST
-#define  setbit		 SETBIT
-#define  clrbit		 CLRBIT
-#define  tglbit		 TGLBIT
-#define  bit2io	 	BIT2IO
-#define  _bit2io	_BIT2IO
-#define  bitxfer	 BITXFER
-#define  _bitxfer	_BITXFER
-#define  io2bit	 	IO2BIT
-#define  _io2bit	_IO2BIT
-
-#define  BitTest	 BITTEST
-#define  SetBit		 SETBIT
-#define  ClrBit		 CLRBIT
-#define  TglBit		 TGLBIT
-#define  Bit2IO	 	BIT2IO
-#define  _Bit2IO	_BIT2IO
-#define  BitXfer	 BITXFER
-#define  _BitXfer	_BITXFER
-#define  IO2Bit	 	IO2BIT
-#define  _IO2Bit	_IO2BIT
-
-#define  Bittest	 BITTEST
-#define  Setbit		 SETBIT
-#define  Clrbit		 CLRBIT
-#define  Tglbit		 TGLBIT
-#define  Bit2io	 	BIT2IO
-#define  _Bit2io	_BIT2IO
-#define  Bitxfer	 BITXFER
-#define  _Bitxfer	_BITXFER
-#define  Io2bit	 	IO2BIT
-#define  _Io2bit	_IO2BIT
-
-#define BITTEST(REG,BIT)  		(1 and ((REG AND (1 << BIT)) >> BIT))		' RETURNS A 1 IF SET,0 IF CLR
-#define SETBIT(REG,BIT)   		REG = REG OR (1 << BIT)				' SETS BIT
-#define CLRBIT(REG,BIT)   		REG = REG AND NOT (1 << BIT)		' CLEARS BIT
-#define TGLBIT(REG,BIT)			REG = REG XOR (1<<BIT)				' TOGGLES BIT
-#define  BIT2IO(REG,BIT,PORT)	OUT(PORT) = BITTEST(REG,BIT)		' SETS PORT TO BIT IN REG
-#define _BIT2IO(REG,BIT,PORT)	OUT(PORT) = NOT(BITTEST(REG,BIT))	' SETS PORT TO NOT OF BIT IN REG
-#define  BITXFER(SRCREG,SRCBIT,TGTREG,TGTBIT)	TGTREG = (TGTREG AND NOT (1 << TGTBIT)) OR (((1<<SRCBIT) AND SRCREG)<<TGTBIT)	' SETS TGTREG/TGTBIT TO SRCREG/SRCBIT
-#define _BITXFER(SRCREG,SRCBIT,TGTREG,TGTBIT)	TGTREG = (TGTREG AND NOT (1 << TGTBIT)) OR (((1<<SRCBIT) AND NOT(SRCREG))<<TGTBIT)	' SETS TGTREG/TGTBIT TO NOT SRCREG/SRCBIT
-#define  IO2BIT(REG,BIT,PORT)  	REG = (REG AND NOT (1 << BIT)) OR ((1<<BIT) AND IN(PORT))	' SETS BIT OF REG TO PORT STATE
-#define _IO2BIT(REG,BIT,PORT)  	REG = (REG AND NOT (1 << BIT)) OR ((1<<BIT) AND NOT(IN(PORT)))	' SETS BIT OF REG TO NOT PORT STATE
-'==============================================================================
-'-------------------- FLOATING POINT EXTENSIONS ---------------- 2012-05-19
-'==============================================================================
-Const	 qnan		=	$7FC00000
-Const	 nqnan		=	$FFC00000
-Const	 inf		=	$7F800000
-Const	 ninf		=	$FF800000
-Const	 snan		=	$7F800001
-Const	 nsnan		=	$FF800001
-Const	 fzero		=	$00000000
-Const	 nzero		=	$80000000
-
-#define	 qnan_binS	 "01111111110000000000000000000000"	' $7FC00000
-#define	 nqnan_binS	 "11111111110000000000000000000000" ' $FFC00000
-
-#define	 infin_binS	 "01111111100000000000000000000000" ' $7F800000
-#define	 ninfin_binS "11111111100000000000000000000000" ' $FF800000
-
-#define	 snan_binS	 "01111111100000000000000000000001" ' $7F800001
-#define	 nsnan_binS	 "11111111100000000000000000000001" ' $FF800001
-
-#define	 fzero_binS	 "00000000000000000000000000000000" ' $00000000
-#define	 nzero_binS	 "10000000000000000000000000000000" ' $80000000
-'==============================================================================
-' #define qnan			$7FC00000
-' #define nqnan			$FFC00000
-' #define inf			$7F800000
-' #define ninf			$FF800000
-' #define snan			$7F800001
-' #define nsnan			$FF800001
-' #define fzero			$00000000
-' #define nfzero			$80000000
-' Const	 qnan_binS		=	"01111111110000000000000000000000"	' 7FC00000
-' Const	 nqnan_binS	=	"11111111110000000000000000000000" ' FFC00000
-' Const	 infin_binS	=	"01111111100000000000000000000000" ' 7F800000
-' Const	 ninfin_binS	=	"11111111100000000000000000000000" ' FF800000
-' Const	 snan_binS		=	"01111111100000000000000000000001" ' 7F800001
-' Const	 nsnan_binS	=	"11111111100000000000000000000001" ' FF800001
-' Const	 zero_binS		=	"00000000000000000000000000000000" ' 7F800001
-' Const	 nzero_binS	=	"10000000000000000000000000000000" ' FF800001
-'==============================================================================
-function fSpec (fParam as single) as single 'presumably used to test float parameters passed
-	if (fParam = qnan) then return qnan
-	' if (fParam = nqnan) then return nqnan
-	' if (fParam = inf) then return inf
-	' if (fParam = ninf) then return ninf
-	' if (fParam = fzero) then return fzero
-	return 0
-	endfunction
-'==============================================================================
-function isqnan(num as single) as integer  'return -1 for -qNaN, O for not qNaN, and +1 for +qNaN
-		' print "num: ";IHEXL(num),"qnan: ";IHEXL(qnan),"and'd: ";IHEXL(num and qnan) 
-		' print "isqnan num: ";num,
-		' print IHEXL(num),
-		' print "isqnan num: ";*(addressof num),
-		' print qnan, IHEXL(*(addressof num)),
-		if (*(addressof num) and qnan) = qnan then return 1
-		if (*(addressof num) and nqnan) = nqnan then return -1
-		return 0
-		endfunction
-'==============================================================================
-function isinf(num as single) as integer  'return -1 for -Inf, O for not Inf, and +1 for +Inf
-		' print "num: ";num,
-		if (*(addressof num) and inf) = inf then return 1
-		if (*(addressof num) and ninf) = ninf then return -1
-		return 0
-		endfunction
-'==============================================================================
-function issnan(num as single) as integer  'return -payload for -sNaN, O for not sNaN, and +payload for +sNaN
-	// fix me - get teh payload and be sure to return it?
-		
-		' print "num: ";num,
-		if (*(addressof num) and snan) = snan then return 1
-		if (*(addressof num) and nsnan) = nsnan then return -1
-		return 0
-		endfunction
-'==============================================================================
-function iszero(num as single) as integer  'return -1 for -0.0, 0 for not Zero, and +1 for +Zero
-		' print "num: ";num,
-		if *(addressof num) = fzero then return 1
-		if (*(addressof num) and nzero) = nzero then return -1
-		return 0
-		endfunction
-'==============================================================================
-' add moar helpers to check for isnan and isnaninf
-'==============================================================================
-' Conversion functions
-'==================================================================================================================
-function b2i(byval bin_str(32) as string) as integer
-	dim index as integer
-	dim iVal as integer
-	index = 0
-	iVal = 0
-	while len(bin_str) <32
-		bin_str = "0" & bin_str
-		loop
-	while index < 32
-		if bin_str(index) = "1" then setbit(iVal,31-index)
-		index = index + 1
-		loop
-	return iVal
-	endfunction
-'==============================================================================
-function b2f(byval bin_str(32) as string) as single
-	dim index as integer
-	dim iVal as single
-	dim temp as integer
-	index = 0
-	iVal = 0
-	temp = 0
-	while len(bin_str) <32			' pad on zeros to get len to 32
-		bin_str = "0" & bin_str
-		loop
-	while index < 32
-		if bin_str(index) = "1" then setbit(temp,31-index)
-		index = index + 1
-		loop
-	*(addressof iVal) = temp
-	return iVal
-	endfunction
-'==============================================================================
-Function a2f(byref strg as string) as single				// for converting string to float
-
-	// a function for ARMbasic v8.x+ where a string representation of a number is processed and a single is returned.
-	// supports number enteries such as: 1, -1.2, 123.4e-2, 1e1, 1.e+004.05 (note fractional portions of the power of 10 is discarded as it is illegal to do so anyways...)
-	// even an entry such as	-   0  1 2 33 6 5  .  10001 e +-003.2-34	is processed and the result returned is   -123.3651
+'-----------------------------------------------------------------------------------------------------------------------------
+	#define ARMbasic_Extensions
 	
-	//  Useage example:  
-		' print "Enter a real number (+/- integer or single (can include +/- e-notation too): ";
-		' debugin inputstring
-		' print inputstring
-		' print 
-		' print "Value derived: ";a2f(inputstring)
-		' print
+#include "__lib\ARMbasicTargetVitals.lib"
+	
+'---- Aug'18 comments - ripped out filepp maths stuff, bitbanged & shared spi stuff, and other random stuff, -----------------
+	' Sep18: Now have #ifdef conditional to load segments of this extension vs. the whole damn thing:
+		' ABE_Generic
+		' ABE_Debug
+		' ABE_Bitwise
+		' ABE_FloatHelpers, 
+		' ABE_Conversion,  
+		' ABE_UserInput,  
+		' ABE_Suspend,  
+		' ABE_ASCStuffs,  
+		' ABE_DDR,  
+		' ABE_RNG
+		' ABE_TargetRegHelpers
+		' ABE_SortHelpers
+	' really need to consider refactoring this and adding in code for the various family members (ARMstamp, 54102, etc.)
+	
+#if defined LPC824 '----------------------------------------------------------------------------------------------------------
+' fix the effin SWD pin settings on the 824, as AB firmware disables them (likely to provide gpio...)
 
-	// surprisingly, we actually need quite a few vars to track all the shite we're tracking herein
-	dim valu,power,exp_pwr,exp_valu as single
-	dim i, i1, i2, i3, sign, exp_sign, str_end, tempint as integer
-	if strg="" then return snan
-	// and we need to set up some valid starting points for things...
-	valu  = 0.0			// the numerical representation of the integral and decimal portions of the mantissa
-	sign = 0				// the sign of the mantissa
-	power = 1.0			// this is used to help properly place the decimal in the mantissa after processing the whole string
-	exp_valu = 0.0			// this is the numerical representation of the integral and decimal portions of the e-notation's power of 10
-	exp_pwr = 1.0			// like above this is used to help properly place the decimal in the enotation's power of 10 after processing the string for same.;
-	exp_sign = 0			// the sign of the e-notation's power of 10 - i.e. the '-' in 1234E-3
-	str_end = len(strg)-1	// calculate this once and use the var below - code saver...
-	for i = 0 to str_end									// and here we go - clackity clack, then the strange silence as gravity pulls you over the top and down the rails...
-		if (i=0) and ((strg(i)="e") or (strg(i)="E")) then return 0.0	// with no mantissa before the exponent, simply return 0.0
-		if strg(i)="+" then i += 1							// ignore + and increment the index so that the next char can be processed by this iteration of the loop...
-		if(strg(i)="-") then sign -= 1						// gotta keep track if the user entered a negative number...
-		if (strg(i)>="0") and (strg(i)<="9") 
-			tempint = strg(i)-"0"
-			valu=10.0*valu+(tempint)  // build the val of the integral mantissa
-			endif
-		if ((strg(i)="e") or (strg(i)="E"))					// deal with inputs of the form 1e05 (no decimal in the mantissa)
-			i-=1												// ... the mantissa is done and we got the value for it to this point
-			strg(i)="."										// so simulate a decimal to trigger the following code
-			endif
-		if strg(i) = "."										// ok, we're goin fractional
-			i += 1												// bump to the next char past the '.'
-			for i1 = i to str_end							// and jump into a sub loop to parse the rest of the string
-				i += 1											// need to inc the index of the outer loop(s) since we are processing in a sub-loop
-				if (strg(i1)>="0") and (strg(i1)<="9")		// if the char is part of a number
-					power*=10.0								// keep track of the post-decimal depth, so we can divide the integer decimal to arrive at the real decimal val
-					tempint = strg(i1)-"0"
-					valu=10.0*valu+(tempint)			// and build an integer representation of the decimal portions...
-					endif
-				if ((strg(i1)="e") or (strg(i1)="E")) 		// if we arrive at an e or an E then we jump yet again into a sub loop to pocoess e-notation
-					i += 1										// bump the outer indicies to get past the e/E
-					i1+=1										// ...
-					for i2 = i1 to str_end				// and grind thru the rest of the string
-						i+=1									// and continue to keep the outer indicies updated to where we are at
-						i1+=1									// ...
-						if(strg(i2)="-") then exp_sign -= 1		// if there is a - sym in the enotation, negate the enotation
-						if (strg(i2)>="0") and (strg(i2)<="9")
-							tempint = strg(i2)-"0"
-							exp_valu=10.0*exp_valu+(tempint) // and build the mantissa portions of the enotation
-							endif
-						if strg(i2) = "."						// yes, I said mantissa as it is possible that someone could get the bright idea to try to do fractional powers of 10...
-							i += 1								// and if they do, we need to process it as such, so that we can throw it away later, vs. concatenating and really screwing things up...
-							i1+=1								// bump the outer indicies to get past the enotation's decimal point
-							i2+=1								// ...
-							for i3 = i2 to str_end		// and here we go with fractional enotation component parsing
-								i += 1							// since we are into yet another subloop we must keep the outer indicies updated,
-								i1+=1							// ...
-								i2+=1							// ...
-								if (strg(i3)>="0") and (strg(i3)<="9")		// if the char is part of a number
-									exp_pwr*=10.0								// keep track of the post-decimal value, so we can divide the integer decimal to arrive at the real decimal val
-									tempint = strg(i3)-"0"
-									exp_valu=10.0*exp_valu+(tempint)  // and build an integer representation of the decimal portions of the enotation...
-									endif
-								next i3
-							endif
-						next i2
-					exp_valu = (exp_valu/exp_pwr)*if(exp_sign<0,-1,1)		// at this level we are done processing the enotation portions of the construct and we create a proper single representing the enotation's power of 10, integer and decimal portion
-					endif
-				next i1
-			endif
+	' dim _824PinEnableReg0Bits as integer
+	' #define _824PinEnableReg0Addr 0x4000C1C0
+	' #define _824PinEnableReg0Mask 0x01ffffff
+	' _824PinEnableReg0Bits = *_824PinEnableReg0Addr
+	' *_824PinEnableReg0Addr = _824PinEnableReg0Mask and (_824PinEnableReg0Bits and 0xffffffcf) 'b5:b4 = 0...
+
+	' *0x4000C1C0 = 0x01fffECf	'hmm doesn't work when put here - need to figure it out - put inside of main for now...
+
+' LPC824 FYSA
+' Remark: SRAM location 0x1000 0000 to 0x1000 0050 (80 (or 81?) BYTES) is not used by the bootloader and
+' the memory content in this area is retained during reset. SRAM memory is not retained
+' when the part powers down or enters Deep power-down mode.
+' I'm guessing that the AB firmware doesn't use same either.  This might be helpful to have available...
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+
+' #############################################################################################################################
+' # Include Prototype for ABE - copy and paste into source and uncomment those #defs for the sections that are needed.
+' #############################################################################################################################
+
+/*  Include Prototype
+' #define ABE_Generic				' Generic #defs to ease programming
+' #define ABE_Bitwise				' Bitwise Operations
+' #define ABE_FloatHelpers			' Floating Point Helping routines - to include NAN testing and such
+' #define ABE_RNG					' Random Number Generator - 16 bit integer and floating point 0-1, and min,max
+' #define ABE_SortHelpers			' helper code to facilitate sorting
+' #define ABE_ASCStuffs				' Silly code with several instances of ASC therein
+' #define ABE_DDR					' Data Direction Port save-restore - deprecated until built up for multiple targets, esp w/ > 32 GPIO pins...
+' #define ABE_Conversion			' A robust lib of helpers for converting across different formats (i2b, i2h, a2i, etc.)
+' #define ABE_UserInput				' Subs/Functions for facilitating user input into the BT console
+' #define ABE_Suspend				' Subs/Functions for halting program execution
+' #define enabledebug 1
+' #define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
+' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
+' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
+#include "__lib\AB_Extensions.lib"
+*/
+	
+' #############################################################################################################################
+'	Validating User's use of this lib
+' #############################################################################################################################
+
+	#ifndef ABE_Generic		 
+		#ifndef  ABE_Debug
+			#ifndef  ABE_Bitwise
+				#ifndef  ABE_FloatHelpers
+					#ifndef  ABE_Conversion
+						#ifndef  ABE_UserInput
+							#ifndef  ABE_Suspend
+								#ifndef  ABE_ASCStuffs
+									#ifndef  ABE_DDR
+										#ifndef  ABE_RNG
+											#ifndef  ABE_TargetRegHelpers
+												#ifndef  ABE_SortHelpers
+													#ifndef  ABE_StringStuffs
+	#error Should #def one or  more of the following before #inc`g this file:
+	#error ABE_Generic, ABE_Debug, ABE_Bitwise, ABE_FloatHelpers, ABE_Conversion, ABE_UserInput, 
+	#error ABE_Suspend, ABE_ASCStuffs, ABE_DDR, ABE_RNG, ABE_TargetRegHelpers, ABE_SortHelpers, ABE_StringStuffs
+	#error See the `#Include Prototype` that is included in this lib file (see section previous to this validation code).
+													#endif
+												#endif
+											#endif
+										#endif
+									#endif
+								#endif
+							#endif
+						#endif
+					#endif
+				#endif
+			#endif
+		#endif
+	#endif
+
+' #############################################################################################################################
+' Defining Preprocessor AB_Extensions.lib Interdependencies
+' #############################################################################################################################
+
+	#ifdef ABE_TargetRegHelpers	
+		#define ABE_Bitwise
+		#define ABE_Conversion
+	#endif
+	#ifdef ABE_Debug
+		#define ABE_Generic
+		#define ABE_Conversion
+		#define ABE_UserInput
+	#endif
+	#ifdef ABE_Suspend
+		#define ABE_UserInput
+	#endif
+	#ifdef ABE_UserInput
+		#define ABE_FloatHelpers
+		#define ABE_Conversion
+	#endif
+	#ifdef ABE_Conversion
+		#define ABE_Generic
+		#define ABE_Bitwise
+		#define ABE_FloatHelpers
+	#endif
+	#ifdef ABE_DDR
+		#define ABE_Bitwise
+	#endif
+	#ifdef ABE_ASCStuffs
+		' no ABE preprocessor dependencies
+	#endif
+	#ifdef ABE_SortHelpers
+		' no ABE preprocessor dependencies
+	#endif
+	#ifdef ABE_RNG
+		' no ABE preprocessor dependencies
+	#endif
+	#ifdef ABE_FloatHelpers
+		' no ABE preprocessor dependencies
+	#endif
+	#ifdef ABE_Bitwise
+		' no ABE preprocessor dependencies
+	#endif
+	#ifdef ABE_Generic
+		' no ABE preprocessor dependencies
+	#endif
+	#ifdef ABE_StringStuffs
+		' no ABE preprocessor dependencies
+	#endif
+	
+' #############################################################################################################################
+' The AB Extensions...
+' #############################################################################################################################
+
+	#ifdef ABE_Generic
+			 
+	'==============================================================================
+	'-------------------- ARMBASIC GENERIC DEFINITIONS--------------- 2012-05-20
+	'==============================================================================
+
+	#define one 1
+	#define One 1
+	#define ONE 1
+	#define set 1
+	#define Set 1
+	#define SET 1
+	#define dump 1
+	#define Dump 1
+	#define DUMP 1
+	#define zero 0
+	#define Zero 0
+	#define ZERO 0
+	#define cleared 0
+	#define Cleared 0
+	#define CLEARED 0
+	#define nodump 0
+	#define Nonump 0
+	#define NODUMP 0
+	#define hi ONE
+	#define Hi ONE
+	#define HI ONE
+	#define lo ZERO
+	#define Lo ZERO
+	#define LO ZERO
+	#define outp HI
+	#define Outp HI
+	#define OUTP HI
+	#define inpt LO
+	#define Inpt LO
+	#define INPT LO
+	#define false LO
+	#define False LO
+	#define FALSE LO
+	#define true ((NOT(FALSE)) and 1)
+	#define True ((NOT(FALSE)) and 1)
+	#define TRUE ((NOT(FALSE)) and 1)
+
+	#define enabled TRUE
+	#define Enabled TRUE
+	#define ENABLED TRUE
+
+	#define success FALSE
+	#define Success FALSE
+	#define SUCCESS FALSE
+
+	#define error TRUE
+	#define Error TRUE
+	#define ERROR TRUE
+
+	#define disabled FALSE
+	#define Disabled FALSE
+	#define DISABLED FALSE
+
+	#define PEEK(addr) (*(addr)) ' the () ensure only addr is used in the address calculation
+	#define POKE(addr,value) *(addr) = value
+
+	#ifndef _CR
+		#define _CR	chr(13)
+		#define	_LF	chr(10)
+	#endif
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_Bitwise
+
+	'==============================================================================
+	'-------------------- ARMBASIC BITWISE EXTENSIONS ------------------ 2007-08-02
+	'==============================================================================
+
+	#define  bittest	 BITTEST
+	#define  setbit		 SETBIT
+	#define  clrbit		 CLRBIT
+	#define  tglbit		 TGLBIT
+	#define  bit2io	 	BIT2IO
+	#define  _bit2io	_BIT2IO
+	#define  bitxfer	 BITXFER
+	#define  _bitxfer	_BITXFER
+	#define  io2bit	 	IO2BIT
+	#define  _io2bit	_IO2BIT
+
+	#define  BitTest	 BITTEST
+	#define  SetBit		 SETBIT
+	#define  ClrBit		 CLRBIT
+	#define  TglBit		 TGLBIT
+	#define  Bit2IO	 	BIT2IO
+	#define  _Bit2IO	_BIT2IO
+	#define  BitXfer	 BITXFER
+	#define  _BitXfer	_BITXFER
+	#define  IO2Bit	 	IO2BIT
+	#define  _IO2Bit	_IO2BIT
+
+	#define  Bittest	 BITTEST
+	#define  Setbit		 SETBIT
+	#define  Clrbit		 CLRBIT
+	#define  Tglbit		 TGLBIT
+	#define  Bit2io	 	BIT2IO
+	#define  _Bit2io	_BIT2IO
+	#define  Bitxfer	 BITXFER
+	#define  _Bitxfer	_BITXFER
+	#define  Io2bit	 	IO2BIT
+	#define  _Io2bit	_IO2BIT
+
+	#define BITTEST(REG,BIT)  		(1 and ((REG AND (1 << BIT)) >> BIT))		' RETURNS A 1 IF SET,0 IF CLR
+	#define SETBIT(REG,BIT)   		REG = REG OR (1 << BIT)				' SETS BIT
+	#define CLRBIT(REG,BIT)   		REG = REG AND NOT (1 << BIT)		' CLEARS BIT
+	#define TGLBIT(REG,BIT)			REG = REG XOR (1<<BIT)				' TOGGLES BIT
+	#define  BIT2IO(REG,BIT,PORT)	IO(PORT) = BITTEST(REG,BIT)		' SETS PORT TO BIT IN REG - using io to prevent requiring a OUTPUT
+	#define _BIT2IO(REG,BIT,PORT)	IO(PORT) = NOT(BITTEST(REG,BIT))	' SETS PORT TO NOT OF BIT IN REG
+	#define  BITXFER(SRCREG,SRCBIT,TGTREG,TGTBIT)	TGTREG = (TGTREG AND NOT (1 << TGTBIT)) OR (((1<<SRCBIT) AND SRCREG)<<TGTBIT)	' SETS TGTREG/TGTBIT TO SRCREG/SRCBIT
+	#define _BITXFER(SRCREG,SRCBIT,TGTREG,TGTBIT)	TGTREG = (TGTREG AND NOT (1 << TGTBIT)) OR (((1<<SRCBIT) AND NOT(SRCREG))<<TGTBIT)	' SETS TGTREG/TGTBIT TO NOT SRCREG/SRCBIT
+	#define  IO2BIT(REG,BIT,PORT)  	REG = (REG AND NOT (1 << BIT)) OR ((1<<BIT) AND IO(PORT))	' SETS BIT OF REG TO PORT STATE
+	#define _IO2BIT(REG,BIT,PORT)  	REG = (REG AND NOT (1 << BIT)) OR ((1<<BIT) AND NOT(IO(PORT)))	' SETS BIT OF REG TO NOT PORT STATE
+
+	' Function sizeof(array_ptr as integer) as integer
+	' dim i as integer
+	' i=-1
+	' do
+	' i+=1
+	' until 
+	' return
+	' endfunction
+	
+	
+	
+	
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_FloatHelpers
+	
+	'==============================================================================
+	'-------------------- FLOATING POINT EXTENSIONS ---------------- 2012-05-19
+	'==============================================================================
+	Const	 qnan		=	$7FC00000
+	Const	 nqnan		=	$FFC00000
+	Const	 inf		=	$7F800000
+	Const	 ninf		=	$FF800000
+	Const	 snan		=	$7F800001
+	Const	 nsnan		=	$FF800001
+	Const	 fzero		=	$00000000
+	Const	 nzero		=	$80000000
+
+
+	#define	 qnan_binS	 "01111111110000000000000000000000"	' $7FC00000
+	#define	 nqnan_binS	 "11111111110000000000000000000000" ' $FFC00000
+	#define	 infin_binS	 "01111111100000000000000000000000" ' $7F800000
+	#define	 ninfin_binS "11111111100000000000000000000000" ' $FF800000
+	#define	 snan_binS	 "01111111100000000000000000000001" ' $7F800001
+	#define	 nsnan_binS	 "11111111100000000000000000000001" ' $FF800001
+	#define	 fzero_binS	 "00000000000000000000000000000000" ' $00000000
+	#define	 nzero_binS	 "10000000000000000000000000000000" ' $80000000
+
+	'==============================================================================
+	' #define qnan			$7FC00000
+	' #define nqnan			$FFC00000
+	' #define inf			$7F800000
+	' #define ninf			$FF800000
+	' #define snan			$7F800001
+	' #define nsnan			$FF800001
+	' #define fzero			$00000000
+	' #define nfzero			$80000000
+	' Const	 qnan_binS		=	"01111111110000000000000000000000"	' 7FC00000
+	' Const	 nqnan_binS	=	"11111111110000000000000000000000" ' FFC00000
+	' Const	 infin_binS	=	"01111111100000000000000000000000" ' 7F800000
+	' Const	 ninfin_binS	=	"11111111100000000000000000000000" ' FF800000
+	' Const	 snan_binS		=	"01111111100000000000000000000001" ' 7F800001
+	' Const	 nsnan_binS	=	"11111111100000000000000000000001" ' FF800001
+	' Const	 zero_binS		=	"00000000000000000000000000000000" ' 7F800001
+	' Const	 nzero_binS	=	"10000000000000000000000000000000" ' FF800001
+	'==============================================================================
+	' Float Helpers
+	'==============================================================================
+	function fSpec (fParam as single) as single 'presumably used to test float parameters passed
+		if (fParam = qnan) then return qnan
+		' if (fParam = nqnan) then return nqnan
+		' if (fParam = inf) then return inf
+		' if (fParam = ninf) then return ninf
+		' if (fParam = fzero) then return fzero
+		return 0
+		endfunction
+	'==============================================================================
+	function isqnan(num as single) as integer  'return -1 for -qNaN, O for not qNaN, and +1 for +qNaN
+			' print "num: ";IHEXL(num),"qnan: ";IHEXL(qnan),"and'd: ";IHEXL(num and qnan) 
+			' print "isqnan num: ";num,
+			' print IHEXL(num),
+			' print "isqnan num: ";*(addressof num),
+			' print qnan, IHEXL(*(addressof num)),
+			if (*(addressof num) and qnan) = qnan then return 1
+			if (*(addressof num) and nqnan) = nqnan then return -1
+			return 0
+			endfunction
+	'==============================================================================
+	function isinf(num as single) as integer  'return -1 for -Inf, O for not Inf, and +1 for +Inf
+			' print "num: ";num,
+			if (*(addressof num) and inf) = inf then return 1
+			if (*(addressof num) and ninf) = ninf then return -1
+			return 0
+			endfunction
+	'==============================================================================
+	function issnan(num as single) as integer  'return -payload for -sNaN, O for not sNaN, and +payload for +sNaN
+		// fix me - get teh payload and be sure to return it?
+			
+			' print "num: ";num,
+			if (*(addressof num) and snan) = snan then return 1
+			if (*(addressof num) and nsnan) = nsnan then return -1
+			return 0
+			endfunction
+	'==============================================================================
+	function iszero(num as single) as integer  'return -1 for -0.0, 0 for not Zero, and +1 for +Zero
+			' print "num: ";num,
+			if *(addressof num) = fzero then return 1
+			if (*(addressof num) and nzero) = nzero then return -1
+			return 0
+			endfunction
+	'==============================================================================
+	' add moar helpers to check for isnan and isnaninf
+	'==============================================================================
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_RNG
+
+	'==============================================================================
+	' Random Goodness
+	'==============================================================================
+	FUNCTION RAND_BIT_WIDTH(SEED AS INTEGER, BIT_WIDTH AS INTEGER) AS INTEGER '~11US
+	' SEED 0 TO 65535, BITWIDTH = 0 TO 31...
+	dim _ABE_i as integer
+	if BIT_WIDTH <=16
+		RETURN ((((((TIMER*(SEED AND $0000FFFF)) AND $000FFFF0) >> 4) * (((TIMER/(SEED AND $0000FFFF)) AND $000FFFF0) >> 4)) AND $0000FFFF) >> (16-BIT_WIDTH))
+	else
+		_ABE_i = ((((((TIMER*(SEED AND $0000FFFF)) AND $000FFFF0) >> 4) * (((TIMER/(SEED AND $0000FFFF)) AND $000FFFF0) >> 4)) AND $0000FFFF))<<(BIT_WIDTH-16)
+		RETURN _ABE_i or (((((TIMER*(SEED AND $0000FFFF)) AND $000FFFF0) >> 4) * (((TIMER/(SEED AND $0000FFFF)) AND $000FFFF0) >> 4)) AND $0000FFFF)
+	endif
+	ENDFUNCTION
+	'==============================================================================
+	FUNCTION RAND_MIN_MAX(SEED AS INTEGER, MIN AS INTEGER, MAX AS INTEGER) AS INTEGER '~25 - 150US
+	' SEED 0 TO 65535, MIN/MAX = 0 TO 65535 - RETURNS MIN TO MAX, INCLUSINVE...
+		DIM X AS INTEGER
+		DIM SHFT AS INTEGER
+		DIM TEST AS INTEGER
+		TEST = MAX
+		SHFT = 0
+		WHILE TEST > 0
+			TEST = TEST >> 1
+			SHFT = SHFT + 1
+		LOOP
+	GET_NEW_RAND:
+		X = (((((TIMER*(SEED AND $0000FFFF)) AND $000FFFF0) >> 4) * (((TIMER/(SEED AND $0000FFFF)) AND $000FFFF0) >> 4)) AND $0000FFFF) >> (16 - SHFT)
+		IF (X < MIN) + (X > MAX) THEN GOTO GET_NEW_RAND
+		RETURN X
+		ENDFUNCTION
+	'==============================================================================
+	' mwc random number generator 
+	' http://web.archive.org/web/20120318073935/http://www.bobwheeler.com/statistics/Password/MarsagliaPost.txt
+	'==============================================================================
+	dim _z_rand, _w_rand, _rand_init		' as integer	' used by mwc random number generator
+
+	sub init_random
+		' _z_rand		= 362436069
+		_z_rand		= timer and $7fff0000		'<- put static seed here if you want repeatability...
+		_w_rand		= 521288629
+		_rand_init  = 1
+		endsub
+
+	function znew
+		_z_rand=36969*(_z_rand and $ffff)+(_z_rand>>16 and $ffff)
+		return $7fffffff and _z_rand<<16
+		endfunction
+
+	function wnew
+		_w_rand=18000*(_w_rand and $ffff)+(_w_rand>>16 and $ffff)
+		return _w_rand and $ffff
+		endfunction
+
+	function mwc
+		return (znew+wnew)
+		endfunction
+
+	function rand as single	' produce a uniform random sample from the open interval (0, 1), exclusive - 0.0 < rand < 1.0
+		dim u as integer
+		
+		if _rand_init = 0 then init_random
+		
+		u = mwc
+		' 0 <= u < 2^31
+		' the magic number below is 1/(2^31 + 2).
+		' the result is strictly between 0 and 1.
+		return (u + 1.0) * 4.656612868740580000e-10
+		endfunction
+
+	function randb (rlo as single, rhi as single) as single
+		return rlo + (rand * (rhi-rlo))
+		endfunction
+
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_ASCStuffs
+	'==============================================================================
+	'-------------------- ASC Constructs ------------------ circa May 2012 - See 'beating on asc' file, and 'byref inquiry' file
+	'==============================================================================
+	function ASC(BYREF strg_NAME AS STRING) as integer  ' returns ascii value of first char in string
+		return ((*(*(ADDRESSOF strg_NAME))) AND $FF)		'dbl deref kicked my arse
+		endfunction
+	'==============================================================================
+	' while this is the most robust, I waste ram by dim'g too large a func var,
+	' or run the risk of a calling construct overflowing - too risky, imo.
+	function ASC1 (BYVAL strg(16) as string) as integer  ' returns ascii value of first char in string
+		return ((*(addressof strg)) AND $FF)
+		endfunction
+	'==============================================================================
+	' Byref works well, other than it doesn't deal with string constants at all.
+	' also I have to pass the address and not the var name.  it seems that the
+	' compiler could see provide the pointer without my having to provide it?
+	function ASC2(BYREF ADDR) as integer  ' returns ascii value of first char in string
+		return ((*(ADDR)) AND $FF)
+		endfunction
+	'==============================================================================
+	/* 
+	function ASC3(BYREF ADDR) as integer
+		dim a as integer
+		DIM B AS INTEGER
+		a = addressof ADDR
+		' B = *A
+		' PRINT "BYREF VAR PASSED: ";STRG
+		' PRINT IHEXL(ADDRESSOF STRG)
+		' PRINT IHEXL(A)
+		return 0
+	endfunction
+	 */
+	'==============================================================================
+	' #define ASCA(args...)	args     ' gotta recall what this might have been intended for...
+	#define ASCS(args...)	((*(ADDRESSOF args)) AND $FF)  ' ASC for variables only, not literals
+	'==============================================================================
+	' Save/Restore DDRs - need to vet for moar robust implementation (func vs. sub) & for x-device usability
+	' was used in a shared bus context, or possibly with the ABrtos effort of eons ago...
+	'==============================================================================
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_DDR  ' really need to improve these for use across various Coridium Goods...
+
+	dim PIN_DATA_DIR_REG as integer
+	pin_data_dir_reg = 0
+
+	'==================================================================================================================
+	function getddr(byref int_var as integer) as integer  'return/set var to ddr registers from mcu
+		dim i as integer
+		dim ddr as integer
+		ddr = 0
+		for i = 31 downto 0
+			ddr = ((ddr<<1) or dir(i))
 		next i
-		exp_pwr = 1					// using this single to become our value to multiply the real mantissa by.  For the record, 10^0 = 1 so this is a perfect default, in case there is not any enotation and we fall right through to the return.
-		if exp_sign < 0				// if power of 10 is <0, then we are needing to move the decimal left (much like calling Cadence in the Marine Corps, 'LEFT, LEFT, LEFT aighty LEFT)
-			while (exp_valu <= -1)	// not using < 0  to get rid of fractional exponent portions of the enotation's power of 10
-				exp_pwr/=10			// so while we are still negative powered, move the multiplier's decimal more left
-				exp_valu+=1.0			// and keep track of how less negative in power we are
-				loop					// until we are done and have arrived at a good multiplier...
-		else							// so we are either a 0 power of 10, which case well fall thru, or a positive power of 10 and gotta shuffle to the right (To the RIGHT, my conservative Brothas. To the RIGHT!!!)
-			while exp_valu >= 1		// not using > 0  to get rid of fractional exponent portions of the enotation's power of 10
-				exp_pwr*=10			// same principles at a negative powers of 10, except we are moving the decimal to the right now.
-				exp_valu-=1.0			// and keeping track of how much more positive in power we are
-				loop					// until we are done and have arrived at a good multiplier...
-		endif	
-		return (valu/power)*if(sign<0,-1,1)*exp_pwr	// and we finally get to do the math to return a single that was converted from a string that may have included a integral and fractional portion of a mantissa and also possibly a integral and fractional portion of a e-notated power of 10...  Woo Hoo.!.
+		int_var = ddr	' does this make sense, or is it just silly?
+		return ddr
+		endfunction
+	'==================================================================================================================
+	function setddr(byref int_var as integer) as integer  'set var to ddr registers on mcu & return results
+		dim i as integer
+		for i = 0 to 31
+			dir(i) = bittest(int_var,i)
+		next i
+		return getddr(int_var)  	' for user verification if desired
+		endfunction
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_Conversion
+
+	'==============================================================================
+	' Conversion functions
+	'==================================================================================================================
+	function b2f(byval bin_str(32) as string) as single
+		dim index as integer
+		dim iVal as single
+		dim temp as integer
+		index = 0
+		iVal = 0
+		temp = 0
+		while len(bin_str) <32			' pad on zeros to get len to 32
+			bin_str = "0" & bin_str
+			loop
+		while index < 32
+			if bin_str(index) = "1" then setbit(temp,31-index)
+			index = index + 1
+			loop
+		*(addressof iVal) = temp
+		return iVal
+		endfunction
+	'==============================================================================
+	function b2a(byval bin_str(32) as string) as string
+
+		return "1"
+		endfunction
+	'==============================================================================
+	function bi2i(byval bin_str(32) as string) as integer
+		dim index as integer
+		dim iVal as integer
+		index = 0
+		iVal = 0
+		while len(bin_str) <32
+			bin_str = "0" & bin_str
+			loop
+		while index < 32
+			if bin_str(index) = "1" then setbit(iVal,31-index)
+			index = index + 1
+			loop
+		return iVal
+		endfunction
+	'==============================================================================
+	function bf2i(byval bin_str(32) as string) as integer
+		return 1
+		endfunction
+	'==============================================================================
+	function b2h(byval bin_str(32) as string) as string
+		
+		return ""
+		endfunction
+	'==============================================================================
+	'function b2b(byval bin_str(32) as string) as string
+	'==============================================================================
+	Function a2f(byref strg as string) as single				// for converting string to float
+
+		// a function for ARMbasic v8.x+ where a string representation of a number is processed and a single is returned.
+		// supports number enteries such as: 1, -1.2, 123.4e-2, 1e1, 1.e+004.05 (note fractional portions of the power of 10 is discarded as it is illegal to do so anyways...)
+		// even an entry such as	-   0  1 2 33 6 5  .  10001 e +-003.2-34	is processed and the result returned is   -123.3651
+		'
+		//  Useage example:  
+			' print "Enter a real number (+/- integer or single (can include +/- e-notation too): ";
+			' debugin inputstring
+			' print inputstring
+			' print 
+			' print "Value derived: ";a2f(inputstring)
+			' print
+
+		// surprisingly, we actually need quite a few vars to track all the shite we're tracking herein
+		dim valu,power,exp_pwr,exp_valu as single
+		dim i, i1, i2, i3, sign, exp_sign, str_end, tempint as integer
+		if strg="" then return snan
+		// and we need to set up some valid starting points for things...
+		valu  = 0.0			// the numerical representation of the integral and decimal portions of the mantissa
+		sign = 0				// the sign of the mantissa
+		power = 1.0			// this is used to help properly place the decimal in the mantissa after processing the whole string
+		exp_valu = 0.0			// this is the numerical representation of the integral and decimal portions of the e-notation's power of 10
+		exp_pwr = 1.0			// like above this is used to help properly place the decimal in the enotation's power of 10 after processing the string for same.;
+		exp_sign = 0			// the sign of the e-notation's power of 10 - i.e. the '-' in 1234E-3
+		str_end = len(strg)-1	// calculate this once and use the var below - code saver...
+		for i = 0 to str_end									// and here we go - clackity clack, then the strange silence as gravity pulls you over the top and down the rails...
+			if (i=0) and ((strg(i)="e") or (strg(i)="E")) then return 0.0	// with no mantissa before the exponent, simply return 0.0
+			if strg(i)="+" then i += 1							// ignore + and increment the index so that the next char can be processed by this iteration of the loop...
+			if(strg(i)="-") then sign -= 1						// gotta keep track if the user entered a negative number...
+			if (strg(i)>="0") and (strg(i)<="9") 
+				tempint = strg(i)-"0"
+				valu=10.0*valu+(tempint)  // build the val of the integral mantissa
+				endif
+			if ((strg(i)="e") or (strg(i)="E"))					// deal with inputs of the form 1e05 (no decimal in the mantissa)
+				i-=1												// ... the mantissa is done and we got the value for it to this point
+				strg(i)="."										// so simulate a decimal to trigger the following code
+				endif
+			if strg(i) = "."										// ok, we're goin fractional
+				i += 1												// bump to the next char past the '.'
+				for i1 = i to str_end							// and jump into a sub loop to parse the rest of the string
+					i += 1											// need to inc the index of the outer loop(s) since we are processing in a sub-loop
+					if (strg(i1)>="0") and (strg(i1)<="9")		// if the char is part of a number
+						power*=10.0								// keep track of the post-decimal depth, so we can divide the integer decimal to arrive at the real decimal val
+						tempint = strg(i1)-"0"
+						valu=10.0*valu+(tempint)			// and build an integer representation of the decimal portions...
+						endif
+					if ((strg(i1)="e") or (strg(i1)="E")) 		// if we arrive at an e or an E then we jump yet again into a sub loop to pocoess e-notation
+						i += 1										// bump the outer indicies to get past the e/E
+						i1+=1										// ...
+						for i2 = i1 to str_end				// and grind thru the rest of the string
+							i+=1									// and continue to keep the outer indicies updated to where we are at
+							i1+=1									// ...
+							if(strg(i2)="-") then exp_sign -= 1		// if there is a - sym in the enotation, negate the enotation
+							if (strg(i2)>="0") and (strg(i2)<="9")
+								tempint = strg(i2)-"0"
+								exp_valu=10.0*exp_valu+(tempint) // and build the mantissa portions of the enotation
+								endif
+							if strg(i2) = "."						// yes, I said mantissa as it is possible that someone could get the bright idea to try to do fractional powers of 10...
+								i += 1								// and if they do, we need to process it as such, so that we can throw it away later, vs. concatenating and really screwing things up...
+								i1+=1								// bump the outer indicies to get past the enotation's decimal point
+								i2+=1								// ...
+								for i3 = i2 to str_end		// and here we go with fractional enotation component parsing
+									i += 1							// since we are into yet another subloop we must keep the outer indicies updated,
+									i1+=1							// ...
+									i2+=1							// ...
+									if (strg(i3)>="0") and (strg(i3)<="9")		// if the char is part of a number
+										exp_pwr*=10.0								// keep track of the post-decimal value, so we can divide the integer decimal to arrive at the real decimal val
+										tempint = strg(i3)-"0"
+										exp_valu=10.0*exp_valu+(tempint)  // and build an integer representation of the decimal portions of the enotation...
+										endif
+									next i3
+								endif
+							next i2
+						exp_valu = (exp_valu/exp_pwr)*if(exp_sign<0,-1,1)		// at this level we are done processing the enotation portions of the construct and we create a proper single representing the enotation's power of 10, integer and decimal portion
+						endif
+					next i1
+				endif
+			next i
+			exp_pwr = 1					// using this single to become our value to multiply the real mantissa by.  For the record, 10^0 = 1 so this is a perfect default, in case there is not any enotation and we fall right through to the return.
+			if exp_sign < 0				// if power of 10 is <0, then we are needing to move the decimal left (much like calling Cadence in the Marine Corps, 'LEFT, LEFT, LEFT aighty LEFT)
+				while (exp_valu <= -1)	// not using < 0  to get rid of fractional exponent portions of the enotation's power of 10
+					exp_pwr/=10			// so while we are still negative powered, move the multiplier's decimal more left
+					exp_valu+=1.0			// and keep track of how less negative in power we are
+					loop					// until we are done and have arrived at a good multiplier...
+			else							// so we are either a 0 power of 10, which case well fall thru, or a positive power of 10 and gotta shuffle to the right (To the RIGHT, my conservative Brothas. To the RIGHT!!!)
+				while exp_valu >= 1		// not using > 0  to get rid of fractional exponent portions of the enotation's power of 10
+					exp_pwr*=10			// same principles at a negative powers of 10, except we are moving the decimal to the right now.
+					exp_valu-=1.0			// and keeping track of how much more positive in power we are
+					loop					// until we are done and have arrived at a good multiplier...
+			endif	
+			return (valu/power)*if(sign<0,-1,1)*exp_pwr	// and we finally get to do the math to return a single that was converted from a string that may have included a integral and fractional portion of a mantissa and also possibly a integral and fractional portion of a e-notated power of 10...  Woo Hoo.!.
+			
+
+		endfunction
+	'==============================================================================
+	'Function a2a(byref strg as string) as string
+	'==============================================================================
+	Function a2i(byref strg as string) as integer				// for converting string to float
+		// a function for ARMbasic v8.x+ where a string representation of a number is processed and an integer is returned.
+		return a2f(strg)	' return an integer as per the func def...
+		endfunction
+	'==============================================================================
+	function a2h(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function af2h(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function a2b(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function h2f(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function h2fx(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function h2a(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function h2i(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function h2b(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function b2i(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	function af2b(byref strg as string) as string
+		' see if a period or an exp exists that would impute a float > ascii > binary of a single
+		' else just ascii > int > binary
+		
+		' need to vet input to ensure it is a convertable string representation and flag if not
+		' for a passed string that represents an integer, resultant value needs to be bound to 
+		
+		return ""
+		endfunction
+	'==============================================================================
+	'==============================================================================
+	Function i2f(byref int as integer) as single				// for converting string to float
+		return 1.0*int		' return an integer as per the func def...
+		endfunction
+	'==============================================================================
+	Function f2i(byref sing as single) as integer				// for converting string to float
+		return 1*sing	' return an integer as per the func def...
+		endfunction
+	'==============================================================================
+	/*******************************************************************
+	  *  FUNCTION: ftoa
+	  *  AUTHOR 		= 	TRAMPAS STERN
+	  *  FILE 		=	strio.c
+	  *  DATE		=   2/6/2003  4:27:14 PM
+	  *
+	  *  PARAMETERS: long,*str, int count
+	  *
+	  *  DESCRIPTION: Convets an float to string
+	  *			format 'f', 'E', or 'e'
+	  *		
+	  *
+	  *  RETURNS: 
+	  *
+	  * NOTE this code was found on the web and modified to actually work
+	  *******************************************************************/
+	function f2a(byref sing as single) as string
+		return STR(sing)
+		endfunction
+	'==============================================================================
+	function i2a(byref int as integer) as string
+		return STR(int)
+		endfunction
+	'==============================================================================
+	function iw2bx (long as integer, chunk_size as integer) as string
+	
+		' #define H1_1 "|3|3|2|2|2|2|2|2|2|2|2|2|1|1|1|1|1|1|1|1|1|1|0|0|0|0|0|0|0|0|0|0|" +chr(13)+chr(10)		' 67 bytes
+		' #define H2_1 "|1|0|9|8|7|6|5|4|3|2|1|0|9|8|7|6|5|4|3|2|1|0|9|8|7|6|5|4|3|2|1|0|" +chr(13)+chr(10)		' 134
+		' #define H3_1 "|---------------------------------------------------------------|" +chr(13)+chr(10)+"|"	' 201
+																												''268/264 - exceeds the 255 character limit of strings...  consider a byte array?
+		#define H1_2 "|33|22|22|22|22|22|11|11|11|11|11|00|00|00|00|00|" +chr(13)+chr(10)		' 51
+		#define H2_2 "|10|98|76|54|32|10|98|76|54|32|10|98|76|54|32|10|" +chr(13)+chr(10)		' 102
+		#define H3_2 "|-----------------------------------------------|" +chr(13)+chr(10)+"|"	' 153
+																								' 204
+
+		#define H1_4 "|3322|2222|2222|1111|1111|1100|0000|0000|" +chr(13)+chr(10)
+		#define H2_4 "|1098|7654|3210|9876|5432|1098|7654|3210|" +chr(13)+chr(10)
+		#define H3_4 "|---------------------------------------|" +chr(13)+chr(10)+"|"
+
+
+		#define H1_8 "|33222222|22221111|11111100|00000000|" +chr(13)+chr(10)
+		#define H2_8 "|10987654|32109876|54321098|76543210|" +chr(13)+chr(10)
+		#define H3_8 "|-----------------------------------|" +chr(13)+chr(10)+"|"
+
+
+		#define H1_16 "|3322222222221111|1111110000000000|" +chr(13)+chr(10)
+		#define H2_16 "|1098765432109876|5432109876543210|" +chr(13)+chr(10)
+		#define H3_16 "|---------------------------------|" +chr(13)+chr(10)+"|"
+
+
+		#define H1_32 "|33222222222211111111110000000000|" +chr(13)+chr(10)
+		#define H2_32 "|10987654321098765432109876543210|" +chr(13)+chr(10)
+		#define H3_32 "|--------------------------------|" +chr(13)+chr(10)+"|"
+
+		dim temp_str(255) as string
+		dim bits_loop as integer
+		
+		temp_str = ""
+		
+		Select chunk_size
+			case 0
+				' no padding or chunk formatting - raw binary in ascii format... 
+			case 1 'disabled until I figure out how to deal with long string...
+				' temp_str  = H1_1 
+				' temp_str += H2_1
+				' temp_str += H3_1
+				chunk_size = 0
+			case 2
+				temp_str  = H1_2
+				temp_str += H2_2
+				temp_str += H3_2
+			case 4
+				temp_str  = H1_4
+				temp_str += H2_4
+				temp_str += H3_4
+			case 8
+				temp_str  = H1_8
+				temp_str += H2_8
+				temp_str += H3_8
+			case 16
+				temp_str  = H1_16
+				temp_str += H2_16
+				temp_str += H3_16
+			case 32
+				temp_str  = H1_32
+				temp_str += H2_32
+				temp_str += H3_32
+			case else
+				temp_str = "Function iw2bx chunk_size parameter error: " + chunk_size + "." +chr(13)+chr(10)+ "Valid chunk_size values: 0, 1, 2, 4, 8, 16, or 32..."
+				return temp_str
+			endselect
+			
+			for bits_loop = 31 downto 0
+			
+			temp_str += str(bittest(long,bits_loop))
+			if ((bits_loop) mod chunk_size)=0 and bits_loop>0 and chunk_size>0 then temp_str += "|"
+		next bits_loop
+		if chunk_size>0 then temp_str += "|" ' append trailing |
+		return temp_str
+		endfunction
+	'==============================================================================
+	function i2h (long as integer) as string
+		dim temp_str(16) as string
+		temp_str = hex(long)
+		return  left("00000000",8-len(temp_str)) + temp_str
+		endfunction
+	'==============================================================================
+	function i2b (long as integer) as string
+		return iw2bx(long, 0)
+		endfunction
+	'==============================================================================
+	function i2b1 (long as integer) as string
+		return iw2bx(long, 1)
+		endfunction
+	'==============================================================================
+	function i2b2 (long as integer) as string
+		return iw2bx(long, 2)
+		endfunction
+	'==============================================================================
+	function i2b4 (long as integer) as string
+		return iw2bx(long, 4)
+		endfunction
+	'==============================================================================
+	function i2b8 (long as integer) as string
+		return iw2bx(long, 8)
+		endfunction
+	'==============================================================================
+	function i2b16 (long as integer) as string
+		return iw2bx(long, 16)
+		endfunction
+	'==============================================================================
+	function i2b32 (long as integer) as string
+		return iw2bx(long, 32)
+		endfunction
+	'==============================================================================
+	function f2h (long as single) as string
+		dim temp_str(8) as string
+		temp_str = hex(*(addressof long))
+		return  left("$00000000",9-len(temp_str)) & temp_str
+		endfunction
+	'==============================================================================
+	function f2b (sing as single) as string
+		dim temp_str(48) as string
+		dim bits_loop as integer
+		temp_str = "&"
+		for bits_loop = 31 downto 0
+			temp_str = temp_str + str(bittest(*(addressof sing),bits_loop))
+		next bits_loop
+		return temp_str
+		endfunction
+	'==============================================================================
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_UserInput
+
+	#define GlbStrLenLim 48
+
+	dim NStr(1) as string
+	dim NInt as integer
+	dim NSgl as single
+
+	Const GlbStr_Lim = GlbStrLenLim ' made a constant so that it could be checked at runtime, I beleive.?.  Not too sure, but makes sense as that it how I think sometimes. :)
+	dim Global$(GlbStrLenLim) as string	' // a GlbStr_Lim byte scratchpad that can be used as deemed fit by any functions - contents volatile
+
+
+	'==============================================================================
+	'  User Input Functions with prompts, for Strings, Integers, or Floats.
+	'==============================================================================
+
+	' // except at detailed below DO NOT pass (string) constants - these functions writes to the 
+	' // passed pointers setting it to the user's input as a desired by-product in case the calling 
+	' // code needs access to exactly what was typed and not just parsed results...
+	'
+	' to make use of this code properly, inside of main, or an init function/sub, call the following init_abe
+	' sub, to instaniate the correct initial state for some special variables, used to denote when
+	' the programmer passed a 'null' variable, to prevent the function from overwriting an other-
+	' wise good variable, had it been passed.
+	'
+	' for integer functions where there is no int var to set when calling, pass NInt
+	' for float functions, where there is no single var to set when calling, pass NSgl
+	' for string functions, where there is no string var to set when called, pass NStr
+	' these are set to their initial values in the following sub...
+	'
+	' I could do away with this by having another set of functions without the var being passed
+	' but decided against doing so at this point in time.  Why?  Because, figuring it out was a bit2io
+	' of a good challenge and I am tired...
+	'
+	'==============================================================================
+'	sub init_abe  ' READ COMMENTS ABOVE THIS LINE  <<--== ##  LOOK!
+		NInt = $FF800001					'Null Integer - same binary representation as snan
+		*(addressof NSgl)  = nsnan			'Null Single - snan...
+		NStr=""								'Null String
+'		endsub
+	'==============================================================================
+	function _uinput(byref str_pmpt as string) as string
+		print str_pmpt
+		debugin Global$
+		return Global$
+		endfunction
+	'==================================================================================================================
+	function uinputs (byref str_pmpt as string, byref str_var as string) as string
+	// 	use:  uinputs("enter the string:):", svar)
+			' debug(print "str_var address and value: ",addressof str_var, *(addressof str_var))
+			' debug(print "NStr address and value: ",addressof NStr, *(addressof NStr))
+		if (*(addressof str_var) = (addressof NStr)) ' no var to set, just return the val
+			' debug(print "NStr detected.")
+			Global$ = _uinput(str_pmpt)
+			return Global$
+		else															' set the var and return the val
+			' debug(print "Proper String variable.")						
+			' FIXME need to check and bound lenth so we don't overflow str_var
+			str_var =_uinput(str_pmpt)
+			return str_var
+			endif
+		endfunction
+	'==============================================================================
+	function uinputi (byref str_pmpt as string, byref int_var as integer) as integer
+	// 	use:  uinputi("enter an integer (32bit signed):", starti)
+		dim tmp_int as integer
+			' debug(print "int_var address and value: ",addressof int_var, *(addressof int_var))
+			' debug(print "NInt address and value: ",addressof NInt, *(addressof NInt))
+			' debug(Print "passed: ";int_var, "test: ";nsnan)
+		if (int_var = nsnan) ' no var to set, just return the val
+			' debug(print "NInt detected.")
+			global$ = _uinput(str_pmpt)
+			tmp_int = a2i(global$)
+			return tmp_int
+		else															' set the var and return the val
+			' debug(print "Proper Integer variable.")
+			global$ = _uinput(str_pmpt)
+			int_var=a2i(global$)
+			return int_var
+			endif
+		endfunction
+	'==============================================================================
+	function uinputf(byref str_pmpt as string, byref sgl_var as single) as single		// for user input of floats
+	// 	use:  starti = uinputi("enter the float val (32bit ieee754):")
+		dim tmp_sgl as single
+			' debug(print "sgl_var address and value: ",addressof sgl_var, *(addressof sgl_var))
+			' debug(print "NSgl address and value: ",addressof NSgl, *(addressof NSgl))
+			' debug(Print "passed: ";sgl_var, "test: ";nsnan)
+		if issnan(sgl_var) ' no var to set, just return the val
+			' debug(print "NSgl detected.")
+			global$ = _uinput(str_pmpt)
+			tmp_sgl = a2f(global$)
+			return tmp_sgl
+		else															' set the var and return the val
+			' debug(print "Proper Float variable.")
+			global$ = _uinput(str_pmpt)
+			sgl_var=a2f(global$)
+			return sgl_var
+			endif
+		endfunction
+	'==================================================================================================================
+	' function old_uinputf (byref str_pmpt as string) as single
+	' // 	use:  starti = uinputi("enter the float val (32bit ieee754):")
+		' dim ret_val as single
+		' print str_pmpt;" (len<=";GlbStrLenLim;"): ";
+		' debugin Global$
+		' ret_val = a2f(Global$)
+		' print Global$;" | ";ret_val
+		' return ret_val
+		' endfunction
+	'==============================================================================
+	function uinputf2 (byref str_pmpt as string, byref some_val as single) as single
+	' // use:  uinputi("enter the float val (32bit ieee754):", starti)
+		print str_pmpt;" ";			// print the prompt
+		debugin Global$				// get the user input string using the byref'd var
+		some_val = a2f(str_pmpt)	// set the value of the passed single to the value of the entered string
+		print Global$;" | ";some_val	// echo the user's input & converted to a number (confirmming feedback)
+		return some_val				// and return the value in the event that this function was part of an expression
+		endfunction
+	'==============================================================================
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_Suspend
+
+	#define paws pauze
+
+	'==============================================================================
+	' suspend-helpers
+	'==============================================================================
+	sub halt  'suspends operations and drops out of the runtime to enable debugging via BT - user must press run to continue...
+		print
+		print "Execution is to be halted.  You'll need to click on Run to resume execution.  ...  Halted."
+		print
+		stop
+		endsub
+	'==============================================================================
+	sub pauze 'just throws a promp and awaits for user entry of a carriage return...
+		DIM UNUSEDVAR(1) AS string
+		print
+		UINPUTS("PAUSED - PRESS 'ENTER' TO CONTINUE...", UNUSEDVAR)
+		print
+		ENDSUB
+	'==================================================================================================================
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_Debug
+
+	#ifndef enabledebug
+		#error You must #define enabledebug as 0 or non-0 prior to #including the AB_Extensions.lib with ABE_Debug defined/enabled
+	#else	' enabledebug is defined
+		#warning enabledebug is present
+	'==============================================================================
+	'---------------------- ARMBASIC-DEBUG-EXTENSIONS ------------------ 2007-08-02
+	'==============================================================================
+
+	#define debug	DEBUG
+	#define Debug	DEBUG
+	#define production PRODUCTION
+	#define Production PRODUCTION
+	
+	#if enabledebug != 0		' need to be #def'd prior to including this lib... - may expand to have different levels of debug
+	' #if defined enabledebug		' need to be #def'd prior to including this lib...
+		#include "__lib/debugger.lib"
+		#define DEBUG(args...)	args
+		#define PRODUCTION(args...)
+		#warning 
+		#warning enabledebug is present and properly defined for debugging	'~
+		#warning DEBUG FACILITIES ARE ENABLED
+		#warning 
 		
 
-	endfunction
-'==============================================================================
-Function a2i(byref strg as string) as integer				// for converting string to float
-	// a function for ARMbasic v8.x+ where a string representation of a number is processed and an integer is returned.
-	return a2f(strg)	' return an integer as per the func def...
-	endfunction
-'==============================================================================
-Function old_a2f(byref strg as string) as single
-	dim valu,power as single
-	dim i, i1, sign, tempint as integer
-	valu  = 0.0
-	power = 1.0
-	sign = 0
-	for i = 0 to len(strg)-1
-		if(strg(i)="-") then sign = sign - 1 // i -= 1 borked here (w/ paren'd cond) 
-		if strg(i)="+" then i = i + 1  // i += 1 borked here 
-		if (strg(i)>47) and (strg(i)<58)
-			tempint = strg(i)-"0"
-			valu=10.0*valu+(tempint)
+		sub _DBGHndlr	' this is the sub that the debugger should be set to break on, should same be desired.
+			endsub		' user code can then call this sub and the debugger will break execution for dev purposes.
+						' Tried '__ASM__ ($BExx)' [the xx being a user/dev payload] and it halts alright, but no resume
+						' from debugger.  I'd like a more robust means to impute a software break in the code, 
+						' without having to jump through this hoop and pootentially frack things up by having
+						' stack pushes and branches prior to actually halting the execution.
+						' I am admittedly getting reacclimated and just learning about debugging, and the use
+						' of my probe/app, so it is very likely that ignorance is causing my perceived issues...
+
+		sub DebugHandler ' fror triggering an execution breakpoint
+							' have a two-step approach here so that I can issue a beep and/or do other shite
+							' (prep mem states, prep lcd, etc.) prior to the code actually halting.
+			#ifdef SPK_support
+			bleep 	'notification beep
+			#endif
+			_DBGHndlr
+			endsub
+		  
+		sub InitDebug	' this gives the programmer the visibility to the address to set the break on.
+			print
+			print "_DBGHndlr address: 0x";i2h(addressof _DBGHndlr)
+			print
+			endsub
+			  
+   
+	#else
+		#define DEBUG(args...)
+		#define PRODUCTION(args...)	args
+		#warning 
+		#warning DEBUG FACILITIES ARE DISABLED
+		#warning 
+	#endif
+
+	#endif
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_TargetRegHelpers	
+
+	'==============================================================================
+	' Target Reg Helpers
+	'==============================================================================
+	Sub RegBitTestNFix(Reg_Name(32) as string, Reg_Adr as integer, Bit_Name(32) as string, Bit_Num as integer, desired_state as integer, dump_flag as integer)
+		dim goalstate(10) as string
+	'	use: RegBitTestNFix("PINENABLE0", 0x4000C1C0, "ADC5(PIO0.21)", 18, 1)
+
+		if desired_state = 0
+			goalstate = "CLEARED"
+		else
+			goalstate = "SET"
+		endif
+			
+	if dump_flag
+		print "#######################################################################"
+		print Bit_Name, Reg_Name;" (0x";i2h(Reg_Adr);"): 0x";i2h(*Reg_Adr), " b";Bit_Num,goalstate
+		print iw2bx(*Reg_Adr,4)
+		print
+	else
+		print Bit_Name, Reg_Name;" (0x";i2h(Reg_Adr);"): 0x";i2h(*Reg_Adr), " b";Bit_Num,goalstate
+	endif
+	
+		if bittest(*Reg_Adr,Bit_Num) = desired_state
+			print Bit_Name + "b" + Bit_Num + " is " + goalstate + " in " + Reg_Name + " - we're good..."
+		else
+			print Bit_Name + "b" + Bit_Num + " is NOT " + goalstate + " in " + Reg_Name + " - attempting to resolve..."
+			if desired_state = 1
+				setbit(*Reg_Adr,Bit_Num)
+			else
+				clrbit(*Reg_Adr,Bit_Num)
 			endif
-		if strg(i) = "."
-			i += 1
-			for i1 = i to len(strg)-1
-				i += 1
-				if ((strg(i1)>47) and (strg(i1)<58))
-					power*=10.0
-					tempint = strg(i1)-"0"
-					valu=10.0*valu+(tempint)
+			if bittest(*Reg_Adr,Bit_Num) = desired_state
+				print Bit_Name + "b" + Bit_Num + " is now " + goalstate + " in " + Reg_Name + " - we're good..."
+			else
+				print Bit_Name + "b" + Bit_Num + " is still NOT " + goalstate + " in " + Reg_Name + " - unable to resolve - stopping..."
+				stop
+			endif
+		endif
+	
+	if dump_flag
+		print
+		print Bit_Name, Reg_Name;" (0x";i2h(Reg_Adr);"): 0x";i2h(*Reg_Adr), " b";Bit_Num,goalstate
+		print iw2bx(*Reg_Adr,4)
+		print "#######################################################################"
+	else
+		print
+	endif
+			
+			
+			
+	endsub
+
+	'==============================================================================
+
+	'==================================================================================================================
+
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_SortHelpers
+	'==============================================================================
+	' Sort Helper Functions
+	'==============================================================================
+	sub ABE_ByteArrayBubbleSort(byref _ByteArray() as byte, _ElementCount as integer)
+		dim _loopIndex, _sortAdjEnd, _tempInt, _sortKey as integer
+		do 															' bubblesort - not great, but a functional routine on these devices
+			_sortAdjEnd = 0											' ref: https://en.wikipedia.org/wiki/Bubble_sort
+			_loopIndex =0
+			do
+				_loopIndex+=1
+				if _ByteArray(_loopIndex-1) > _ByteArray(_loopIndex)
+					_tempInt = _ByteArray(_loopIndex-1)
+					_ByteArray(_loopIndex-1)=_ByteArray(_loopIndex)
+					_ByteArray(_loopIndex)=_tempInt					
+					_sortAdjEnd = _loopIndex
 					endif
-				next i1
-		endif
-		next i
-	return (valu/power)*if(sign<0,-1,1)
-	endfunction
-'==============================================================================
-'  User Input Functions with prompts, for Strings, Integers, or Floats.
-'
-' // except at detailedl below DO NOT pass (string) constants - these functions writes to the 
-' // passed pointers setting it to the user's input as a desired by-product in case the calling 
-' // code needs access to exactly what was typed and not just the parsing results...
-'
-' to make use of this code properly, inside of main, or an init function/sub, call the following init_abe
-' sub, to instaniate the correct initial state for some special variables, used to denote when
-' the programmer passed a 'null' variable, to prevent the function from overwriting an other-
-' wise good variable, had it been passed.
-'
-' for integer functions where there is no int var to set when calling, pass NInt
-' for float functions, where there is no single var to set when calling, pass NSgl
-' for string functions, where there is no string var to set when called, pass NStr
-' these are set to their initial values in the following sub...
-'
-' I could do away with this by having another set of functions without the var being passed
-' but decided against doing so at this point in time.  Why?  Because, figuring it out was a bit2io
-' of a good challenge and I am tired...
-'
-'==============================================================================
-sub init_abe  ' READ COMMENTS ABOVE THIS LINE  <<--== ##  LOOK!
-	NInt = $FF800001					'Null Integer - same binary representation as snan
-	*(addressof NSgl)  = nsnan	'Null Single - snan...
-	NStr=""								'Null String
-	pin_data_dir_reg = 0
-	endsub
-'==============================================================================
-function _uinput(byref str_pmpt as string) as string
-	print str_pmpt
-	debugin Global$
-	return Global$
-	endfunction
-'==================================================================================================================
-function uinputs (byref str_pmpt as string, byref str_var as string) as string
-// 	use:  uinputs("enter the string:):", svar)
-		DEBUG(print "str_var address and value: ",addressof str_var, *(addressof str_var))
-		DEBUG(print "NStr address and value: ",addressof NStr, *(addressof NStr))
-	if (*(addressof str_var) = (addressof NStr)) ' no var to set, just return the val
-		DEBUG(print "NStr detected.")
-		Global$ = _uinput(str_pmpt)
-		return Global$
-	else															' set the var and return the val
-		DEBUG(print "Proper String variable.")
-		str_var =_uinput(str_pmpt)
-		return str_var
-		endif
-	endfunction
-'==============================================================================
-function uinputi (byref str_pmpt as string, byref int_var as integer) as integer
-// 	use:  uinputi("enter an integer (32bit signed):", starti)
-	dim tmp_int as integer
-		DEBUG(print "int_var address and value: ",addressof int_var, *(addressof int_var))
-		DEBUG(print "NInt address and value: ",addressof NInt, *(addressof NInt))
-		DEBUG(Print "passed: ";int_var, "test: ";nsnan)
-	if (int_var = nsnan) ' no var to set, just return the val
-		DEBUG(print "NInt detected.")
-		global$ = _uinput(str_pmpt)
-		tmp_int = a2i(global$)
-		return tmp_int
-	else															' set the var and return the val
-		DEBUG(print "Proper Integer variable.")
-		global$ = _uinput(str_pmpt)
-		int_var=a2i(global$)
-		return int_var
-		endif
-	endfunction
-'==============================================================================
-function uinputf(byref str_pmpt as string, byref sgl_var as single) as single		// for user input of floats
-// 	use:  starti = uinputi("enter the float val (32bit ieee754):")
-	dim tmp_sgl as single
-		DEBUG(print "sgl_var address and value: ",addressof sgl_var, *(addressof sgl_var))
-		DEBUG(print "NSgl address and value: ",addressof NSgl, *(addressof NSgl))
-		DEBUG(Print "passed: ";sgl_var, "test: ";nsnan)
-	if issnan(sgl_var) ' no var to set, just return the val
-		DEBUG(print "NSgl detected.")
-		global$ = _uinput(str_pmpt)
-		tmp_sgl = a2f(global$)
-		return tmp_sgl
-	else															' set the var and return the val
-		DEBUG(print "Proper Float variable.")
-		global$ = _uinput(str_pmpt)
-		sgl_var=a2f(global$)
-		return sgl_var
-		endif
-	endfunction
-'==================================================================================================================
-function old_uinputf (byref str_pmpt as string) as single
-// 	use:  starti = uinputi("enter the float val (32bit ieee754):")
-	dim ret_val as single
-	print str_pmpt;" (len<=";GlbStrLenLim;"): ";
-	debugin Global$
-	ret_val = a2f(Global$)
-	print Global$;" | ";ret_val
-	return ret_val
-	endfunction
-'==============================================================================
-function uinputf2 (byref str_pmpt as string, byref some_val as single) as single
-' // use:  uinputi("enter the float val (32bit ieee754):", starti)
-	print str_pmpt;" ";			// print the prompt
-	debugin Global$				// get the user input string using the byref'd var
-	some_val = a2f(str_pmpt)	// set the value of the passed single to the value of the entered string
-	print Global$;" | ";some_val	// echo the user's input & converted to a number (confirmming feedback)
-	return some_val				// and return the value in the event that this function was part of an expression
-	endfunction
-'==============================================================================
-sub halt  'suspends operations and drops out of the runtime to enable debugging via BT - user must press run to continue...
-	print
-	print "Execution is to be halted.  You'll need to click on Run to resume execution.  ...  Halted."
-	print
-	stop
-	endsub
-'==============================================================================
-sub pauze 'just throws a promp and awaits for user entry of a carriage return...
-	DIM UNUSEDVAR(1) AS string
-	print
-	UINPUTS("PAUSED - PRESS 'ENTER' TO CONTINUE...", UNUSEDVAR)
-	print
-	ENDSUB
-'==================================================================================================================
-'-------------------- ARMBASIC EXTENSIONS ------------------ 2007-08-02
-'==============================================================================
-function i2h (long as integer) as string
-	dim temp_str(16) as string
-	temp_str = hex(long)
-	return  left("$00000000",9-len(temp_str)) + temp_str
-	endfunction
-'==============================================================================
-function i2b (long as integer) as string
-	dim temp_str(48) as string
-	dim bits_loop as integer
-	temp_str = "&"
-	for bits_loop = 31 downto 0
-		temp_str = temp_str + str(bittest(long,bits_loop))
-	next bits_loop
-	return temp_str
-	endfunction
-'==============================================================================
-function f2h (long as single) as string
-	dim temp_str(8) as string
-	temp_str = hex(*(addressof long))
-	return  left("$00000000",9-len(temp_str)) & temp_str
-	endfunction
-'==============================================================================
-function f2b (sing as single) as string
-	dim temp_str(48) as string
-	dim bits_loop as integer
-	temp_str = "&"
-	for bits_loop = 31 downto 0
-		temp_str = temp_str + str(bittest(*(addressof sing),bits_loop))
-	next bits_loop
-	return temp_str
-	endfunction
-'==============================================================================
-'-------------------- ASC Constructs ------------------ circa May 2012 - See 'beating on asc' file, and 'byref inquiry' file
-'==============================================================================
-function ASC(BYREF strg_NAME AS STRING) as integer  ' returns ascii value of first char in string
-	return ((*(*(ADDRESSOF strg_NAME))) AND $FF)		'dbl deref kicked my arse
-	endfunction
-'==============================================================================
-' while this is the most robust, I waste ram by dim'g too large a func var,
-' or run the risk of a calling construct overflowing - too risky, imo.
-function ASC1 (BYVAL strg(16) as string) as integer  ' returns ascii value of first char in string
-	return ((*(addressof strg)) AND $FF)
-	endfunction
-'==============================================================================
-' Byref works well, other than it doesn't deal with string constants at all.
-' also I have to pass the address and not the var name.  it seems that the
-' compiler could see provide the pointer without my having to provide it?
-function ASC2(BYREF ADDR) as integer  ' returns ascii value of first char in string
-	return ((*(ADDR)) AND $FF)
-	endfunction
-'==============================================================================
-/* 
-function ASC3(BYREF ADDR) as integer
-	dim a as integer
-	DIM B AS INTEGER
-	a = addressof ADDR
-	' B = *A
-	' PRINT "BYREF VAR PASSED: ";STRG
-	' PRINT IHEXL(ADDRESSOF STRG)
-	' PRINT IHEXL(A)
-	return 0
-endfunction
- */
-'==============================================================================
-' #define ASCA(args...)	args     ' gotta recall what this might have been intended for...
-#define ASCS(args...)	((*(ADDRESSOF args)) AND $FF)  ' ASC for variables only, not literals
-'==============================================================================
-' Save/Restore DDRs - need to vet for moar robust implementation (func vs. sub) & for x-device usability
-' was used in a shared bus context, or possibly with the ABrtos effort of eons ago...
-'==============================================================================
-'global
-'==================================================================================================================
-function getddr(byref int_var as integer) as integer  'return/set var to ddr registers from mcu
-	dim i as integer
-	dim ddr as integer
-	ddr = 0
-	for i = 31 downto 0
-		ddr = ((ddr<<1) or dir(i))
-	next i
-	int_var = ddr	' does this make sense, or is it bad juju????
-	return ddr
-	endfunction
-'==================================================================================================================
-function setddr(byref int_var as integer) as integer  'set var to ddr registers on mcu & return results
-	dim i as integer
-	for i = 0 to 31
-		dir(i) = bittest(int_var,i)
-	next i
-	return getddr(int_var)  	' does this make sense, or is it bad juju????
-	endfunction
-'==============================================================================
+			until _loopIndex >= _ElementCount-1
+			_ElementCount = _sortAdjEnd
+		until _ElementCount = 0
+		endsub
+	'==============================================================================
+	sub ABE_ByteArrayInsertionSort(byref _ByteArray() as byte, _ElementCount as integer)	' proved knuth's posit that this is >twice as fast as bubblesort
+		dim _loopIndex, _tempInt, _sortKey as integer
+		for _loopIndex = 1 to _ElementCount-1
+			_tempInt = _ByteArray(_loopIndex)
+			_sortKey = _loopIndex - 1
+			while (_sortKey >= 0) and (_tempInt < _ByteArray(_sortKey))
+				_ByteArray(_sortKey + 1) = _ByteArray(_sortKey)
+				_sortKey = _sortKey - 1
+			loop
+		_ByteArray(_sortKey + 1) = _tempInt
+		next
+		endsub
+	'==================================================================================================================
 
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#ifdef ABE_StringStuffs
+	'==============================================================================
+	' String Helper Functions
+	'==============================================================================
+	function StringViaPointer(pointer as integer) as string
+		dim strg(255) as string
+		dim int, idx as integer
+		
+		strg =""
+		idx = 0
+		
+		do
+			int = *pointer
+			
+			strg(idx)=(int and $FF)
+			if strg(idx)=$00 then exit
+				
+			strg(idx+1)=(int and $FF00) >> 8
+			if strg(idx+1)=$00 then exit
+			
+			strg(idx+2)=(int and $FF0000) >> 16
+			if strg(idx+2)=$00 then exit
+			
+			strg(idx+3)=(int and $FF000000) >> 24
+			if strg(idx+3)=$00 then exit
+			
+			idx += 4
+			pointer += 4
+		loop
+		
+		return strg
+		endfunction
+	'==================================================================================================================
 
+	#endif
+'-----------------------------------------------------------------------------------------------------------------------------
+	#endif
 
-#endif

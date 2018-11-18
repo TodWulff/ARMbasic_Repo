@@ -1,0 +1,111 @@
+#ifndef SPK_support
+#define SPK_support
+#include "spk\SPK_defs.lib"
+
+'==============================================================================
+' @file:		SPK_lib.bas
+' @target:		ARMbasic circa 2018 Targets
+' @language:	ARMbasic
+'
+' This lib file provides support routines for making use of a speaker hooked to
+' a GPIO line - in this case, it is a K1206 piezo buzzer actually...
+'
+' @author Tod Wulff
+' @version 1.1 - 12Aug18
+'	Revised circa 2008 code for use with circa 2018 ARMbasic devices from Coridium
+'    This revision effort led me to understand that each device type has different timing models.  
+'    and that I will need to revise this for additional devices, beyond the LPC800-DIP (w/ LPC824).
+' @version 1.0 - 29Dec08
+'	- original version
+'==============================================================================
+
+ ' Preprocessor used to assert hard-coded constants vs using variables
+#define _SPK_SwpHiFreq 5000
+#define _SPK_SwpLoFreq 0
+#define _SPK_SwpFreqLoopStep 100
+#define _SPK_SwpMaxVol 20
+#define _SPK_SwpMinVol 0
+#define _SPK_SwpVolStep _SPK_SwpMaxVol
+#define _SPK_SwpDur 1 'mS
+
+#define bleep	spk_beep(1500,25,100)
+#define bloop	spk_beep(500,25,100)
+#define blip	spk_beep(2500,10,50)
+#define sblip	spk_beep(1500,2,30)
+#define blop	spk_beep(500,10,50)
+
+' FREQ 0-10,000HZ, VOL 0-50, Dur in uS
+function spk_beep(spk_beep_freq as integer, spk_beep_volume as integer, spk_beep_duration as integer) as integer
+'print spk_beep_freq, spk_beep_volume, spk_beep_duration
+	if(if((spk_beep_freq<=0)+(spk_beep_freq>10000),1,0)+if((spk_beep_volume<=0)+(spk_beep_volume>50),1,0)+if(spk_beep_duration<=0,1,0)) then return 1
+	dim spk_beep_start, spk_pulse_start, spk_pulse_period, spk_pulse_hi, spk_pulse_lo as integer
+	spk_pulse_period = 1000000/spk_beep_freq
+	spk_pulse_hi = spk_beep_volume * (10000/spk_beep_freq)
+	spk_pulse_lo = spk_pulse_period-spk_pulse_hi
+	output(_SPK_IO_PORT)
+	spk_beep_start = timer
+	while timer-spk_beep_start < spk_beep_duration * 1000
+		'in-lined durations of 1-4 us to get best representation considering loop overheads
+		'on the 824.  need to throw this code at the other family members with a scope and
+		'give it a bit more robustness (#def the diff targets' timing.).
+		if spk_pulse_hi=1 
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0
+		elseif spk_pulse_hi=2 
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0	
+		elseif spk_pulse_hi=3 
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0		
+		elseif spk_pulse_hi=4 
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 1
+			out(_SPK_IO_PORT) = 0		
+		else
+			spk_pulse_start = timer
+			out(_SPK_IO_PORT) = 1
+			while timer - spk_pulse_start < spk_pulse_hi
+			loop
+			out(_SPK_IO_PORT) = 0
+		endif
+		spk_pulse_start = timer
+		while timer - spk_pulse_start < spk_pulse_lo
+		loop
+	loop
+	out(_SPK_IO_PORT) = 0
+	return 0
+endfunction
+
+/* sub spk_sweep()
+	dim freq_, vol_ as integer
+	
+	FOR vol_ = _SPK_SwpMinVol TO _SPK_SwpMaxVol STEP _SPK_SwpVolStep
+
+		FOR freq_ = _SPK_SwpLoFreq TO _SPK_SwpHiFreq STEP _SPK_SwpFreqLoopStep
+			SPK_BEEP(freq_, vol_, _SPK_SwpDur)
+		NEXT freq_
+		FOR freq_ = _SPK_SwpHiFreq DOWNTO _SPK_SwpLoFreq STEP _SPK_SwpFreqLoopStep
+			SPK_BEEP(freq_, vol_, _SPK_SwpDur)
+		NEXT freq_
+
+	NEXT vol_
+
+	FOR vol_ = _SPK_SwpMaxVol DOWNTO _SPK_SwpMinVol STEP _SPK_SwpVolStep
+
+		FOR freq_ = _SPK_SwpLoFreq TO _SPK_SwpHiFreq STEP _SPK_SwpFreqLoopStep
+			SPK_BEEP(freq_, vol_, _SPK_SwpDur)
+		NEXT freq_
+		FOR freq_ = _SPK_SwpHiFreq DOWNTO _SPK_SwpLoFreq STEP _SPK_SwpFreqLoopStep
+			SPK_BEEP(freq_, vol_, _SPK_SwpDur)
+		NEXT freq_
+
+	NEXT vol_
+
+endsub */
+
+#endif

@@ -1,0 +1,206 @@
+#ifndef bb_spi_defs
+#define bb_spi_defs
+
+#ifndef enable_bb_spi_debug
+	#define enable_bb_spi_debug 0
+#endif
+
+#if (ENABLE_bb_spi_DEBUG != 0) + (enable_bb_spi_debug != 0)
+	#define bb_spi_DEBUG(args...)	args
+	#define bb_spi_PRODUCTION(args...)
+	#warning "FAT DEBUG FACILITIES ARE ENABLED"
+#else
+	#define bb_spi_DEBUG(args...)
+	#define bb_spi_PRODUCTION(args...)	args
+'	#warning "FAT DEBUG FACILITIES ARE DISABLED"
+#endif
+
+'==============================================================================
+'uALFAT HW & SPI DEFINITIONS 2007-07-03
+'==============================================================================
+
+#if flash_mite == 0 'flase express
+
+	#define bb_spi_SCLK	 							0   ' SPI CLOCK
+	#define bb_spi_MOSI	 							1   ' SPI DATA OUT
+	#define bb_spi_SSEL	 							2   ' SPI SLAVE SELECT
+	#define bb_spi_RSET	 							3   ' RESET
+	#define bb_spi_DRDY	 							5	' DATA READY
+	#define bb_spi_BUSY	 							6   ' BUSY
+	#define bb_spi_MISO	 							7   ' SPI DATA IN
+
+#else 'flash mite
+
+	#define bb_spi_RSET	 							0   ' RESET
+	#define bb_spi_MISO	 							1   ' SPI DATA IN
+	#define bb_spi_MOSI	 							2   ' SPI DATA OUT
+	#define bb_spi_SCLK	 							3   ' SPI CLOCK
+	#define bb_spi_SSEL	 							4   ' SPI SLAVE SELECT
+	#define bb_spi_DRDY	 							8	' DATA READY
+	#define bb_spi_BUSY	 							9   ' BUSY
+
+#endif
+
+'uALFAT OTHER MISC DEFINITIONS
+
+#define bb_spi_HDT									$FE
+#define bb_spi_NDT									$FF
+#define bb_spi_EOL									$0D
+#define bb_spi_WAIT_TIME							15
+
+#endif
+
+#ifndef bb_spi_ERROR_CODE
+#define bb_spi_ERROR_CODE
+
+#define ERROR_NO_ERROR				$00
+
+' Hardware Error codes
+#define ERROR_READ_SECTOR			$01
+#define ERROR_WRITE_SECTOR			$02
+#define ERROR_ERASE_SECTOR			$03
+#define ERROR_SD_UNEXPECTED_VALUE	$04
+#define ERROR_MMC_INIT_TIMEOUT		$05
+#define ERROR_SET_BLOCK_SIZE_FAIL	$06
+#define ERROR_MMC_SEND_COMMAND_FAIL $07
+
+' bb_spi_mount Error codes
+#define ERROR_INVALID_BOOT_SECTOR		 $10
+#define ERROR_MBR_SIGNATURE_MISSMATCH    $11
+#define ERROR_BS_SIGNATURE_MISSMATCH     $12
+#define ERROR_SECTOR_SIZE_NOT_512        $13
+#define ERROR_FSINFO_SIGNATURE_MISSMATCH $14
+#define ERROR_FAT12_NOT_SUPPORTED        $15
+#define ERROR_FAT16_NOT_SUPPORTED		 $16
+
+'/ FAT functions
+#define ERROR_CLUSTER_OVER_RANGE             $21
+#define ERROR_CLUSTER_UNDER_RANGE            $22
+#define ERROR_NEXT_CLUSTER_VALUE_OVER_RANGE  $23
+#define ERROR_NEXT_CLUSTER_VALUE_UNDER_RANGE $24
+#define ERROR_NO_FREE_CLUSTERS               $25
+
+'bb_spi_filename Error codes
+#define ERROR_FILE_NAME_FORBIDDEN_CHAR       $31
+#define ERROR_FILE_NAME_DIR_NAME_OVER_8      $32
+#define ERROR_FILE_NAME_DIR_EXTENSION_OVER_3 $33
+#define ERROR_FILE_NAME_FIRST_CHAR_ZERO      $34
+#define ERROR_MEDIA_FULL                     $35
+
+'FAT main functions Error Codes
+#define DIR_ENT_FOUND                                   $40
+#define DIR_ENT_NOT_FOUND                               $41
+#define ERROR_FOLDER_IS_CORRUPTED_FIRST_CLUSTER         $42
+#define ERROR_FOLDER_IS_CORRUPTED_DIR_DOT_NOT_FOUND     $43
+#define ERROR_FOLDER_IS_CORRUPTED_DIR_DOTDOT_NOT_FOUND  $44
+#define ERROR_ROOT_DIRECTORY_IS_FULL                    $45
+#define ERROR_OPEN_FOLDER_FILE							$46
+#define ERROR_WRTIE_TO_READ_MODE_FILE					$47
+#define ERROR_SEEK_REQUIER_READ_MODE					$48
+#define ERROR_INVALID_SEEK_POINTER						$49
+#define ERROR_FOLDER_NOT_EMPTY							$4A
+#define ERROR_IS_NOT_FOLDER								$4B
+#define ERROR_READ_MODE_REQUIRED						$4C
+#define ERROR_END_OF_DIR_LIST							$4D
+#define ERROR_FILE_PARAMETERS							$4E
+#define ERROR_HANDLE_IN_USE								$4F
+#define ERROR_INVALID_HANDLE							$4F
+#define ERROR_ZERO_SIZE_FILE							$50
+#define ERROR_FILE_MODE_INVALID							$51
+#define ERROR_FILE_CORRUPT								$52
+#define ERROR_POINTER_OUTSIDE_BOUNDS					$53
+
+' FAT Driver
+#define ERROR_ATTACH_IDE_DEVICE_RESET_TIMEOUT			$54
+#define ERROR_ATTACH_IDE_DEVICE_IDENTIFY_TIMEOUT		$55
+#define ERROR_READ_IDE_SECTOR_TIMEOUT					$56
+#define FILE_UNKNOWN_DRIVE_LETTER						$57
+
+' Commander Error Code
+#define COMMANDER_PASS							$00
+#define ERROR_COMMANDER_BAD_COMMAND				$61
+#define ERROR_COMMANDER_STR_LEN_TOO_LONG		$62 ' or string is not null terminated
+#define ERROR_COMMANDER_NAME_NOT_VALID			$63
+#define ERROR_COMMANDER_NUMBER_INVALID          $64
+#define ERROR_COMMANDER_WRITE_PARTIAL_FAILURE   $65
+#define ERROR_COMMANDER_UNKNOWN_MEDIA_LETTER    $66
+#define ERROR_COMMANDER_FAILED_TO_OPEN_MEDIA    $67
+#define ERROR_COMMANDER_INCORRECT_CMD_PARAMETER $68
+#define ERROR_CHECK_SUM							$69
+#define COMMANDER_RUN_FRAMED_MODE				$FE
+#define COMMANDER_RETURN_IN_STRING				$FF
+
+#define ERROR_USBD_NO_ENOUGH_PIPES						$71
+#define ERROR_USBD_HANDLE_INUSE 						$72
+#define ERROR_USBD_INCORRECT_DESCRIPTOR 				$73
+#define ERROR_USBD_NONCONTROL_TRANSFER_FUNCTION 		$74
+#define ERROR_USBD_DATA_SIZE_IS_BIG_FOR_ENDPOINT		$75
+#define ERROR_USBD_TIMEOUT								$76
+#define ERROR_USBD_CONTROL_TRANSFER_REQUIERED			$77
+#define ERROR_USBD_NACK 								$78
+#define ERROR_USBD_HANDLE_CORRUPTED 					$79
+#define ERROR_USBD_DESCRIPTOR_CORRUPTED 				$7A
+#define ERROR_DESCRIPTOR_NOT_FOUND 						$7B
+#define ERROR_USB_HUB_NOT_FOUND 						$7C
+#define ERROR_HCD_USB_DEVICE_NOT_CONNECTED				$7D
+
+#define ERROR_BOMS_CSW_COMMAND_FAILD			$81 ' request sense to get failure reason
+#define ERROR_USB_MASSSTORAGE_COMMAD_FAILED		ERROR_BOMS_CSW_COMMAND_FAILD
+#define ERROR_BOMS_CSW_STATUS_PHASE_ERROR		$82
+#define ERROR_BOMS_CSW							$83
+#define ERROR_BOMS_WORNG_LUN_NUMBER				$84
+#define ERROR_BOMS_WORNG_CSW_SIGNATURE			$85
+#define ERROR_BOMS_WORNG_TAG_MISSMATCHED		$86
+
+#define ERROR_HCD_INIT_FAIL			$90
+#define ERROR_HCD_INDEFINED_CASE    $91
+
+#define ERROR_USB_MASS_STORAGE_DEVICE_NOT_READY			$A0
+#define ERROR_USB_MASSSTORAGE_PROTOCOL_NOT_SUPPORTED	$A1
+#define ERROR_USB_MASSSTORAGE_SUBCLASS_NOT_SUPPORTED	$A2
+#define ERROR_SPC_INVALID_SENSE							$A3
+#define ERROR_SPC_NO_ASC_ASCQ							$A4
+#define ERROR_USB_MASSSTORAGE_NOT_FOUND					$A5
+
+#define ERROR_HCD_BUSY      $B1
+#define ERROR_HCD_BADREQ    $B2
+#define ERROR_HCD_UNDEF     $B3
+#define ERROR_HCD_NAK       $B4
+#define ERROR_HCD_STALL     $B5
+#define ERROR_HCD_TOGERR    $B6
+#define ERROR_HCD_WRONGPID  $B7
+#define ERROR_HCD_BADBC     $B8
+#define ERROR_HCD_PIDERR    $B9
+#define ERROR_HCD_PKTERR    $BA
+#define ERROR_HCD_CRCERR    $BB
+#define ERROR_HCD_KERR      $BC
+#define ERROR_HCD_JERR      $BD
+#define ERROR_HCD_TIMEOUT	$BE
+#define ERROR_HCD_BABBLE    $BF
+
+#define ERROR_NAME_TOO_LONG 		$C0
+#define ERROR_LEAD_CHAR_INVALID 	$C1
+#define ERROR_TRAIL_CHAR_INVALID 	$C2
+#define ERROR_MAX_NAMES_REACHED 	$C5
+
+' FLASH driver
+#define ERROR_ADDRESS_RANGE				$D0
+#define ERROR_FLASH_NOT_BLANK			$D1
+#define ERROR_VERIFY					$D2
+#define ERROR_INTERNAL					$D3
+#define ERROR_CHECKSUM					$D4
+#define ERROR_ERASE_COMMAND				$D5
+#define ERROR_BROKEN_ACTIVATE_SEQUENCE	$D6
+#define ERROR_INVALID_FIRMWARE			$D7
+#define ERROR_BR_COMMAND				$D8
+#define ERROR_FILE_IS_EMPTY				$DA
+#define ERROR_FILE_NOT_FOUND			$DB
+#define ERROR_BAD_COMMAND			$DE
+
+#define ERROR_DEVICE_NOT_FOUND			$E5
+
+#define ERROR_UNEXPECTED_VALUE			$F0
+#define ERROR_UNKNOWN_COMMAND			$FD
+
+#endif
+

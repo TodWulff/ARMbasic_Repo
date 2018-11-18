@@ -1,9 +1,9 @@
 #ifndef FAT_spi
 #define FAT_spi
-#include "C:\MY_CODE\ARMBASIC\lib/ARMbasic_Extensions.lib"
+#include "__lib/AB_Extensions.lib"
 
 #if enable_fat_verbose == 1
-	#include "C:\MY_CODE\ARMBASIC\fat\FAT_Verbose_Error.lib"
+	#include "fat\FAT_Verbose_Error.lib"
 #endif
 
 #include "fat/FAT_defs.lib"

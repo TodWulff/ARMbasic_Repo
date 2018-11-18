@@ -1,0 +1,121 @@
+#ifndef LCD_defs
+#define LCD_defs
+
+#ifndef enable_lcd_debug
+	#define enable_lcd_debug 0
+#endif
+
+#if enable_lcd_debug != 0
+
+	#define LCD_DEBUG(args...)	args
+	#define LCD_PRODUCTION(args...)
+	#warning "LCD DEBUG FACILITIES ARE ENABLED"
+	
+#else
+
+	#define LCD_DEBUG(args...)
+	#define LCD_PRODUCTION(args...)	args
+	#warning "LCD DEBUG FACILITIES ARE DISABLED"
+
+#endif
+'==============================================================================
+'LCD <> MCU INTERCONNECT DEFINITIONS
+'==============================================================================
+#if defined LPC824
+
+	#define scope_trigger 			15
+
+
+	#define LCD_DATA_TYPE			1	' hi = data, lo = instruction
+	#define LCD_DATA_DIR			18	' hi = read, lo = write
+	#define LCD_STROBE				19	' hi, hi>lo
+
+	#define LCD_BIT0				23
+	#define LCD_BIT1				24
+	#define LCD_BIT2				25
+	#define LCD_BIT3				26
+	#define LCD_BIT4				27
+	#define LCD_BIT5				28
+	#define LCD_BIT6				9
+	#define LCD_BIT7				8
+
+#elif defined LPC54102	' ARMdrino | ARMniobe
+	
+	#define LCD_DATA_TYPE			39	' hi = data, lo = instruction
+	#define LCD_DATA_DIR			37	' hi = read, lo = write
+	#define LCD_STROBE				35	' hi, hi>lo
+
+	#define LCD_BIT0				41
+	#define LCD_BIT1				42
+	#define LCD_BIT2				3
+	#define LCD_BIT3				5
+	#define LCD_BIT4				7
+	#define LCD_BIT5				8
+	#define LCD_BIT6				10
+	#define LCD_BIT7				12
+
+#else
+
+	#error Lib not yet ported
+
+#endif
+
+#define LCD_BUSYBIT				LCD_BIT7
+
+'==============================================================================
+'LCD TARGET HARDWARE DEFINITIONS
+'==============================================================================
+#define LCD_FIXED_DLY_TIME		$28	' $28 = 40uS DELAY TIME
+
+#define LCD_MAX_COLUMN			15
+#define LCD_MAX_ROW				1
+#define LCD_DRAM_BASE_OFFSET	$00
+#define LCD_DRAM_ROW_OFFSET		$40
+'==============================================================================
+'LCD DRIVER DEFINITIONS
+'==============================================================================
+#define LCD_COMMAND				$00
+#define	LCD_DATA				$01
+
+#define LCD_WRITE_LCD			$00
+#define	LCD_READ_LCD			$01
+
+#define LCD_STROBE_DISABLE		$00
+#define LCD_STROBE_ENABLE		$01
+'==============================================================================
+#define LCD_SHIFT_OFF			$00
+#define LCD_SHIFT_ON			$01
+
+#define LCD_DECR_POS			$00
+#define LCD_INCR_POS			$01
+'==============================================================================
+#define LCD_4BIT_INTERFACE		$00
+#define LCD_8BIT_INTERFACE		$01
+
+#define LCD_1LINE_DEVICE		$00
+#define LCD_2LINE_DEVICE		$01
+
+#define LCD_5X7_FONT			$00
+#define LCD_5X10_FONT			$01
+'==============================================================================
+#define LCD_DISPLAY_OFF			$00
+#define LCD_DISPLAY_ON			$01
+
+#define LCD_BLOCK_CURS_OFF		$00
+#define LCD_BLOCK_CURS_ON		$01
+
+#define LCD_LINE_CURS_OFF		$00
+#define LCD_LINE_CURS_ON		$01
+'==============================================================================
+#define LCD_DIR_LEFT			$00
+#define LCD_DIR_RIGHT			$01
+
+#define LCD_MOVE_CURSOR			$00
+#define LCD_MOVE_DISPLAY		$01
+'==============================================================================
+#define LCD_CURS_TYPE_OFF		$00
+#define LCD_CURS_TYPE_LINE		$01
+#define LCD_CURS_TYPE_BLOCK		$02
+#define LCD_CURS_TYPE_BOTH		$03
+'==============================================================================
+#endif

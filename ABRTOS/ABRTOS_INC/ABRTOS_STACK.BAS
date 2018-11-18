@@ -1,0 +1,11 @@
+#ifndef ABRTOS_STACK_SUPPORT
+#define ABRTOS_STACK_SUPPORT
+
+#define ABRTOS_MOD		ABRTOS_LOG_MOD_STACK
+
+' #define	ABRTOS_LOG_EVENT_OK			0
+
+
+
+
+#endif

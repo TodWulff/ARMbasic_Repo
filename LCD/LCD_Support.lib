@@ -1,0 +1,665 @@
+#ifndef lcd_support
+#define lcd_support
+'==================================================================================================================
+#include "__lib/ab_extensions.lib" 
+#include "lcd/lcd_defs.lib"
+'==================================================================================================================
+' this lib assumes that the pin directions are set as outputs, as initialized.
+' thus only read function will require saving and restoring pin directions...
+'==================================================================================================================
+' Program defines and variable definitions
+#define LCD_ARMBASIC_LIB_VER "L100"	
+'==================================================================================================================
+'~~  Library Variable Dims.
+
+	DIM	LCD_CMD_BYTE AS INTEGER
+	DIM	LCD_CHAR_BYTE AS INTEGER
+	DIM	LCD_DATA_IFACE_REG(7) AS INTEGER  'each element points to the interface pins for DB7 TO DB0
+	DIM LCD_DISPCTL_DISPPWR_REG AS INTEGER
+	DIM LCD_DISPCTL_LINECURS_REG AS INTEGER
+	DIM LCD_DISPCTL_BLCKCURS_REG AS INTEGER
+	DIM LCD_ROW AS INTEGER
+	DIM LCD_COLUMN AS INTEGER
+'	DIM LCD_DATA_PIN_STATE_REG AS INTEGER
+	DIM LCD_DATA_PIN_DIR_REG AS INTEGER
+'~
+'==================================================================================================================
+FUNCTION LCD_GET_LIBRARY_VERSION AS STRING ' ok
+
+	RETURN LCD_ARMBASIC_LIB_VER
+
+ENDFUNCTION
+'==================================================================================================================
+FUNCTION LCD_DBIO_PIN (LCD_DATA_BIT AS INTEGER) AS INTEGER ' ok
+
+	RETURN  (LCD_DATA_IFACE_REG(LCD_DATA_BIT))
+
+ENDFUNCTION
+'==================================================================================================================
+SUB LCD_FIXED_DELAY
+
+	waitmicro(LCD_FIXED_DLY_TIME)
+
+ENDSUB
+'==================================================================================================================
+FUNCTION LCD_GET_RAM_ADDR AS INTEGER ' ok
+'RETURNS THE ADDRESS POINTER FOR THE CG/DD RAM
+
+	DIM X AS INTEGER
+	DIM Y AS INTEGER
+	X=0
+
+	OUT (LCD_DATA_TYPE)	=	LCD_COMMAND
+	OUT (LCD_DATA_DIR)	=	LCD_READ_LCD
+	OUT (LCD_STROBE)	=	LCD_STROBE_ENABLE
+	waitmicro(1)
+	FOR Y=6 DOWNTO 0
+		X =(X << 1)OR(IN (LCD_DBIO_PIN(Y)) AND 1)
+	NEXT Y
+
+	OUT (LCD_STROBE)	=	LCD_STROBE_DISABLE
+
+	RETURN X
+
+ENDFUNCTION
+'==================================================================================================================
+FUNCTION LCD_READ_RAM_DATA AS INTEGER ' ok
+'RETURNS THE RAM CONTENTS AT THE CG/DD RAM ADDRESS POINTER
+
+	DIM X AS INTEGER
+	DIM Y AS INTEGER
+	X=0
+
+	OUT (LCD_DATA_TYPE)	=	LCD_DATA
+	OUT (LCD_DATA_DIR)	=	LCD_READ_LCD
+	OUT (LCD_STROBE)	=	LCD_STROBE_ENABLE
+
+'	LCD_FIXED_DELAY
+	waitmicro(1)
+
+	FOR Y=7 DOWNTO 0
+		X =(X << 1)OR(IN (LCD_DBIO_PIN(Y)) AND 1)
+	NEXT Y
+
+	OUT (LCD_STROBE)	=	LCD_STROBE_DISABLE
+
+	RETURN X
+
+ENDFUNCTION
+'==================================================================================================================
+FUNCTION LCD_BUSY AS INTEGER
+' QUERYS THE TARGET LCD MODULE AND RETURNS A 1 IF BUSY, 0 ELSEWISE
+' ALLOWS A CHECK FOR BUSY TO FACILITATE OTHER USER CODE EXECUTION DURING LCD PROCESSING
+
+	DIM X, LCD_BUSYBIT_DIR AS INTEGER
+
+	LCD_DEBUG(Print "LCD_BUSY entered")
+	
+	LCD_BUSYBIT_DIR = DIR(LCD_BUSYBIT)	'save dir of busybit
+	LCD_DEBUG(Print "LCD_BUSYBIT: ";LCD_BUSYBIT)
+	LCD_DEBUG(Print "LCD_BUSYBIT_DIR: ";LCD_BUSYBIT_DIR)
+	
+	input(LCD_BUSYBIT)					'set busybit as an input
+	LCD_DEBUG(Print "CONFIRM LCD_BUSYBIT_DIR should now be an input: ";DIR(LCD_BUSYBIT))
+	
+	
+	OUT (LCD_DATA_TYPE)	=	LCD_COMMAND
+	LCD_DEBUG(Print "LCD_DATA_TYPE: ";LCD_COMMAND)
+	OUT (LCD_DATA_DIR)	=	LCD_READ_LCD
+	LCD_DEBUG(Print "LCD_DATA_DIR: ";LCD_READ_LCD)
+	OUT (LCD_STROBE)	=	LCD_STROBE_ENABLE
+	LCD_DEBUG(Print "LCD_STROBE: ";LCD_STROBE_ENABLE)
+	waitmicro(1)
+	X=(IN(LCD_BUSYBIT) AND 1)
+	LCD_DEBUG(Print "IN(LCD_DATA_IFACE_REG(LCD_BUSYBIT)): ";IN(LCD_DATA_IFACE_REG(LCD_BUSYBIT)))
+	OUT (LCD_STROBE)	=	LCD_STROBE_DISABLE
+	LCD_DEBUG(Print "LCD_STROBE: ";LCD_STROBE_DISABLE)
+	
+	DIR(LCD_BUSYBIT)= LCD_BUSYBIT_DIR 	'restore busybit dir
+	LCD_DEBUG(Print "Restored LCD_BUSYBIT TO: ";LCD_BUSYBIT_DIR)
+	LCD_DEBUG(Print "CONFIRM LCD_BUSYBIT_DIR now restored: ";DIR(LCD_BUSYBIT))
+	LCD_DEBUG(paws)
+	LCD_DEBUG(Print "LCD_BUSY exiting, returning: ";)
+	LCD_DEBUG(if x = 0)
+	LCD_DEBUG(print "NOT BUSY")
+	LCD_DEBUG(else)
+	LCD_DEBUG(print "BUSY")
+	LCD_DEBUG(endif)
+	RETURN X
+
+ENDFUNCTION
+'==================================================================================================================
+SUB LCD_SET_BYTE (LCD_BYTE AS INTEGER) ' ok
+'SEQUENTIALLY SETS UP DB7...DB0 FOR LATCHING PURPOSES
+
+	LCD_DEBUG(Print "LCD_SET_BYTE entered - ";i2h(LCD_BYTE))
+	DIM i AS INTEGER
+	FOR i = 0 TO 7									 'SETUP FOR BYTE TO SEND
+		OUT (LCD_DBIO_PIN(i)) = BITTEST (LCD_BYTE,i) 'SET EACH BIT
+	NEXT i											 'AND LOOP THRU TO NEXT BIT
+	LCD_DEBUG(Print "LCD_SET_BYTE exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_SEND_WRITE
+
+	LCD_DEBUG(Print "LCD_SEND_WRITE entered")
+	OUT (LCD_DATA_DIR)	=	LCD_WRITE_LCD
+	OUT (LCD_STROBE)	=	LCD_STROBE_ENABLE
+	LCD_FIXED_DELAY
+	OUT (LCD_STROBE)	=	LCD_STROBE_DISABLE
+	LCD_FIXED_DELAY
+	LCD_DEBUG(Print "LCD_SEND_WRITE exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_SEND_CMD (LCD_CMD_BYTE AS INTEGER) ' ok
+'SENDS A COMMAND TO THE TARGET LCD MODULE
+
+	LCD_DEBUG(Print "LCD_SEND_CMD entered")
+	LCD_SET_BYTE (LCD_CMD_BYTE)
+	OUT (LCD_DATA_TYPE)= LCD_COMMAND
+	LCD_SEND_WRITE
+	LCD_DEBUG(Print "LCD_SEND_CMD exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_WRITE_RAM_DATA (LCD_WRITE_DATA AS INTEGER) ' ok
+'WRITES A VALUE TO THE RAM AT THE CG/DD RAM ADDRESS POINTER
+
+	LCD_SET_BYTE (LCD_WRITE_DATA)
+	OUT (LCD_DATA_TYPE)	=	LCD_DATA
+	LCD_SEND_WRITE
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_WAIT ' ok
+' LOOPS AND WAITS UNTIL THE TARGET MODULE IS NOT BUSY
+	LCD_DEBUG(Print "LCD_WAIT entered")
+	WHILE LCD_BUSY
+	LOOP
+	LCD_DEBUG(Print "LCD_WAIT exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CHAR_SEND (LCD_CHAR_BYTE AS INTEGER) ' ok
+'SENDS A CHARACTER TO THE TARGET LCD MODULE'S DISPLAY
+
+'	IF LCD_CHAR_BYTE = $0D THEN LCD_CHAR_BYTE = $7B
+	LCD_WRITE_RAM_DATA (LCD_CHAR_BYTE)
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR AS INTEGER) ' ok
+'SUB TO SET DD RAM ADDRESS
+
+'USEAGE LCD_SET_DRAM_ADDR(7 bit integer address)
+'LCD_DEBUG(PRINT "SETDRAMADD: TRYING TO SET THE FOLLOWING DRAM ADDY ($80 + : ";FAT_RESP_STR$;") = ";($80 + LCD_DRAM_ADDR))
+LCD_DEBUG(PRINT "SETDRAMADD: TRYING TO SET THE FOLLOWING DRAM ADDY ($80 + : ";LCD_DRAM_ADDR;") = ";($80 + LCD_DRAM_ADDR))
+	LCD_SEND_CMD($80 + LCD_DRAM_ADDR)
+	LCD_WAIT
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_RESET ' ok
+'CLEARS THE LCD & POSITIONS CURS TO 0,0
+	
+	LCD_DEBUG(Print "LCD_DISP_RESET entered")
+	LCD_SEND_CMD($01)
+	LCD_WAIT
+	LCD_DEBUG(Print "LCD_DISP_RESET exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_HOME ' ok
+'SETS THE CURSOR POSITION TO UPPER LEFT POSITION & RESETS SHIFTED DISPLAY
+
+	LCD_SEND_CMD($02)
+	LCD_WAIT
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_HOME ' ok
+'SETS THE CURSOR POSITION TO UPPER LEFT POSITION
+
+	LCD_SET_DRAM_ADDR($00)
+	LCD_WAIT
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_ENTRY_MODE (LCD_POS_ADJUST AS INTEGER, LCD_SHIFT AS INTEGER) ' ok
+'SETS UP THE CHARACTER ENTRY MODE
+
+'USEAGE: LCD_ENTRY_MODE (LCD_INCR_POS|LCD_DECR_POS, LCD_SHIFT_ON|LCD_SHIFT_OFF)
+	LCD_SEND_CMD($04 +  (LCD_POS_ADJUST<<1) + LCD_SHIFT)
+	LCD_WAIT
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_CNTL (LCD_DISP_MODE AS INTEGER, LCD_LINE_CURS_CNTL AS INTEGER, LCD_BLINK_CURS_CNTL AS INTEGER) 'ok
+'SETS UP THE DISPLAY
+
+'USEAGE LCD_DISP_CNTL (LCD_DISP_OFF|LCD_DISP_ON,LCD_LINE_CURS_OFF|LCD_LINE_CURS_ON,LCD_BLINK_CURS_OFF|LCD_BLINK_CURS_ON)
+	LCD_DEBUG(Print "LCD_INIT_MODULE entered")
+	LCD_SEND_CMD($08 + (LCD_DISP_MODE<<2)+ (LCD_LINE_CURS_CNTL<<1)+ LCD_BLINK_CURS_CNTL)
+	LCD_WAIT
+	LCD_DEBUG(Print "LCD_DISP_CNTL exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_SHIFT_CNTL (LCD_SHIFT_MODE AS INTEGER, LCD_SHIFT_DIRECTION AS INTEGER) ' ok
+'DON'T QUITE KNOW WHAT THE HELL THIS DOES YET - 14OCT07 -TAW
+
+'USEAGE: LCD_SHIFT_CNTL (LCD_MOVE_DISPLAY|LCD_MOVE_CURSOR, LCD_DIR_RIGHT|LCD_DIR_LEFT)
+	LCD_SEND_CMD($10 +  (LCD_SHIFT_MODE<<3) +  (LCD_SHIFT_DIRECTION<<2))
+	LCD_WAIT
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_FUNCTION_SET (LCD_INTERFACE_TYPE AS INTEGER, LCD_NUM_LINES AS INTEGER, LCD_FONT_SIZE AS INTEGER) ' ok
+'FOR INITIALIZING THE TARGET LCD'S ASIC TO THE GLASS THAT IS CONNECTED TO THE DEVICE
+'THE SAME CHIP SET CAN BE USED IN A NUMBER OF DIFFERENT HARDWARE CONFIGURATIONS
+
+'USEAGE LCD_FUNCTION_SET (LCD_4BIT_INTERFACE|LCD_8BIT_INTERFACE, LCD_1LINE_DEVICE|LCD_2LINE_DEVICE, LCD_5X7_FONT|LCD_5X10_FONT)
+	LCD_DEBUG(Print "LCD_FUNCTION_SET entered")
+	LCD_SEND_CMD($20 +  (LCD_INTERFACE_TYPE<<4) +  (LCD_NUM_LINES<<3) +  (LCD_FONT_SIZE<<2))
+	LCD_WAIT
+	LCD_DEBUG(Print "LCD_FUNCTION_SET exiting")
+	
+ENDSUB
+'==================================================================================================================
+SUB LCD_FUNCTION_SET_INIT (LCD_INTERFACE_TYPE AS INTEGER, LCD_NUM_LINES AS INTEGER, LCD_FONT_SIZE AS INTEGER) ' ok
+'FOR INITIALIZING THE TARGET LCD'S ASIC TO THE GLASS THAT IS CONNECTED TO THE DEVICE
+' this is the same as the above, except for the module delay routine, as the module delay doesn't work
+' until the module is fully initialized, per the docs, 'initializing by instruction' guidance...
+	LCD_DEBUG(Print "LCD_FUNCTION_SET_INIT entered")
+	LCD_SEND_CMD($20 +  (LCD_INTERFACE_TYPE<<4) +  (LCD_NUM_LINES<<3) +  (LCD_FONT_SIZE<<2))
+	LCD_DEBUG(Print "LCD_FUNCTION_SET_INIT exiting")
+	
+ENDSUB
+'==================================================================================================================
+SUB LCD_SET_CRAM_ADDR (LCD_CRAM_ADDR AS INTEGER) ' ok
+'SUB TO SET CG RAM ADDRESS
+
+'USEAGE LCD_SET_CRAM_ADDR(6 bit integer address)
+	LCD_SEND_CMD($40 + LCD_CRAM_ADDR)
+	LCD_WAIT
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_INIT_MODULE ' ok
+'INITIALIZES THE TARGET LCD MODULE HARDWARE FOR OPERATION
+'
+' 1) Power on.
+'
+' 2) Wait at least 15ms after VDD has reached 4.5V.
+'
+'    RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0
+' 3) 0   0   0   0   1   1   -   -   -   -			Function set (interface data length of 8 bits)
+'
+' 4) Wait at least 4.1ms.
+'
+'    RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0
+' 5) 0   0   0   0   1   1   -   -   -   -			Function set (interface data length of 8 bits)
+'
+' 6) Wait at least 100 us.
+'
+'    RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0
+' 7) 0   0   0   0   1   1   -   -   -   -			Function set (interface data length of 8 bits)
+'
+' Busy flag can be checked from here on.  When busy flag is not checked,
+' the waiting time taken till the next inSTRGuction is given is required more than
+' executing time of instructions.
+'
+'     RS R/W DB7 DB6 DB5 DB4 DB3 DB2 DB1 DB0
+' 8a) 0   0   0   0   1   1   N   F   -   -			Function Set
+' 8b) 0   0   0   0   0   0   1   0   0   0			Display OFF
+' 8c) 0   0   0   0   0   0   0   0   0   1			Display clear
+' 8d) 0   0   0   0   0   0   0   1   I/D S			Entry Mode Set
+'
+' End of intialization
+'
+	' Power is on
+
+	LCD_DEBUG(Print "LCD_INIT_MODULE entered")
+	WAIT(15)
+	LCD_FUNCTION_SET_INIT (LCD_8BIT_INTERFACE, LCD_2LINE_DEVICE, LCD_5X7_FONT)
+	LCD_DEBUG(Print "LCD_FUNCTION_SET 1 done")
+	wait(5)
+	LCD_FUNCTION_SET_INIT (LCD_8BIT_INTERFACE, LCD_2LINE_DEVICE, LCD_5X7_FONT)
+	LCD_DEBUG(Print "LCD_FUNCTION_SET 2 done")
+	waitmicro(100)
+	LCD_FUNCTION_SET_INIT (LCD_8BIT_INTERFACE, LCD_2LINE_DEVICE, LCD_5X7_FONT)
+	LCD_DEBUG(Print "LCD_FUNCTION_SET 3 done")
+	waitmicro(100)
+	LCD_FUNCTION_SET_INIT (LCD_8BIT_INTERFACE, LCD_2LINE_DEVICE, LCD_5X7_FONT)
+	LCD_DEBUG(Print "LCD_FUNCTION_SET 4 done")
+	waitmicro(100)
+	LCD_DISP_CNTL (LCD_DISPLAY_OFF,LCD_LINE_CURS_ON,LCD_BLOCK_CURS_OFF)
+	LCD_DEBUG(Print "LCD_DISP_CNTL done")
+	waitmicro(100)
+	LCD_DISP_RESET
+	LCD_DEBUG(Print "LCD_DISP_RESET done")
+	waitmicro(100)
+	LCD_ENTRY_MODE (LCD_INCR_POS, LCD_SHIFT_OFF)
+	LCD_DEBUG(Print "LCD_ENTRY_MODE done")
+	waitmicro(100)
+
+	' OEM documented initialization complete
+	LCD_DEBUG(Print "OEM documented initialization complete")
+
+	
+	LCD_DISPCTL_DISPPWR_REG = LCD_DISPLAY_OFF
+	LCD_DISPCTL_LINECURS_REG = LCD_LINE_CURS_ON
+	LCD_DISPCTL_BLCKCURS_REG = LCD_BLOCK_CURS_OFF
+	
+	LCD_DEBUG(Print "LCD_INIT_MODULE exiting")
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_INIT_IO ' ok
+'INITIALIZES THE CODE FOR CNTLLING THE TARGET LCD
+	
+	output(LCD_BIT0)
+	OUT(LCD_BIT0) = LO
+	LCD_DATA_IFACE_REG(0) = LCD_BIT0
+	
+	output(LCD_BIT1)
+	OUT(LCD_BIT1) = LO
+	LCD_DATA_IFACE_REG(1) = LCD_BIT1
+	
+	output(LCD_BIT2)
+	OUT(LCD_BIT2) = LO
+	LCD_DATA_IFACE_REG(2) = LCD_BIT2
+	
+	output(LCD_BIT3)
+	OUT(LCD_BIT3) = LO
+	LCD_DATA_IFACE_REG(3) = LCD_BIT3
+	
+	output(LCD_BIT4)
+	OUT(LCD_BIT4) = LO
+	LCD_DATA_IFACE_REG(4) = LCD_BIT4
+	
+	output(LCD_BIT5)
+	OUT(LCD_BIT5) = LO
+	LCD_DATA_IFACE_REG(5) = LCD_BIT5
+	
+	output(LCD_BIT6)
+	OUT(LCD_BIT6) = LO
+	LCD_DATA_IFACE_REG(6) = LCD_BIT6
+	
+	output(LCD_BIT7)
+	OUT(LCD_BIT7) = LO
+	LCD_DATA_IFACE_REG(7) = LCD_BIT7
+	
+	output(LCD_DATA_TYPE)
+	OUT (LCD_DATA_TYPE)= LCD_COMMAND
+
+	output(LCD_DATA_DIR)
+	OUT (LCD_DATA_DIR)= LCD_WRITE_LCD
+
+	output(LCD_STROBE)
+	OUT (LCD_STROBE)= LCD_STROBE_DISABLE
+
+
+ENDSUB
+'==================================================================================================================
+FUNCTION LCD_CALC_CELL_ADDR (LCD_COLUMN AS INTEGER, LCD_ROW AS INTEGER) AS INTEGER
+
+	DIM LCD_CELL_ADDR AS INTEGER
+	LCD_CELL_ADDR = LCD_COLUMN
+	IF LCD_ROW
+		LCD_CELL_ADDR = LCD_CELL_ADDR + (LCD_DRAM_ROW_OFFSET * LCD_ROW)
+		endif
+	RETURN	LCD_CELL_ADDR
+
+ENDFUNCTION
+'==================================================================================================================
+SUB LCD_CHAR_SEND_XY (LCD_CHAR AS INTEGER, LCD_COLUMN AS INTEGER, LCD_ROW AS INTEGER)
+
+	DIM LCD_DRAM_ADDR_HOLDER AS INTEGER
+
+	LCD_DRAM_ADDR_HOLDER = LCD_GET_RAM_ADDR
+	LCD_SET_DRAM_ADDR (LCD_CALC_CELL_ADDR (LCD_COLUMN, LCD_ROW))
+	LCD_CHAR_SEND (LCD_CHAR)
+	LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR_HOLDER)
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_FILL (LCD_FILL_CHAR AS INTEGER) ' ok
+
+	DIM X AS INTEGER
+	DIM Y AS INTEGER
+	DIM LCD_DRAM_ADDR_HOLDER AS INTEGER
+
+	LCD_DRAM_ADDR_HOLDER = LCD_GET_RAM_ADDR
+
+	FOR X = 0 TO LCD_MAX_COLUMN
+		FOR Y = 0 TO LCD_MAX_ROW
+			LCD_CHAR_SEND_XY (LCD_FILL_CHAR,X,Y)
+		NEXT Y
+	NEXT X
+
+	LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR_HOLDER)
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_CLEAR ' ok
+
+	LCD_DISP_FILL(32) ' keeps the cursor positioned
+	
+	' LCD_SEND_CMD($02)	' could do this 
+	' LCD_WAIT			' but that would reset cursor too.  see LCD_DISP_RESET
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_UPDATE_DISP_CNTL ' ok
+
+	LCD_DISP_CNTL (LCD_DISPCTL_DISPPWR_REG, LCD_DISPCTL_LINECURS_REG, LCD_DISPCTL_BLCKCURS_REG)
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_OFF ' ok
+
+	LCD_DISPCTL_DISPPWR_REG = LCD_DISPLAY_OFF
+	LCD_UPDATE_DISP_CNTL
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_ON ' ok
+
+	LCD_DISPCTL_DISPPWR_REG = LCD_DISPLAY_ON
+	LCD_UPDATE_DISP_CNTL
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_SHFT_LEFT (LCD_SHFT_CNT AS INTEGER)
+
+	WHILE LCD_SHFT_CNT > 0
+	LCD_SHIFT_CNTL (LCD_MOVE_DISPLAY, LCD_DIR_LEFT)
+	LCD_SHFT_CNT = LCD_SHFT_CNT - 1
+	LOOP
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_DISP_SHFT_RIGHT (LCD_SHFT_CNT AS INTEGER)
+
+	WHILE LCD_SHFT_CNT > 0
+	LCD_SHIFT_CNTL (LCD_MOVE_DISPLAY, LCD_DIR_RIGHT)
+	LCD_SHFT_CNT = LCD_SHFT_CNT - 1
+	LOOP
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_SET_TYPE (LCD_CURS_TYPE AS INTEGER)
+
+	SELECT LCD_CURS_TYPE
+	CASE LCD_CURS_TYPE_OFF
+		LCD_DISPCTL_LINECURS_REG = LCD_LINE_CURS_OFF
+	    LCD_DISPCTL_BLCKCURS_REG = LCD_BLOCK_CURS_OFF
+	CASE LCD_CURS_TYPE_LINE
+		LCD_DISPCTL_LINECURS_REG = LCD_LINE_CURS_ON
+	    LCD_DISPCTL_BLCKCURS_REG = LCD_BLOCK_CURS_OFF
+	CASE LCD_CURS_TYPE_BLOCK
+		LCD_DISPCTL_LINECURS_REG = LCD_LINE_CURS_OFF
+	    LCD_DISPCTL_BLCKCURS_REG = LCD_BLOCK_CURS_ON
+	CASE LCD_CURS_TYPE_BOTH
+		LCD_DISPCTL_LINECURS_REG = LCD_LINE_CURS_ON
+	    LCD_DISPCTL_BLCKCURS_REG = LCD_BLOCK_CURS_ON
+	ENDSELECT
+
+	LCD_UPDATE_DISP_CNTL
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_SHFT_LEFT (LCD_SHFT_CNT AS INTEGER)
+
+	WHILE LCD_SHFT_CNT > 0
+	LCD_SHIFT_CNTL (LCD_MOVE_CURSOR, LCD_DIR_LEFT)
+	LCD_SHFT_CNT = LCD_SHFT_CNT - 1
+	LOOP
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_SHFT_RIGHT (LCD_SHFT_CNT AS INTEGER)
+
+	WHILE LCD_SHFT_CNT > 0
+	LCD_SHIFT_CNTL (LCD_MOVE_CURSOR, LCD_DIR_RIGHT)
+	LCD_SHFT_CNT = LCD_SHFT_CNT - 1
+	LOOP
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_SET_XY (LCD_COLUMN AS INTEGER, LCD_ROW AS INTEGER)
+
+	LCD_SET_DRAM_ADDR (LCD_CALC_CELL_ADDR (LCD_COLUMN, LCD_ROW))
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_STRG_SEND (BYREF LCD_STRG AS STRING) ' ok
+
+	DIM i AS INTEGER
+
+	FOR i=0 TO LEN (LCD_STRG)-1
+		LCD_CHAR_SEND (LCD_STRG(i))
+	NEXT i
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_STRG_SEND_XY (BYREF LCD_STRG AS STRING, LCD_COLUMN AS INTEGER, LCD_ROW AS INTEGER)
+
+	DIM X AS INTEGER
+	DIM LCD_DRAM_ADDR_HOLDER AS INTEGER
+
+	LCD_DRAM_ADDR_HOLDER = LCD_GET_RAM_ADDR
+	LCD_SET_DRAM_ADDR (LCD_CALC_CELL_ADDR (LCD_COLUMN, LCD_ROW))
+
+	FOR X=0 TO LEN (LCD_STRG)-1
+		LCD_CHAR_SEND (LCD_STRG(X))
+	NEXT X
+	LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR_HOLDER)
+
+ENDSUB
+'==================================================================================================================
+FUNCTION LCD_CHAR_GET AS INTEGER
+
+	RETURN LCD_READ_RAM_DATA
+
+ENDFUNCTION
+'==================================================================================================================
+FUNCTION LCD_CHAR_GET_XY (LCD_COLUMN AS INTEGER, LCD_ROW AS INTEGER) AS INTEGER
+
+	DIM LCD_DRAM_ADDR_HOLDER AS INTEGER
+	DIM X AS INTEGER
+
+	LCD_DRAM_ADDR_HOLDER = LCD_GET_RAM_ADDR
+
+	LCD_SET_DRAM_ADDR (LCD_CALC_CELL_ADDR (LCD_COLUMN, LCD_ROW))
+	X = LCD_CHAR_GET
+	LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR_HOLDER)
+
+	RETURN X
+
+ENDFUNCTION
+'==================================================================================================================
+SUB LCD_CHAR_MAKE (LCD_CHAR_NUM AS INTEGER, LCD_CHAR_DATA1 AS INTEGER, LCD_CHAR_DATA2 AS INTEGER)
+
+	DIM LCD_DRAM_ADDR_HOLDER AS INTEGER
+	DIM X AS INTEGER
+
+	LCD_DRAM_ADDR_HOLDER = LCD_GET_RAM_ADDR
+
+	LCD_SET_CRAM_ADDR (LCD_CHAR_NUM*8)
+
+	FOR X = 8 DOWNTO 5
+	LCD_WRITE_RAM_DATA (LCD_CHAR_DATA1>>((X-5)*8))
+	NEXT X
+
+	FOR X = 4 DOWNTO 1
+	LCD_WRITE_RAM_DATA (LCD_CHAR_DATA2>>((X-1)*8))
+	NEXT X
+
+	LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR_HOLDER)
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_SHFT_UP
+	DIM LCD_DRAM_ADDR AS INTEGER
+	LCD_DRAM_ADDR = LCD_GET_RAM_ADDR
+	IF LCD_DRAM_ADDR <= LCD_MAX_COLUMN 
+		LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR + LCD_DRAM_ROW_OFFSET)
+	ELSE
+		LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR - LCD_DRAM_ROW_OFFSET)
+	ENDIF
+ENDSUB
+'==================================================================================================================
+SUB LCD_CURS_SHFT_DOWN	
+
+	DIM LCD_DRAM_ADDR AS INTEGER
+
+	LCD_DRAM_ADDR = LCD_GET_RAM_ADDR
+
+	IF LCD_DRAM_ADDR <= LCD_MAX_COLUMN
+		LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR + LCD_DRAM_ROW_OFFSET)
+	ELSE
+		LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR - LCD_DRAM_ROW_OFFSET)
+	ENDIF
+
+ENDSUB
+'==================================================================================================================
+SUB LCD_STRG_SEND_XY_WRAP (BYREF LCD_STRG AS STRING, LCD_COLUMN AS INTEGER, LCD_ROW AS INTEGER, LCD_CHAR_DLY AS INTEGER)
+
+	DIM Z AS INTEGER
+	DIM X AS INTEGER
+	DIM Y AS INTEGER
+	DIM A AS INTEGER
+	DIM B AS INTEGER
+	DIM LCD_DRAM_ADDR_HOLDER AS INTEGER
+
+	LCD_DRAM_ADDR_HOLDER = LCD_GET_RAM_ADDR
+	LCD_SET_DRAM_ADDR (LCD_CALC_CELL_ADDR (LCD_COLUMN, LCD_ROW))
+	X = LCD_COLUMN
+	Y = LCD_ROW
+	FOR Z=0 TO LEN (LCD_STRG)-1
+		LCD_CHAR_SEND_XY (LCD_STRG(Z), X, Y)
+		X = X + 1
+		WAIT(LCD_CHAR_DLY)
+		IF X > LCD_MAX_COLUMN
+			Y = Y + 1
+			IF Y > LCD_MAX_ROW
+				FOR B = 1 TO LCD_MAX_ROW
+					FOR A = 0 TO LCD_MAX_COLUMN
+						LCD_CHAR_SEND_XY (LCD_CHAR_GET_XY(A,B),A,B-1)
+						LCD_CHAR_SEND_XY (" ",A,B)
+					NEXT A
+				NEXT B
+				Y=LCD_MAX_ROW
+			ENDIF
+			X = LCD_COLUMN
+		ENDIF
+	NEXT Z
+	LCD_SET_DRAM_ADDR (LCD_DRAM_ADDR_HOLDER)
+
+ENDSUB
+'==================================================================================================================
+#endif

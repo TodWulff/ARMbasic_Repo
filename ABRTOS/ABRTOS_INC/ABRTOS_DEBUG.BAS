@@ -1,0 +1,13 @@
+#ifndef ABRTOS_DEBUG_SUPPORT
+#define ABRTOS_DEBUG_SUPPORT
+
+#define ABRTOS_MOD		ABRTOS_LOG_MOD_DEBUG
+
+' #define	ABRTOS_LOG_EVENT_OK			0
+
+
+
+
+
+
+#endif

@@ -1,0 +1,50 @@
+#ifndef UHS_support
+#define UHS_support
+#include "UHS\UHS_defs.lib"
+'==============================================================================
+' @file:		UHS_support.lib
+' @target:		ARMbasic circa 2018 Targets
+' @language:	ARMbasic
+'
+' This lib file provides support routines for making use of a USB Host Shield
+'
+' @author Tod Wulff
+' @version 1.0 - 12Oct18
+'	- original version
+'==============================================================================
+
+' debug stuffs
+#ifndef UHS_enabledebug
+	#define UHS_enabledebug 0		//default to debug off
+#endif
+
+' these are debug stuffs from AB_Extensions - just to keep code small, inlined them here
+#define debug	DEBUG
+#define Debug	DEBUG
+#define production PRODUCTION
+#define Production PRODUCTION
+
+#if UHS_enabledebug != 0		' need to be #def'd prior to getting here...
+	#define DEBUG(args...)	args
+	#define PRODUCTION(args...)
+	#warning 
+	#warning DEBUG FACILITIES ARE ENABLED
+	#warning 
+#else ' debug is disabled
+	#define DEBUG(args...)
+	#define PRODUCTION(args...)	args
+	#warning 
+	#warning DEBUG FACILITIES ARE DISABLED
+	#warning 
+#endif
+
+
+
+#define _UHS_bleep	spk_beep(1500,25,50)
+#define _UHS_bloop	spk_beep(500,25,50)
+#define _UHS_blip	spk_beep(2500,10,20)
+#define _UHS_blop	spk_beep(500,10,20)
+
+
+
+#endif

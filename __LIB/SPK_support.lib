@@ -1,6 +1,6 @@
 #ifndef SPK_support
 #define SPK_support
-#include "spk\SPK_defs.lib"
+#include "__lib\SPK_defs.lib"
 
 '==============================================================================
 ' @file:		SPK_lib.bas

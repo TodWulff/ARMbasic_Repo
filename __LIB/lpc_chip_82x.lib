@@ -1,0 +1,1192 @@
+#ifndef lpc_chip_82x_includes
+#define lpc_chip_82x_includes
+
+' ...\lpc_chip_82x\inc\acmp_8xx.h (14 hits)
+#define __ACMP_8XX_H_       
+#define ACMP_CTRL_RESERVED   (7|(1<<5)|(1<<7)|($3f<<14)|(1<<22)|(1<<24)|($1fu<<27))       
+#define ACMP_LAD_RESERVED    (~$7f)       
+#define ACMP_COMPSA_BIT      (1 << 6) ' Comparator output control bit */      
+#define ACMP_COMPSTAT_BIT    (1 << 21) ' Comparator status, reflects the state of the comparator output */      
+#define ACMP_COMPEDGE_BIT    (1 << 23) ' Comparator edge-detect status */      
+#define ACMP_LADENAB_BIT     (1 << 0) ' Voltage ladder enable bit */      
+#define ACMP_EDGECLR_BIT     (1 << 20)       
+#define ACMP_EDGESEL_MASK    ($3 << 3)       
+#define ACMP_COMPVPSEL_MASK  ($7 << 8)       
+#define ACMP_COMPVMSEL_MASK  ($7 << 11)       
+#define ACMP_HYSTERESIS_MASK ($3 << 25)       
+#define ACMP_LADSEL_MASK     ($1F << 1)       
+#define ACMP_LADREF_MASK     ($1 << 6)       
+
+' ...\lpc_chip_82x\inc\adc_8xx.h (82 hits)
+#define __ADC_8XX_H_       
+#define ADC_MAX_SAMPLE_RATE 30000000       
+#define ADC_CR_CLKDIV_MASK      ($FF << 0)    /*!< Mask for Clock divider value */   
+#define ADC_CR_CLKDIV_BITPOS    (0)      /*!< Bit position for Clock divider value */ 
+#define ADC_CR_ASYNMODE         (1 << 8)    /*!< Asynchronous mode enable bit */   
+#define ADC_CR_MODE10BIT        (1 << 9)    /*!< 10-bit mode enable bit */   
+#define ADC_CR_LPWRMODEBIT      (1 << 10)    /*!< Low power mode enable bit */   
+#define ADC_CR_CALMODEBIT       (1 << 30)    /*!< Self calibration cycle enable bit */   
+#define ADC_CR_BITACC(n)        ((((n) & $1) << 9)) /*!< 12-bit or 10-bit ADC accuracy */      
+#define ADC_CR_CLKDIV(n)        ((((n) & $FF) << 0)) /*!< The APB clock (PCLK) is divided by (this value plus one) to produce the clock for the A/D */      
+#define ADC_SAMPLE_RATE_CONFIG_MASK (ADC_CR_CLKDIV($FF) | ADC_CR_BITACC($01))       
+#define ADC_SEQ_CTRL_CHANSEL(n)   (1 << (n))   /*!< Channel select macro */    
+#define ADC_SEQ_CTRL_CHANSEL_MASK ($FFF)    /*!< Channel select mask */   
+#define ADC_SEQ_CTRL_HWTRIG_ARM_TXEV     (0 << 12)  /*!< HW trigger input - ARM TXEV */     
+#define ADC_SEQ_CTRL_HWTRIG_CT32B0_MAT0  (1 << 12)  /*!< HW trigger input - Match output 0 of CT32B0 */     
+#define ADC_SEQ_CTRL_HWTRIG_CT32B0_MAT1  (2 << 12)  /*!< HW trigger input - Match output 1 of CT32B1 or SCT_OUT0 */     
+#define ADC_SEQ_CTRL_HWTRIG_SCT_OUT0     (2 << 12)  /*!< HW trigger input - Match output 1 of CT32B1 or SCT_OUT0 */     
+#define ADC_SEQ_CTRL_HWTRIG_CT16B0_MAT0  (3 << 12)  /*!< HW trigger input - Match output 0 of CT16B0 */     
+#define ADC_SEQ_CTRL_HWTRIG_CT16B0_MAT1  (4 << 12)  /*!< HW trigger input - Match output 1 of CT16B1 or SCT_OUT1 */     
+#define ADC_SEQ_CTRL_HWTRIG_SCT_OUT1     (4 << 12)  /*!< HW trigger input - Match output 1 of CT16B1 or SCT_OUT1 */     
+#define ADC_SEQ_CTRL_HWTRIG_CT16B0_CAP0  (5 << 12)  /*!< HW trigger input - Capture input 0 of CT16B0 */     
+#define ADC_SEQ_CTRL_HWTRIG_CT16B1_CAP0  (6 << 12)  /*!< HW trigger input - Capture input 0 of CT16B1 */     
+#define ADC_SEQ_CTRL_HWTRIG_CT32B0_CAP0  (7 << 12)  /*!< HW trigger input - Capture input 0 of CT32B1 */     
+#define ADC_SEQ_CTRL_HWTRIG_MASK         ($3F << 12) /*!< HW trigger input bitfield mask */      
+#define ADC_SEQ_CTRL_HWTRIG_POLPOS       (1 << 18)  /*!< HW trigger polarity - positive edge */     
+#define ADC_SEQ_CTRL_HWTRIG_SYNCBYPASS   (1 << 19)  /*!< HW trigger bypass synchronisation */     
+#define ADC_SEQ_CTRL_START               (1 << 26)  /*!< Start conversion enable bit */     
+#define ADC_SEQ_CTRL_BURST               (1 << 27)  /*!< Repeated conversion enable bit */     
+#define ADC_SEQ_CTRL_SINGLESTEP          (1 << 28)  /*!< Single step enable bit */     
+#define ADC_SEQ_CTRL_LOWPRIO             (1 << 29)  /*!< High priority enable bit (regardless of name) */     
+#define ADC_SEQ_CTRL_MODE_EOS            (1 << 30)  /*!< Mode End of sequence enable bit */     
+#define ADC_SEQ_CTRL_SEQ_ENA             (1 << 31) /*!< Sequence enable bit */      
+#define ADC_SEQ_GDAT_RESULT_MASK         ($FFF << 4) /*!< Result value mask */      
+#define ADC_SEQ_GDAT_RESULT_BITPOS       (4)   /*!< Result start bit position */    
+#define ADC_SEQ_GDAT_THCMPRANGE_MASK     ($3 << 16) /*!< Comparion range mask */      
+#define ADC_SEQ_GDAT_THCMPRANGE_BITPOS   (16)   /*!< Comparison range bit position */    
+#define ADC_SEQ_GDAT_THCMPCROSS_MASK     ($3 << 18) /*!< Comparion cross mask */      
+#define ADC_SEQ_GDAT_THCMPCROSS_BITPOS   (18)   /*!< Comparison cross bit position */    
+#define ADC_SEQ_GDAT_CHAN_MASK           ($F << 26) /*!< Channel number mask */      
+#define ADC_SEQ_GDAT_CHAN_BITPOS         (26)   /*!< Channel number bit position */    
+#define ADC_SEQ_GDAT_OVERRUN             (1 << 30)  /*!< Overrun bit */     
+#define ADC_SEQ_GDAT_DATAVALID           (1 << 31) /*!< Data valid bit */      
+#define ADC_DR_RESULT(n)           ((((n) >> 4) & $FFF)) /*!< Macro for getting the ADC data value */      
+#define ADC_DR_THCMPRANGE_MASK     ($3 << 16)   /*!< Comparion range mask */    
+#define ADC_DR_THCMPRANGE_BITPOS   (16)     /*!< Comparison range bit position */  
+#define ADC_DR_THCMPRANGE(n)       (((n) >> ADC_DR_THCMPRANGE_BITPOS) & $3)       
+#define ADC_DR_THCMPCROSS_MASK     ($3 << 18)   /*!< Comparion cross mask */    
+#define ADC_DR_THCMPCROSS_BITPOS   (18)     /*!< Comparison cross bit position */  
+#define ADC_DR_THCMPCROSS(n)       (((n) >> ADC_DR_THCMPCROSS_BITPOS) & $3)       
+#define ADC_DR_CHAN_MASK           ($F << 26)   /*!< Channel number mask */    
+#define ADC_DR_CHAN_BITPOS         (26)     /*!< Channel number bit position */  
+#define ADC_DR_CHANNEL(n)          (((n) >> ADC_DR_CHAN_BITPOS) & $F) /*!< Channel number bit position */      
+#define ADC_DR_OVERRUN             (1 << 30)   /*!< Overrun bit */    
+#define ADC_DR_DATAVALID           (1 << 31)   /*!< Data valid bit */    
+#define ADC_DR_DONE(n)             (((n) >> 31))       
+#define ADC_THR_VAL_MASK            ($FFF << 4)  /*!< Threshold value bit mask */     
+#define ADC_THR_VAL_POS             (4)     /*!< Threshold value bit position */  
+#define ADC_THRSEL_CHAN_SEL_THR1(n) (1 << (n))   /*!< Select THR1 register for channel n */    
+#define ADC_INTEN_SEQA_ENABLE       (1 << 0)   /*!< Sequence A Interrupt enable bit */    
+#define ADC_INTEN_SEQB_ENABLE       (1 << 1)   /*!< Sequence B Interrupt enable bit */    
+#define ADC_INTEN_SEQN_ENABLE(seq)  (1 << (seq))  /*!< Sequence A/B Interrupt enable bit */     
+#define ADC_INTEN_OVRRUN_ENABLE     (1 << 2)   /*!< Overrun Interrupt enable bit */    
+#define ADC_INTEN_CMP_DISBALE       (0)     /*!< Disable comparison interrupt value */  
+#define ADC_INTEN_CMP_OUTSIDETH     (1)     /*!< Outside threshold interrupt value */  
+#define ADC_INTEN_CMP_CROSSTH       (2)     /*!< Crossing threshold interrupt value */  
+#define ADC_INTEN_CMP_MASK          (3)     /*!< Comparison interrupt value mask */  
+#define ADC_INTEN_CMP_ENABLE(isel, ch) (((isel) & ADC_INTEN_CMP_MASK) << ((2 * (ch)) + 3)) /*!< Interrupt selection for channel */      
+#define ADC_FLAGS_THCMP_MASK(ch)    (1 << (ch))  /*!< Threshold comparison status for channel */     
+#define ADC_FLAGS_OVRRUN_MASK(ch)   (1 << (12 + (ch))) /*!< Overrun status for channel */      
+#define ADC_FLAGS_SEQA_OVRRUN_MASK  (1 << 24)   /*!< Seq A Overrun status */    
+#define ADC_FLAGS_SEQB_OVRRUN_MASK  (1 << 25)   /*!< Seq B Overrun status */    
+#define ADC_FLAGS_SEQN_OVRRUN_MASK(seq) (1 << (24 + (seq))) /*!< Seq A/B Overrun status */      
+#define ADC_FLAGS_SEQA_INT_MASK     (1 << 28)   /*!< Seq A Interrupt status */    
+#define ADC_FLAGS_SEQB_INT_MASK     (1 << 29)   /*!< Seq B Interrupt status */    
+#define ADC_FLAGS_SEQN_INT_MASK(seq) (1 << (28 + (seq)))/*!< Seq A/B Interrupt status */       
+#define ADC_FLAGS_THCMP_INT_MASK    (1 << 30)   /*!< Threshold comparison Interrupt status */    
+#define ADC_FLAGS_OVRRUN_INT_MASK   (1 << 31)   /*!< Overrun Interrupt status */    
+#define ADC_TRIM_VRANGE_HIGHV       (0 << 5)   /*!< Voltage range bit - High volatge (2.7V to 3.6V) */    
+#define ADC_TRIM_VRANGE_LOWV        (1 << 5)   /*!< Voltage range bit - Low volatge (1.8V to 2.7V) */    
+#define ADC_CHAN_THRSEL_RES $FFFFF000       
+#define ADC_INTEN_RES       $F8000000       
+#define ADC_SEQ_CTRL_RES    ((7 << 15) | ($3F << 20))       
+
+' ...\lpc_chip_82x\inc\chip.h (70 hits)
+#define __CHIP_H_       
+#define LPC_FLASH_BASE        ($00000000)       
+#define LPC_RAM_BASE          ($10000000)       
+#define LPC_ROM_BASE          ($1FFF0000)       
+#define LPC_APB0_BASE         ($40000000)       
+#define LPC_AHB_BASE          ($50000000)       
+#define LPC_WWDT_BASE         ($40000000)       
+#define LPC_MRT_BASE          ($40004000)       
+#define LPC_WKT_BASE          ($40008000)       
+#define LPC_SWM_BASE          ($4000C000)       
+#define LPC_ADC_BASE          ($4001C000)  ' Available only on LPC82x */       
+#define LPC_PMU_BASE          ($40020000)       
+#define LPC_CMP_BASE          ($40024000)       
+#define LPC_DMATIRGMUX_BASE   ($40028000)  ' Available only on LPC82x */       
+#define LPC_INMUX_BASE        ($4002C000)  ' Available only on LPC82x */       
+#define LPC_FMC_BASE          ($40040000)       
+#define LPC_IOCON_BASE        ($40044000)       
+#define LPC_SYSCTL_BASE       ($40048000)       
+#define LPC_I2C0_BASE         ($40050000)       
+#define LPC_I2C1_BASE         ($40054000)  ' Available only on LPC82x */       
+#define LPC_SPI0_BASE         ($40058000)       
+#define LPC_SPI1_BASE         ($4005C000)       
+#define LPC_USART0_BASE       ($40064000)       
+#define LPC_USART1_BASE       ($40068000)       
+#define LPC_USART2_BASE       ($4006C000)       
+#define LPC_I2C2_BASE         ($40070000)  ' Available only on LPC82x */       
+#define LPC_I2C3_BASE         ($40074000)  ' Available only on LPC82x */       
+#define LPC_CRC_BASE          ($50000000)       
+#define LPC_SCT_BASE          ($50004000)       
+#define LPC_DMA_BASE          ($50008000)  ' Available only on LPC82x */       
+#define LPC_GPIO_PORT_BASE    ($A0000000)       
+#define LPC_PIN_INT_BASE      ($A0004000)       
+#define LPC_WWDT            ((LPC_WWDT_T     *) LPC_WWDT_BASE)       
+#define LPC_SPI0            ((LPC_SPI_T      *) LPC_SPI0_BASE)       
+#define LPC_SPI1            ((LPC_SPI_T      *) LPC_SPI1_BASE)       
+#define LPC_USART0          ((LPC_USART_T    *) LPC_USART0_BASE)       
+#define LPC_USART1          ((LPC_USART_T    *) LPC_USART1_BASE)       
+#define LPC_USART2          ((LPC_USART_T    *) LPC_USART2_BASE)       
+#define LPC_WKT             ((LPC_WKT_T         *) LPC_WKT_BASE)       
+#define LPC_PMU             ((LPC_PMU_T         *) LPC_PMU_BASE)       
+#define LPC_CRC             ((LPC_CRC_T         *) LPC_CRC_BASE)       
+#define LPC_SCT             ((LPC_SCT_T         *) LPC_SCT_BASE)       
+#define LPC_GPIO_PORT       ((LPC_GPIO_T        *) LPC_GPIO_PORT_BASE)       
+#define LPC_PININT          ((LPC_PIN_INT_T     *) LPC_PIN_INT_BASE)       
+#define LPC_IOCON           ((LPC_IOCON_T       *) LPC_IOCON_BASE)       
+#define LPC_SWM             ((LPC_SWM_T         *) LPC_SWM_BASE)       
+#define LPC_SYSCTL          ((LPC_SYSCTL_T      *) LPC_SYSCTL_BASE)       
+#define LPC_CMP             ((LPC_CMP_T         *) LPC_CMP_BASE)       
+#define LPC_FMC             ((LPC_FMC_T         *) LPC_FMC_BASE)       
+#define LPC_MRT             ((LPC_MRT_T         *) LPC_MRT_BASE)       
+#define LPC_I2C0            ((LPC_I2C_T         *) LPC_I2C0_BASE)       
+#define LPC_ADC             ((LPC_ADC_T         *) LPC_ADC_BASE)       
+#define LPC_I2C1            ((LPC_I2C_T         *) LPC_I2C1_BASE)       
+#define LPC_I2C2            ((LPC_I2C_T         *) LPC_I2C2_BASE)       
+#define LPC_I2C3            ((LPC_I2C_T         *) LPC_I2C3_BASE)       
+#define LPC_DMA             ((LPC_DMA_T         *) LPC_DMA_BASE)       
+#define LPC_DMATRIGMUX      ((LPC_DMATRIGMUX_T  *) LPC_DMATIRGMUX_BASE)       
+#define LPC_INMUX           ((LPC_INMUX_T       *) LPC_INMUX_BASE)       
+#define LPC_I2C_BASE         LPC_I2C0_BASE       
+#define LPC_I2C              LPC_I2C0       
+#define LPC_SYSCON           LPC_SYSCTL       
+#define I2C_IRQHandler       I2C0_IRQHandler       
+#define PININT0_IRQHandler   PIN_INT0_IRQHandler       
+#define PININT1_IRQHandler   PIN_INT1_IRQHandler       
+#define PININT2_IRQHandler   PIN_INT2_IRQHandler       
+#define PININT3_IRQHandler   PIN_INT3_IRQHandler       
+#define PININT4_IRQHandler   PIN_INT4_IRQHandler       
+#define PININT5_IRQHandler   PIN_INT5_IRQHandler       
+#define PININT6_IRQHandler   PIN_INT6_IRQHandler       
+#define PININT7_IRQHandler   PIN_INT7_IRQHandler       
+
+' ...\lpc_chip_82x\inc\clock_8xx.h (5 hits)
+#define __CLOCK_8XX_H_       
+#define SYSCTL_IRC_FREQ     (12000000)       
+#define MAX_CLOCK_FREQ  -30000000     
+#define SYSCTL_CLOCK_I2C       SYSCTL_CLOCK_I2C0       
+#define SYSCTL_CLOCK_ACMP     SYSCTL_CLOCK_ACOMP       
+
+' ...\lpc_chip_82x\inc\cmsis.h (7 hits)
+#define __CMSIS_H_       
+#error Please #define CORE_M0PLUS       
+#define __CM0PLUS_REV             $0001 /*!< Cortex-M0+ Core Revision                          */      
+#define __MPU_PRESENT             0   /*!< MPU present or not                               */    
+#define __VTOR_PRESENT            1   /*!< VTOR is present in this implementation           */    
+#define __NVIC_PRIO_BITS          2   /*!< Number of Bits used for Priority Levels          */    
+#define __Vendor_SysTickConfig    0   /*!< Set to 1 if different SysTick Config is used     */    
+
+' ...\lpc_chip_82x\inc\core_cm0plus.h (150 hits)
+#define __CORE_CM0PLUS_H_GENERIC       
+#define __CM0PLUS_CMSIS_VERSION_MAIN ($03)                                /*!< [31:16] CMSIS HAL main version   */       
+#define __CM0PLUS_CMSIS_VERSION_SUB  ($20)                                /*!< [15:0]  CMSIS HAL sub version    */       
+#define __CM0PLUS_CMSIS_VERSION      ((__CM0PLUS_CMSIS_VERSION_MAIN << 16) | \       
+#define __CORTEX_M                ($00)                                   /*!< Cortex-M Core                    */       
+#define __ASM            __asm                                      /*!< asm keyword for ARM Compiler          */       
+#define __INLINE         __inline                                   /*!< inline keyword for ARM Compiler       */       
+#define __STATIC_INLINE  static __inline       
+#define __ASM            __asm                                      /*!< asm keyword for IAR Compiler          */       
+#define __INLINE         inline                                     /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */       
+#define __STATIC_INLINE  static inline       
+#define __ASM            __asm                                      /*!< asm keyword for GNU Compiler          */       
+#define __INLINE         inline                                     /*!< inline keyword for GNU Compiler       */       
+#define __STATIC_INLINE  static inline       
+#define __ASM            __asm                                      /*!< asm keyword for TASKING Compiler      */       
+#define __INLINE         inline                                     /*!< inline keyword for TASKING Compiler   */       
+#define __STATIC_INLINE  static inline       
+#define __FPU_USED       0       
+#define __CORE_CM0PLUS_H_DEPENDANT       
+#define __CM0PLUS_REV             $0000       
+#define __MPU_PRESENT             0       
+#define __VTOR_PRESENT            0       
+#define __NVIC_PRIO_BITS          2       
+#define __Vendor_SysTickConfig    0       
+#define   __I     volatile             /*!< Defines 'read only' permissions                 */       
+#define   __I     volatile const       /*!< Defines 'read only' permissions                 */       
+#define     __O     volatile             /*!< Defines 'write only' permissions                */       
+#define     __IO    volatile             /*!< Defines 'read / write' permissions              */       
+#define SCB_CPUID_IMPLEMENTER_Pos          24                                             /*!< SCB CPUID: IMPLEMENTER Position */       
+#define SCB_CPUID_IMPLEMENTER_Msk          ($FF << SCB_CPUID_IMPLEMENTER_Pos)          /*!< SCB CPUID: IMPLEMENTER Mask */       
+#define SCB_CPUID_VARIANT_Pos              20                                             /*!< SCB CPUID: VARIANT Position */       
+#define SCB_CPUID_VARIANT_Msk              ($F << SCB_CPUID_VARIANT_Pos)               /*!< SCB CPUID: VARIANT Mask */       
+#define SCB_CPUID_ARCHITECTURE_Pos         16                                             /*!< SCB CPUID: ARCHITECTURE Position */       
+#define SCB_CPUID_ARCHITECTURE_Msk         ($F << SCB_CPUID_ARCHITECTURE_Pos)          /*!< SCB CPUID: ARCHITECTURE Mask */       
+#define SCB_CPUID_PARTNO_Pos                4                                             /*!< SCB CPUID: PARTNO Position */       
+#define SCB_CPUID_PARTNO_Msk               ($FFF << SCB_CPUID_PARTNO_Pos)              /*!< SCB CPUID: PARTNO Mask */       
+#define SCB_CPUID_REVISION_Pos              0                                             /*!< SCB CPUID: REVISION Position */       
+#define SCB_CPUID_REVISION_Msk             ($F << SCB_CPUID_REVISION_Pos)              /*!< SCB CPUID: REVISION Mask */       
+#define SCB_ICSR_NMIPENDSET_Pos            31                                             /*!< SCB ICSR: NMIPENDSET Position */       
+#define SCB_ICSR_NMIPENDSET_Msk            (1 << SCB_ICSR_NMIPENDSET_Pos)               /*!< SCB ICSR: NMIPENDSET Mask */       
+#define SCB_ICSR_PENDSVSET_Pos             28                                             /*!< SCB ICSR: PENDSVSET Position */       
+#define SCB_ICSR_PENDSVSET_Msk             (1 << SCB_ICSR_PENDSVSET_Pos)                /*!< SCB ICSR: PENDSVSET Mask */       
+#define SCB_ICSR_PENDSVCLR_Pos             27                                             /*!< SCB ICSR: PENDSVCLR Position */       
+#define SCB_ICSR_PENDSVCLR_Msk             (1 << SCB_ICSR_PENDSVCLR_Pos)                /*!< SCB ICSR: PENDSVCLR Mask */       
+#define SCB_ICSR_PENDSTSET_Pos             26                                             /*!< SCB ICSR: PENDSTSET Position */       
+#define SCB_ICSR_PENDSTSET_Msk             (1 << SCB_ICSR_PENDSTSET_Pos)                /*!< SCB ICSR: PENDSTSET Mask */       
+#define SCB_ICSR_PENDSTCLR_Pos             25                                             /*!< SCB ICSR: PENDSTCLR Position */       
+#define SCB_ICSR_PENDSTCLR_Msk             (1 << SCB_ICSR_PENDSTCLR_Pos)                /*!< SCB ICSR: PENDSTCLR Mask */       
+#define SCB_ICSR_ISRPREEMPT_Pos            23                                             /*!< SCB ICSR: ISRPREEMPT Position */       
+#define SCB_ICSR_ISRPREEMPT_Msk            (1 << SCB_ICSR_ISRPREEMPT_Pos)               /*!< SCB ICSR: ISRPREEMPT Mask */       
+#define SCB_ICSR_ISRPENDING_Pos            22                                             /*!< SCB ICSR: ISRPENDING Position */       
+#define SCB_ICSR_ISRPENDING_Msk            (1 << SCB_ICSR_ISRPENDING_Pos)               /*!< SCB ICSR: ISRPENDING Mask */       
+#define SCB_ICSR_VECTPENDING_Pos           12                                             /*!< SCB ICSR: VECTPENDING Position */       
+#define SCB_ICSR_VECTPENDING_Msk           ($1FF << SCB_ICSR_VECTPENDING_Pos)          /*!< SCB ICSR: VECTPENDING Mask */       
+#define SCB_ICSR_VECTACTIVE_Pos             0                                             /*!< SCB ICSR: VECTACTIVE Position */       
+#define SCB_ICSR_VECTACTIVE_Msk            ($1FF << SCB_ICSR_VECTACTIVE_Pos)           /*!< SCB ICSR: VECTACTIVE Mask */       
+#define SCB_VTOR_TBLOFF_Pos                 8                                             /*!< SCB VTOR: TBLOFF Position */       
+#define SCB_VTOR_TBLOFF_Msk                ($FFFFFF << SCB_VTOR_TBLOFF_Pos)            /*!< SCB VTOR: TBLOFF Mask */       
+#define SCB_AIRCR_VECTKEY_Pos              16                                             /*!< SCB AIRCR: VECTKEY Position */       
+#define SCB_AIRCR_VECTKEY_Msk              ($FFFF << SCB_AIRCR_VECTKEY_Pos)            /*!< SCB AIRCR: VECTKEY Mask */       
+#define SCB_AIRCR_VECTKEYSTAT_Pos          16                                             /*!< SCB AIRCR: VECTKEYSTAT Position */       
+#define SCB_AIRCR_VECTKEYSTAT_Msk          ($FFFF << SCB_AIRCR_VECTKEYSTAT_Pos)        /*!< SCB AIRCR: VECTKEYSTAT Mask */       
+#define SCB_AIRCR_ENDIANESS_Pos            15                                             /*!< SCB AIRCR: ENDIANESS Position */       
+#define SCB_AIRCR_ENDIANESS_Msk            (1 << SCB_AIRCR_ENDIANESS_Pos)               /*!< SCB AIRCR: ENDIANESS Mask */       
+#define SCB_AIRCR_SYSRESETREQ_Pos           2                                             /*!< SCB AIRCR: SYSRESETREQ Position */       
+#define SCB_AIRCR_SYSRESETREQ_Msk          (1 << SCB_AIRCR_SYSRESETREQ_Pos)             /*!< SCB AIRCR: SYSRESETREQ Mask */       
+#define SCB_AIRCR_VECTCLRACTIVE_Pos         1                                             /*!< SCB AIRCR: VECTCLRACTIVE Position */       
+#define SCB_AIRCR_VECTCLRACTIVE_Msk        (1 << SCB_AIRCR_VECTCLRACTIVE_Pos)           /*!< SCB AIRCR: VECTCLRACTIVE Mask */       
+#define SCB_SCR_SEVONPEND_Pos               4                                             /*!< SCB SCR: SEVONPEND Position */       
+#define SCB_SCR_SEVONPEND_Msk              (1 << SCB_SCR_SEVONPEND_Pos)                 /*!< SCB SCR: SEVONPEND Mask */       
+#define SCB_SCR_SLEEPDEEP_Pos               2                                             /*!< SCB SCR: SLEEPDEEP Position */       
+#define SCB_SCR_SLEEPDEEP_Msk              (1 << SCB_SCR_SLEEPDEEP_Pos)                 /*!< SCB SCR: SLEEPDEEP Mask */       
+#define SCB_SCR_SLEEPONEXIT_Pos             1                                             /*!< SCB SCR: SLEEPONEXIT Position */       
+#define SCB_SCR_SLEEPONEXIT_Msk            (1 << SCB_SCR_SLEEPONEXIT_Pos)               /*!< SCB SCR: SLEEPONEXIT Mask */       
+#define SCB_CCR_STKALIGN_Pos                9                                             /*!< SCB CCR: STKALIGN Position */       
+#define SCB_CCR_STKALIGN_Msk               (1 << SCB_CCR_STKALIGN_Pos)                  /*!< SCB CCR: STKALIGN Mask */       
+#define SCB_CCR_UNALIGN_TRP_Pos             3                                             /*!< SCB CCR: UNALIGN_TRP Position */       
+#define SCB_CCR_UNALIGN_TRP_Msk            (1 << SCB_CCR_UNALIGN_TRP_Pos)               /*!< SCB CCR: UNALIGN_TRP Mask */       
+#define SCB_SHCSR_SVCALLPENDED_Pos         15                                             /*!< SCB SHCSR: SVCALLPENDED Position */       
+#define SCB_SHCSR_SVCALLPENDED_Msk         (1 << SCB_SHCSR_SVCALLPENDED_Pos)            /*!< SCB SHCSR: SVCALLPENDED Mask */       
+#define SysTick_CTRL_COUNTFLAG_Pos         16                                             /*!< SysTick CTRL: COUNTFLAG Position */       
+#define SysTick_CTRL_COUNTFLAG_Msk         (1 << SysTick_CTRL_COUNTFLAG_Pos)            /*!< SysTick CTRL: COUNTFLAG Mask */       
+#define SysTick_CTRL_CLKSOURCE_Pos          2                                             /*!< SysTick CTRL: CLKSOURCE Position */       
+#define SysTick_CTRL_CLKSOURCE_Msk         (1 << SysTick_CTRL_CLKSOURCE_Pos)            /*!< SysTick CTRL: CLKSOURCE Mask */       
+#define SysTick_CTRL_TICKINT_Pos            1                                             /*!< SysTick CTRL: TICKINT Position */       
+#define SysTick_CTRL_TICKINT_Msk           (1 << SysTick_CTRL_TICKINT_Pos)              /*!< SysTick CTRL: TICKINT Mask */       
+#define SysTick_CTRL_ENABLE_Pos             0                                             /*!< SysTick CTRL: ENABLE Position */       
+#define SysTick_CTRL_ENABLE_Msk            (1 << SysTick_CTRL_ENABLE_Pos)               /*!< SysTick CTRL: ENABLE Mask */       
+#define SysTick_LOAD_RELOAD_Pos             0                                             /*!< SysTick LOAD: RELOAD Position */       
+#define SysTick_LOAD_RELOAD_Msk            ($FFFFFF << SysTick_LOAD_RELOAD_Pos)        /*!< SysTick LOAD: RELOAD Mask */       
+#define SysTick_VAL_CURRENT_Pos             0                                             /*!< SysTick VAL: CURRENT Position */       
+#define SysTick_VAL_CURRENT_Msk            ($FFFFFF << SysTick_VAL_CURRENT_Pos)        /*!< SysTick VAL: CURRENT Mask */       
+#define SysTick_CALIB_NOREF_Pos            31                                             /*!< SysTick CALIB: NOREF Position */       
+#define SysTick_CALIB_NOREF_Msk            (1 << SysTick_CALIB_NOREF_Pos)               /*!< SysTick CALIB: NOREF Mask */       
+#define SysTick_CALIB_SKEW_Pos             30                                             /*!< SysTick CALIB: SKEW Position */       
+#define SysTick_CALIB_SKEW_Msk             (1 << SysTick_CALIB_SKEW_Pos)                /*!< SysTick CALIB: SKEW Mask */       
+#define SysTick_CALIB_TENMS_Pos             0                                             /*!< SysTick CALIB: TENMS Position */       
+#define SysTick_CALIB_TENMS_Msk            ($FFFFFF << SysTick_VAL_CURRENT_Pos)        /*!< SysTick CALIB: TENMS Mask */       
+#define MPU_TYPE_IREGION_Pos               16                                             /*!< MPU TYPE: IREGION Position */       
+#define MPU_TYPE_IREGION_Msk               ($FF << MPU_TYPE_IREGION_Pos)               /*!< MPU TYPE: IREGION Mask */       
+#define MPU_TYPE_DREGION_Pos                8                                             /*!< MPU TYPE: DREGION Position */       
+#define MPU_TYPE_DREGION_Msk               ($FF << MPU_TYPE_DREGION_Pos)               /*!< MPU TYPE: DREGION Mask */       
+#define MPU_TYPE_SEPARATE_Pos               0                                             /*!< MPU TYPE: SEPARATE Position */       
+#define MPU_TYPE_SEPARATE_Msk              (1 << MPU_TYPE_SEPARATE_Pos)                 /*!< MPU TYPE: SEPARATE Mask */       
+#define MPU_CTRL_PRIVDEFENA_Pos             2                                             /*!< MPU CTRL: PRIVDEFENA Position */       
+#define MPU_CTRL_PRIVDEFENA_Msk            (1 << MPU_CTRL_PRIVDEFENA_Pos)               /*!< MPU CTRL: PRIVDEFENA Mask */       
+#define MPU_CTRL_HFNMIENA_Pos               1                                             /*!< MPU CTRL: HFNMIENA Position */       
+#define MPU_CTRL_HFNMIENA_Msk              (1 << MPU_CTRL_HFNMIENA_Pos)                 /*!< MPU CTRL: HFNMIENA Mask */       
+#define MPU_CTRL_ENABLE_Pos                 0                                             /*!< MPU CTRL: ENABLE Position */       
+#define MPU_CTRL_ENABLE_Msk                (1 << MPU_CTRL_ENABLE_Pos)                   /*!< MPU CTRL: ENABLE Mask */       
+#define MPU_RNR_REGION_Pos                  0                                             /*!< MPU RNR: REGION Position */       
+#define MPU_RNR_REGION_Msk                 ($FF << MPU_RNR_REGION_Pos)                 /*!< MPU RNR: REGION Mask */       
+#define MPU_RBAR_ADDR_Pos                   8                                             /*!< MPU RBAR: ADDR Position */       
+#define MPU_RBAR_ADDR_Msk                  ($FFFFFF << MPU_RBAR_ADDR_Pos)              /*!< MPU RBAR: ADDR Mask */       
+#define MPU_RBAR_VALID_Pos                  4                                             /*!< MPU RBAR: VALID Position */       
+#define MPU_RBAR_VALID_Msk                 (1 << MPU_RBAR_VALID_Pos)                    /*!< MPU RBAR: VALID Mask */       
+#define MPU_RBAR_REGION_Pos                 0                                             /*!< MPU RBAR: REGION Position */       
+#define MPU_RBAR_REGION_Msk                ($F << MPU_RBAR_REGION_Pos)                 /*!< MPU RBAR: REGION Mask */       
+#define MPU_RASR_ATTRS_Pos                 16                                             /*!< MPU RASR: MPU Region Attribute field Position */       
+#define MPU_RASR_ATTRS_Msk                 ($FFFF << MPU_RASR_ATTRS_Pos)               /*!< MPU RASR: MPU Region Attribute field Mask */       
+#define MPU_RASR_XN_Pos                    28                                             /*!< MPU RASR: ATTRS.XN Position */       
+#define MPU_RASR_XN_Msk                    (1 << MPU_RASR_XN_Pos)                       /*!< MPU RASR: ATTRS.XN Mask */       
+#define MPU_RASR_AP_Pos                    24                                             /*!< MPU RASR: ATTRS.AP Position */       
+#define MPU_RASR_AP_Msk                    ($7 << MPU_RASR_AP_Pos)                     /*!< MPU RASR: ATTRS.AP Mask */       
+#define MPU_RASR_TEX_Pos                   19                                             /*!< MPU RASR: ATTRS.TEX Position */       
+#define MPU_RASR_TEX_Msk                   ($7 << MPU_RASR_TEX_Pos)                    /*!< MPU RASR: ATTRS.TEX Mask */       
+#define MPU_RASR_S_Pos                     18                                             /*!< MPU RASR: ATTRS.S Position */       
+#define MPU_RASR_S_Msk                     (1 << MPU_RASR_S_Pos)                        /*!< MPU RASR: ATTRS.S Mask */       
+#define MPU_RASR_C_Pos                     17                                             /*!< MPU RASR: ATTRS.C Position */       
+#define MPU_RASR_C_Msk                     (1 << MPU_RASR_C_Pos)                        /*!< MPU RASR: ATTRS.C Mask */       
+#define MPU_RASR_B_Pos                     16                                             /*!< MPU RASR: ATTRS.B Position */       
+#define MPU_RASR_B_Msk                     (1 << MPU_RASR_B_Pos)                        /*!< MPU RASR: ATTRS.B Mask */       
+#define MPU_RASR_SRD_Pos                    8                                             /*!< MPU RASR: Sub-Region Disable Position */       
+#define MPU_RASR_SRD_Msk                   ($FF << MPU_RASR_SRD_Pos)                   /*!< MPU RASR: Sub-Region Disable Mask */       
+#define MPU_RASR_SIZE_Pos                   1                                             /*!< MPU RASR: Region Size Field Position */       
+#define MPU_RASR_SIZE_Msk                  ($1F << MPU_RASR_SIZE_Pos)                  /*!< MPU RASR: Region Size Field Mask */       
+#define MPU_RASR_ENABLE_Pos                 0                                             /*!< MPU RASR: Region enable bit Position */       
+#define MPU_RASR_ENABLE_Msk                (1 << MPU_RASR_ENABLE_Pos)                   /*!< MPU RASR: Region enable bit Disable Mask */       
+#define SCS_BASE            ($E000E000)                            /*!< System Control Space Base Address */       
+#define SysTick_BASE        (SCS_BASE +  $0010)                    /*!< SysTick Base Address              */       
+#define NVIC_BASE           (SCS_BASE +  $0100)                    /*!< NVIC Base Address                 */       
+#define SCB_BASE            (SCS_BASE +  $0D00)                    /*!< System Control Block Base Address */       
+#define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct           */       
+#define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct       */       
+#define NVIC                ((NVIC_Type      *)     NVIC_BASE     )   /*!< NVIC configuration struct          */       
+#define MPU_BASE          (SCS_BASE +  $0D90)                    /*!< Memory Protection Unit             */       
+#define MPU               ((MPU_Type       *)     MPU_BASE      )   /*!< Memory Protection Unit             */       
+#define _BIT_SHIFT(IRQn)         (  (((uint32_t)(IRQn)       )    &  $03) * 8 )       
+#define _SHP_IDX(IRQn)           ( ((((uint32_t)(IRQn) & $0F)-8) >>    2)     )       
+#define _IP_IDX(IRQn)            (   ((uint32_t)(IRQn)            >>    2)     )       
+
+' ...\lpc_chip_82x\inc\core_cmFunc.h (3 hits)
+#define __CORE_CMFUNC_H       
+#define __enable_fault_irq                __enable_fiq       
+#define __disable_fault_irq               __disable_fiq       
+
+' ...\lpc_chip_82x\inc\core_cmInstr.h (29 hits)
+#define __CORE_CMINSTR_H       
+#define __NOP                             __nop       
+#define __WFI                             __wfi       
+#define __WFE                             __wfe       
+#define __SEV                             __sev       
+#define __ISB()                           __isb($F)       
+#define __DSB()                           __dsb($F)       
+#define __DMB()                           __dmb($F)       
+#define __REV                             __rev       
+#define __ROR                             __ror       
+#define __BKPT(value)                       __breakpoint(value)       
+#define __RBIT                            __rbit       
+#define __LDREXB(ptr)                     ((uint8_t ) __ldrex(ptr))       
+#define __LDREXH(ptr)                     ((uint16_t) __ldrex(ptr))       
+#define __LDREXW(ptr)                     ((uint32_t ) __ldrex(ptr))       
+#define __STREXB(value, ptr)              __strex(value, ptr)       
+#define __STREXH(value, ptr)              __strex(value, ptr)       
+#define __STREXW(value, ptr)              __strex(value, ptr)       
+#define __CLREX                           __clrex       
+#define __SSAT                            __ssat       
+#define __USAT                            __usat       
+#define __CLZ                             __clz       
+#define __CMSIS_GCC_OUT_REG(r) "=l" (r)       
+#define __CMSIS_GCC_USE_REG(r) "l" (r)       
+#define __CMSIS_GCC_OUT_REG(r) "=r" (r)       
+#define __CMSIS_GCC_USE_REG(r) "r" (r)       
+#define __BKPT(value)                       __ASM volatile ("bkpt "#value)       
+#define __SSAT(ARG1,ARG2) \       
+#define __USAT(ARG1,ARG2) \       
+
+' ...\lpc_chip_82x\inc\crc_8xx.h (17 hits)
+#define __CRC_8XX_H_       
+#define CRC_MODE_POLY_BITMASK   (($03)) /** CRC polynomial Bit mask */      
+#define CRC_MODE_POLY_CCITT     ($00)  /** Select CRC-CCITT polynomial */     
+#define CRC_MODE_POLY_CRC16     ($01)  /** Select CRC-16 polynomial */     
+#define CRC_MODE_POLY_CRC32     ($02)  /** Select CRC-32 polynomial */     
+#define CRC_MODE_WRDATA_BITMASK ($03 << 2) /** CRC WR_Data Config Bit mask */      
+#define CRC_MODE_WRDATA_BIT_RVS (1 << 2) /** Select Bit order reverse for WR_DATA (per byte) */      
+#define CRC_MODE_WRDATA_CMPL    (1 << 3) /** Select One's complement for WR_DATA */      
+#define CRC_MODE_SUM_BITMASK    ($03 << 4) /** CRC Sum Config Bit mask */      
+#define CRC_MODE_SUM_BIT_RVS    (1 << 4) /** Select Bit order reverse for CRC_SUM */      
+#define CRC_MODE_SUM_CMPL       (1 << 5) /** Select One's complement for CRC_SUM */      
+#define MODE_CFG_CCITT          ($00) /** Pre-defined mode word for default CCITT setup */      
+#define MODE_CFG_CRC16          ($15) /** Pre-defined mode word for default CRC16 setup */      
+#define MODE_CFG_CRC32          ($36) /** Pre-defined mode word for default CRC32 setup */      
+#define CRC_SEED_CCITT          ($0000FFFF)/** Initial seed value for CCITT mode */       
+#define CRC_SEED_CRC16          ($00000000)/** Initial seed value for CRC16 mode */       
+#define CRC_SEED_CRC32          ($FFFFFFFF)/** Initial seed value for CRC32 mode */       
+
+' ...\lpc_chip_82x\inc\dma_8xx.h (67 hits)
+#define __DMA_8XX_H_       
+#define DMA_CFG_RESERVED   ((3<<2)|(1<<7)|(3<<12)|$fffc0000)    
+#define DMA_CTLSTAT_RESERVED  (~(1|(1<<2)))     
+#define DMA_XFERCFG_RESERVED  ((3<<6)|(3<<10)|($3fu<<26))     
+#define MAX_DMA_CHANNEL   (DMA_CH17 + 1)    
+#define DMA_COMMON_RESERVED         (~(0) << MAX_DMA_CHANNEL)       
+#define DMA_ENABLESET_RESERVED  DMA_COMMON_RESERVED     
+#define DMA_ENABLECLR_RESERVED  DMA_COMMON_RESERVED     
+#define DMA_ACTIVE_RESERVED   DMA_COMMON_RESERVED    
+#define DMA_BUSY_RESERVED   DMA_COMMON_RESERVED    
+#define DMA_ERRINT_RESERVED   DMA_COMMON_RESERVED    
+#define DMA_INTENSET_RESERVED  DMA_COMMON_RESERVED     
+#define DMA_INTENCLR_RESERVED  DMA_COMMON_RESERVED     
+#define DMA_INTA_RESERVED   DMA_COMMON_RESERVED    
+#define DMA_INTB_RESERVED   DMA_COMMON_RESERVED    
+#define DMA_SETVALID_RESERVED  DMA_COMMON_RESERVED     
+#define DMA_SETTRIG_RESERVED  DMA_COMMON_RESERVED     
+#define DMA_ABORT_RESERVED   DMA_COMMON_RESERVED    
+#define DMA_CTRL_RESERVED   (~1)    
+#define DMA_INTSTAT_RESERVED  (~7)     
+#define DMA_SRAMBASE_RESERVED  ($1FF)     
+#define DMA_INTSTAT_ACTIVEINT       $2  /*!< Summarizes whether any enabled interrupts are pending */     
+#define DMA_INTSTAT_ACTIVEERRINT    $4  /*!< Summarizes whether any error interrupts are pending */     
+#define DMA_ADDR(addr)      ((uint32_t) (addr))       
+#define DMA_CFG_PERIPHREQEN     (1 << 0) /*!< Enables Peripheral DMA requests */      
+#define DMA_CFG_HWTRIGEN        (1 << 1) /*!< Use hardware triggering via imput mux */      
+#define DMA_CFG_TRIGPOL_LOW     (0 << 4) /*!< Hardware trigger is active low or falling edge */      
+#define DMA_CFG_TRIGPOL_HIGH    (1 << 4) /*!< Hardware trigger is active high or rising edge */      
+#define DMA_CFG_TRIGTYPE_EDGE   (0 << 5) /*!< Hardware trigger is edge triggered */      
+#define DMA_CFG_TRIGTYPE_LEVEL  (1 << 5) /*!< Hardware trigger is level triggered */      
+#define DMA_CFG_TRIGBURST_SNGL  (0 << 6) /*!< Single transfer. Hardware trigger causes a single transfer */      
+#define DMA_CFG_TRIGBURST_BURST (1 << 6) /*!< Burst transfer (see UM) */      
+#define DMA_CFG_BURSTPOWER_1    (0 << 8) /*!< Set DMA burst size to 1 transfer */      
+#define DMA_CFG_BURSTPOWER_2    (1 << 8) /*!< Set DMA burst size to 2 transfers */      
+#define DMA_CFG_BURSTPOWER_4    (2 << 8) /*!< Set DMA burst size to 4 transfers */      
+#define DMA_CFG_BURSTPOWER_8    (3 << 8) /*!< Set DMA burst size to 8 transfers */      
+#define DMA_CFG_BURSTPOWER_16   (4 << 8) /*!< Set DMA burst size to 16 transfers */      
+#define DMA_CFG_BURSTPOWER_32   (5 << 8) /*!< Set DMA burst size to 32 transfers */      
+#define DMA_CFG_BURSTPOWER_64   (6 << 8) /*!< Set DMA burst size to 64 transfers */      
+#define DMA_CFG_BURSTPOWER_128  (7 << 8) /*!< Set DMA burst size to 128 transfers */      
+#define DMA_CFG_BURSTPOWER_256  (8 << 8) /*!< Set DMA burst size to 256 transfers */      
+#define DMA_CFG_BURSTPOWER_512  (9 << 8) /*!< Set DMA burst size to 512 transfers */      
+#define DMA_CFG_BURSTPOWER_1024 (10 << 8) /*!< Set DMA burst size to 1024 transfers */      
+#define DMA_CFG_BURSTPOWER(n)   ((n) << 8) /*!< Set DMA burst size to 2^n transfers, max n=10 */      
+#define DMA_CFG_SRCBURSTWRAP    (1 << 14) /*!< Source burst wrapping is enabled for this DMA channel */      
+#define DMA_CFG_DSTBURSTWRAP    (1 << 15) /*!< Destination burst wrapping is enabled for this DMA channel */      
+#define DMA_CFG_CHPRIORITY(p)   ((p) << 16) /*!< Sets DMA channel priority, min 0 (highest), max 3 (lowest) */      
+#define DMA_CTLSTAT_VALIDPENDING    (1 << 0) /*!< Valid pending flag for this channel */      
+#define DMA_CTLSTAT_TRIG            (1 << 2) /*!< Trigger flag. Indicates that the trigger for this channel is currently set */      
+#define DMA_XFERCFG_CFGVALID        (1 << 0) /*!< Configuration Valid flag */      
+#define DMA_XFERCFG_RELOAD          (1 << 1) /*!< Indicates whether the channels control structure will be reloaded when the current descriptor is exhausted */      
+#define DMA_XFERCFG_SWTRIG          (1 << 2) /*!< Software Trigger */      
+#define DMA_XFERCFG_CLRTRIG         (1 << 3) /*!< Clear Trigger */      
+#define DMA_XFERCFG_SETINTA         (1 << 4) /*!< Set Interrupt flag A for this channel to fire when descriptor is complete */      
+#define DMA_XFERCFG_SETINTB         (1 << 5) /*!< Set Interrupt flag B for this channel to fire when descriptor is complete */      
+#define DMA_XFERCFG_WIDTH_8         (0 << 8) /*!< 8-bit transfers are performed */      
+#define DMA_XFERCFG_WIDTH_16        (1 << 8) /*!< 16-bit transfers are performed */      
+#define DMA_XFERCFG_WIDTH_32        (2 << 8) /*!< 32-bit transfers are performed */      
+#define DMA_XFERCFG_SRCINC_0        (0 << 12) /*!< DMA source address is not incremented after a transfer */      
+#define DMA_XFERCFG_SRCINC_1        (1 << 12) /*!< DMA source address is incremented by 1 (width) after a transfer */      
+#define DMA_XFERCFG_SRCINC_2        (2 << 12) /*!< DMA source address is incremented by 2 (width) after a transfer */      
+#define DMA_XFERCFG_SRCINC_4        (3 << 12) /*!< DMA source address is incremented by 4 (width) after a transfer */      
+#define DMA_XFERCFG_DSTINC_0        (0 << 14) /*!< DMA destination address is not incremented after a transfer */      
+#define DMA_XFERCFG_DSTINC_1        (1 << 14) /*!< DMA destination address is incremented by 1 (width) after a transfer */      
+#define DMA_XFERCFG_DSTINC_2        (2 << 14) /*!< DMA destination address is incremented by 2 (width) after a transfer */      
+#define DMA_XFERCFG_DSTINC_4        (3 << 14) /*!< DMA destination address is incremented by 4 (width) after a transfer */      
+#define DMA_XFERCFG_XFERCOUNT(n)    ((n - 1) << 16) /*!< DMA transfer count in 'transfers', between (0)1 and (1023)1024 */      
+
+' ...\lpc_chip_82x\inc\eeprom.h (1 hit)
+#define __EEPROM_H_       
+
+' ...\lpc_chip_82x\inc\error.h (3 hits)
+#define __LPC_ERROR_H__       
+#define offsetof(s, m)   (int) &(((s *) 0)->m)       
+#define COMPILE_TIME_ASSERT(pred)    switch (0) { \       
+
+' ...\lpc_chip_82x\inc\error_8xx.h (1 hit)
+#define __ERROR_8XX_H__       
+
+' ...\lpc_chip_82x\inc\fmc_8xx.h (5 hits)
+#define __FMC_8XX_H_       
+#define FMC_FLASHCFG_RESERVED       (~3)       
+#define FMC_FMSSTART_RESERVED       $fffe0000       
+#define FMC_FMSSTOP_RESERVED        $7ffe0000       
+#define FMC_FLASHSIG_BUSY (1 << 31)      
+
+' ...\lpc_chip_82x\inc\gpio_8xx.h (1 hit)
+#define __GPIO_8XX_H_       
+
+' ...\lpc_chip_82x\inc\i2cm_8xx.h (8 hits)
+#define __I2CM_8XX_H_       
+#define I2CM_STATUS_OK              $00  /*!< Requested Request was executed successfully. */     
+#define I2CM_STATUS_ERROR           $01  /*!< Unknown error condition. */     
+#define I2CM_STATUS_NAK_ADR         $02  /*!< No acknowledgement received from slave during address phase. */     
+#define I2CM_STATUS_BUS_ERROR       $03  /*!< I2C bus error */     
+#define I2CM_STATUS_NAK_DAT   $04  /*!< No acknowledgement received from slave during address phase. */  
+#define I2CM_STATUS_ARBLOST         $05  /*!< Arbitration lost. */     
+#define I2CM_STATUS_BUSY            $FF  /*!< I2C transmistter is busy. */     
+
+' ...\lpc_chip_82x\inc\i2cs_8xx.h (1 hit)
+#define __I2CS_8XX_H_       
+
+' ...\lpc_chip_82x\inc\i2c_common_8xx.h (99 hits)
+#define __I2C_COMMON_8XX_H_       
+#define I2C_CFG_RESERVED            (~$1f)       
+#define I2C_STAT_RESERVED           ((1<<5)|(1<<7)|($f<<20)|($3fu<<26))       
+#define I2C_INTENSET_RESERVED       ((7<<1)|(1<<5)|(1<<7)|(3<<9)|(7<<12)|(1<<18)|($f<<20)|($3fu<<26))       
+#define I2C_INTENCLR_RESERVED       ((7<<1)|(1<<5)|(1<<7)|(3<<9)|(7<<12)|(1<<18)|($f<<20)|($3fu<<26))       
+#define I2C_TIMEOUT_RESERVED        $ffff0000       
+#define I2C_CLKDIV_RESERVED         $ffff0000       
+#define I2C_INTSTAT_RESERVED        ((7<<1)|(1<<5)|(1<<7)|(3<<9)|(7<<12)|(1<<18)|($f<<20)|($3fu<<26))       
+#define I2C_MSTCTL_RESERVED         (~7)       
+#define I2C_MSTTIME_RESERVED        (~$7f)       
+#define I2C_MSTDAT_RESERVED         (~$ff)       
+#define I2C_SLVCTL_RESERVED         (~3)       
+#define I2C_SLVDAT_RESERVED         (~$ff)       
+#define I2C_SLVADR_RESERVED         (~$ff)       
+#define I2C_SLVQUAL0_RESERVED       (~$ff)       
+#define I2C_CFG_MSTEN               (1 << 0)   /*!< Master Enable/Disable Bit */    
+#define I2C_CFG_SLVEN               (1 << 1)   /*!< Slave Enable/Disable Bit */    
+#define I2C_CFG_MONEN               (1 << 2)   /*!< Monitor Enable/Disable Bit */    
+#define I2C_CFG_TIMEOUTEN           (1 << 3)   /*!< Timeout Enable/Disable Bit */    
+#define I2C_CFG_MONCLKSTR           (1 << 4)   /*!< Monitor Clock Stretching Bit */    
+#define I2C_CFG_MASK                ((uint32_t) $1F) /*!< Configuration register Mask */      
+#define I2C_STAT_MSTPENDING         (1 << 0)   /*!< Master Pending Status Bit */    
+#define I2C_STAT_MSTSTATE           ($7 << 1)   /*!< Master State Code */    
+#define I2C_STAT_MSTRARBLOSS        (1 << 4)   /*!< Master Arbitration Loss Bit */    
+#define I2C_STAT_MSTSTSTPERR        (1 << 6)   /*!< Master Start Stop Error Bit */    
+#define I2C_STAT_SLVPENDING         (1 << 8)   /*!< Slave Pending Status Bit */    
+#define I2C_STAT_SLVSTATE           ($3 << 9)   /*!< Slave State Code */    
+#define I2C_STAT_SLVNOTSTR          (1 << 11)   /*!< Slave not stretching Clock Bit */    
+#define I2C_STAT_SLVIDX             ($3 << 12)   /*!< Slave Address Index */    
+#define I2C_STAT_SLVSEL             (1 << 14)   /*!< Slave Selected Bit */    
+#define I2C_STAT_SLVDESEL           (1 << 15)   /*!< Slave Deselect Bit */    
+#define I2C_STAT_MONRDY             (1 << 16)   /*!< Monitor Ready Bit */    
+#define I2C_STAT_MONOV              (1 << 17)   /*!< Monitor Overflow Flag */    
+#define I2C_STAT_MONACTIVE          (1 << 18)   /*!< Monitor Active Flag */    
+#define I2C_STAT_MONIDLE            (1 << 19)   /*!< Monitor Idle Flag */    
+#define I2C_STAT_EVENTTIMEOUT       (1 << 24)   /*!< Event Timeout Interrupt Flag */    
+#define I2C_STAT_SCLTIMEOUT         (1 << 25)   /*!< SCL Timeout Interrupt Flag */    
+#define I2C_STAT_MSTCODE_IDLE       (0)     /*!< Master Idle State Code */  
+#define I2C_STAT_MSTCODE_RXREADY    (1)     /*!< Master Receive Ready State Code */  
+#define I2C_STAT_MSTCODE_TXREADY    (2)     /*!< Master Transmit Ready State Code */  
+#define I2C_STAT_MSTCODE_NACKADR    (3)     /*!< Master NACK by slave on address State Code */  
+#define I2C_STAT_MSTCODE_NACKDAT    (4)     /*!< Master NACK by slave on data State Code */  
+#define I2C_STAT_SLVCODE_ADDR       (0)     /*!< Master Idle State Code */  
+#define I2C_STAT_SLVCODE_RX         (1)     /*!< Received data is available Code */  
+#define I2C_STAT_SLVCODE_TX         (2)     /*!< Data can be transmitted Code */  
+#define I2C_INTENSET_MSTPENDING     (1 << 0)   /*!< Master Pending Interrupt Enable Bit */    
+#define I2C_INTENSET_MSTRARBLOSS    (1 << 4)   /*!< Master Arbitration Loss Interrupt Enable Bit */    
+#define I2C_INTENSET_MSTSTSTPERR    (1 << 6)   /*!< Master Start Stop Error Interrupt Enable Bit */    
+#define I2C_INTENSET_SLVPENDING     (1 << 8)   /*!< Slave Pending Interrupt Enable Bit */    
+#define I2C_INTENSET_SLVNOTSTR      (1 << 11)   /*!< Slave not stretching Clock Interrupt Enable Bit */    
+#define I2C_INTENSET_SLVDESEL       (1 << 15)   /*!< Slave Deselect Interrupt Enable Bit */    
+#define I2C_INTENSET_MONRDY         (1 << 16)   /*!< Monitor Ready Interrupt Enable Bit */    
+#define I2C_INTENSET_MONOV          (1 << 17)   /*!< Monitor Overflow Interrupt Enable Bit */    
+#define I2C_INTENSET_MONIDLE        (1 << 19)   /*!< Monitor Idle Interrupt Enable Bit */    
+#define I2C_INTENSET_EVENTTIMEOUT   (1 << 24)   /*!< Event Timeout Interrupt Enable Bit */    
+#define I2C_INTENSET_SCLTIMEOUT     (1 << 25)   /*!< SCL Timeout Interrupt Enable Bit */    
+#define I2C_INTENCLR_MSTPENDING     (1 << 0)   /*!< Master Pending Interrupt Clear Bit */    
+#define I2C_INTENCLR_MSTRARBLOSS    (1 << 4)   /*!< Master Arbitration Loss Interrupt Clear Bit */    
+#define I2C_INTENCLR_MSTSTSTPERR    (1 << 6)   /*!< Master Start Stop Error Interrupt Clear Bit */    
+#define I2C_INTENCLR_SLVPENDING     (1 << 8)   /*!< Slave Pending Interrupt Clear Bit */    
+#define I2C_INTENCLR_SLVNOTSTR      (1 << 11)   /*!< Slave not stretching Clock Interrupt Clear Bit */    
+#define I2C_INTENCLR_SLVDESEL       (1 << 15)   /*!< Slave Deselect Interrupt Clear Bit */    
+#define I2C_INTENCLR_MONRDY         (1 << 16)   /*!< Monitor Ready Interrupt Clear Bit */    
+#define I2C_INTENCLR_MONOV          (1 << 17)   /*!< Monitor Overflow Interrupt Clear Bit */    
+#define I2C_INTENCLR_MONIDLE        (1 << 19)   /*!< Monitor Idle Interrupt Clear Bit */    
+#define I2C_INTENCLR_EVENTTIMEOUT   (1 << 24)   /*!< Event Timeout Interrupt Clear Bit */    
+#define I2C_INTENCLR_SCLTIMEOUT     (1 << 25)   /*!< SCL Timeout Interrupt Clear Bit */    
+#define I2C_TIMEOUT_VAL(n)          (((uint32_t) ((n) - 1) & $FFF0) | $000F) /*!< Macro for Timeout value register */      
+#define I2C_INTSTAT_MSTPENDING      (1 << 0)   /*!< Master Pending Interrupt Status Bit */    
+#define I2C_INTSTAT_MSTRARBLOSS     (1 << 4)   /*!< Master Arbitration Loss Interrupt Status Bit */    
+#define I2C_INTSTAT_MSTSTSTPERR     (1 << 6)   /*!< Master Start Stop Error Interrupt Status Bit */    
+#define I2C_INTSTAT_SLVPENDING      (1 << 8)   /*!< Slave Pending Interrupt Status Bit */    
+#define I2C_INTSTAT_SLVNOTSTR       (1 << 11)   /*!< Slave not stretching Clock Interrupt Status Bit */    
+#define I2C_INTSTAT_SLVDESEL        (1 << 15)   /*!< Slave Deselect Interrupt Status Bit */    
+#define I2C_INTSTAT_MONRDY          (1 << 16)   /*!< Monitor Ready Interrupt Status Bit */    
+#define I2C_INTSTAT_MONOV           (1 << 17)   /*!< Monitor Overflow Interrupt Status Bit */    
+#define I2C_INTSTAT_MONIDLE         (1 << 19)   /*!< Monitor Idle Interrupt Status Bit */    
+#define I2C_INTSTAT_EVENTTIMEOUT    (1 << 24)   /*!< Event Timeout Interrupt Status Bit */    
+#define I2C_INTSTAT_SCLTIMEOUT      (1 << 25)   /*!< SCL Timeout Interrupt Status Bit */    
+#define I2C_MSTCTL_MSTCONTINUE      (1 << 0)   /*!< Master Continue Bit */    
+#define I2C_MSTCTL_MSTSTART         (1 << 1)   /*!< Master Start Control Bit */    
+#define I2C_MSTCTL_MSTSTOP          (1 << 2)   /*!< Master Stop Control Bit */    
+#define I2C_MSTCTL_MSTDMA           (1 << 3)   /*!< Master DMA Enable Bit */    
+#define I2C_MSTTIME_MSTSCLLOW       ($07 << 0)   /*!< Master SCL Low Time field */    
+#define I2C_MSTTIME_MSTSCLHIGH      ($07 << 4)   /*!< Master SCL High Time field */    
+#define I2C_MSTDAT_DATAMASK         ((uint32_t) $00FF << 0) /*!< Master data mask */      
+#define I2C_SLVCTL_SLVCONTINUE      (1 << 0)   /*!< Slave Continue Bit */    
+#define I2C_SLVCTL_SLVNACK          (1 << 1)   /*!< Slave NACK Bit */    
+#define I2C_SLVCTL_SLVDMA           (1 << 3)   /*!< Slave DMA Enable Bit */    
+#define I2C_SLVDAT_DATAMASK         ((uint32_t) $00FF << 0) /*!< Slave data mask */      
+#define I2C_SLVADR_SADISABLE        (1 << 0)   /*!< Slave Address n Disable Bit */    
+#define I2C_SLVADR_SLVADR           ($7F << 1)   /*!< Slave Address field */    
+#define I2C_SLVADR_MASK             ((uint32_t) $00FF) /*!< Slave Address Mask */      
+#define I2C_SLVQUAL_QUALMODE0       (1 << 0)   /*!< Slave Qualifier Mode Enable Bit */    
+#define I2C_SLVQUAL_SLVQUAL0        ($7F << 1)   /*!< Slave Qualifier Address for Address 0 */    
+#define I2C_MONRXDAT_DATA           ($FF << 0)   /*!< Monitor Function Receive Data Field */    
+#define I2C_MONRXDAT_MONSTART       (1 << 8)   /*!< Monitor Received Start Bit */    
+#define I2C_MONRXDAT_MONRESTART     (1 << 9)   /*!< Monitor Received Repeated Start Bit */    
+#define I2C_MONRXDAT_MONNACK        (1 << 10)   /*!< Monitor Received Nack Bit */    
+
+' ...\lpc_chip_82x\inc\iap.h (33 hits)
+#define __IAP_H_       
+#define IAP_PREWRRITE_CMD           50 /*!< Prepare sector for write operation command */      
+#define IAP_WRISECTOR_CMD           51 /*!< Write Sector command */      
+#define IAP_ERSSECTOR_CMD           52 /*!< Erase Sector command */      
+#define IAP_BLANK_CHECK_SECTOR_CMD  53 /*!< Blank check sector */      
+#define IAP_REPID_CMD               54 /*!< Read PartID command */      
+#define IAP_READ_BOOT_CODE_CMD      55 /*!< Read Boot code version */      
+#define IAP_COMPARE_CMD             56 /*!< Compare two RAM address locations */      
+#define IAP_REINVOKE_ISP_CMD        57 /*!< Reinvoke ISP */      
+#define IAP_READ_UID_CMD            58 /*!< Read UID */      
+#define IAP_ERASE_PAGE_CMD          59 /*!< Erase page */      
+#define IAP_EEPROM_WRITE            61 /*!< EEPROM Write command */      
+#define IAP_EEPROM_READ             62 /*!< EEPROM READ command */      
+#define IAP_CMD_SUCCESS             0 /*!< Command is executed successfully */      
+#define IAP_INVALID_COMMAND         1 /*!< Invalid command */      
+#define IAP_SRC_ADDR_ERROR          2 /*!< Source address is not on word boundary */      
+#define IAP_DST_ADDR_ERROR          3 /*!< Destination address is not on a correct boundary */      
+#define IAP_SRC_ADDR_NOT_MAPPED     4 /*!< Source address is not mapped in the memory map */      
+#define IAP_DST_ADDR_NOT_MAPPED     5 /*!< Destination address is not mapped in the memory map */      
+#define IAP_COUNT_ERROR             6 /*!< Byte count is not multiple of 4 or is not a permitted value */      
+#define IAP_INVALID_SECTOR          7 /*!< Sector number is invalid or end sector number is greater than start sector number */      
+#define IAP_SECTOR_NOT_BLANK        8 /*!< Sector is not blank */      
+#define IAP_SECTOR_NOT_PREPARED     9 /*!< Command to prepare sector for write operation was not executed */      
+#define IAP_COMPARE_ERROR           10 /*!< Source and destination data not equal */      
+#define IAP_BUSY                    11 /*!< Flash programming hardware interface is busy */      
+#define IAP_PARAM_ERROR             12 /*!< nsufficient number of parameters or invalid parameter */      
+#define IAP_ADDR_ERROR              13 /*!< Address is not on word boundary */      
+#define IAP_ADDR_NOT_MAPPED         14 /*!< Address is not mapped in the memory map */      
+#define IAP_CMD_LOCKED              15 /*!< Command is locked */      
+#define IAP_INVALID_CODE            16 /*!< Unlock code is invalid */      
+#define IAP_INVALID_BAUD_RATE       17 /*!< Invalid baud rate setting */      
+#define IAP_INVALID_STOP_BIT        18 /*!< Invalid stop bit setting */      
+#define IAP_CRP_ENABLED             19 /*!< Code read protection enabled */      
+
+' ...\lpc_chip_82x\inc\inmux_8xx.h (1 hit)
+#define __INMUX_8XX_H_       
+
+' ...\lpc_chip_82x\inc\iocon_8xx.h (16 hits)
+#define __IOCON_8XX_H_       
+#define NUM_IOCON_PIO  (29)       
+#define PIN_MODE_MASK           ($3 <<  3)       
+#define PIN_MODE_BITNUM         (3)       
+#define PIN_HYS_MASK            ($1 <<  5)       
+#define PIN_HYS_BITNUM          (5)       
+#define PIN_INV_MASK            ($1 <<  6)       
+#define PIN_INV_BITNUM          (6)       
+#define PIN_OD_MASK             ($1 << 10)       
+#define PIN_OD_BITNUM           (10)       
+#define PIN_SMODE_MASK          ($3 << 11)       
+#define PIN_SMODE_BITNUM        (11)       
+#define PIN_CLKDIV_MASK         ($7 << 13)       
+#define PIN_CLKDIV_BITNUM       (13)       
+#define PIN_I2CMODE_MASK        ($3 <<  8)       
+#define PIN_I2CMODE_BITNUM      (8)       
+
+' ...\lpc_chip_82x\inc\irc_8xx.h (1 hit)
+#define __IRC_8XX_H_       
+
+' ...\lpc_chip_82x\inc\lpc_types.h (17 hits)
+#define __LPC_TYPES_H_       
+#define PARAM_SETSTATE(State) ((State == RESET) || (State == SET))       
+#define PARAM_FUNCTIONALSTATE(State) ((State == DISABLE) || (State == ENABLE))       
+#define _BIT(n) (1 << (n))       
+#define _SBF(f, v) ((v) << (f))       
+#define _BITMASK(field_width) ( _BIT(field_width) - 1)       
+#define NULL ((void *) 0)       
+#define NELEMENTS(array)  (sizeof(array) / sizeof(array[0]))       
+#define STATIC static       
+#define EXTERN extern       
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))       
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))       
+#define BOOL_32 bool       
+#define BOOL_16 bool       
+#define BOOL_8  bool       
+#define INLINE  __inline       
+#define INLINE inline       
+
+' ...\lpc_chip_82x\inc\mrt_8xx.h (21 hits)
+#define __MRT_8XX_H_       
+#define MRT_CHANNELS_NUM      (4)       
+#define MRT_NO_IDLE_CHANNEL   ($40)       
+#define MRT_CTRL_RESERVED   (~7)       
+#define MRT_STAT_RESERVED   (~3)       
+#define MRT_INTVAL_IVALUE        ($7FFFFFFF) ' Maximum interval load value and mask */      
+#define MRT_INTVAL_LOAD          ($80000000) ' Force immediate load of timer interval register bit */      
+#define MRT_CTRL_INTEN_MASK      ($01)       
+#define MRT_CTRL_MODE_MASK       ($06)       
+#define MRT_STAT_INTFLAG         ($01)       
+#define MRT_STAT_RUNNING         ($02)       
+#define LPC_MRT_CH0         ((LPC_MRT_CH_T *) &LPC_MRT->CHANNEL[0])       
+#define LPC_MRT_CH1         ((LPC_MRT_CH_T *) &LPC_MRT->CHANNEL[1])       
+#define LPC_MRT_CH2         ((LPC_MRT_CH_T *) &LPC_MRT->CHANNEL[2])       
+#define LPC_MRT_CH3         ((LPC_MRT_CH_T *) &LPC_MRT->CHANNEL[3])       
+#define LPC_MRT_CH(ch)      ((LPC_MRT_CH_T *) &LPC_MRT->CHANNEL[(ch)])       
+#define MRT0_INTFLAG        (1)       
+#define MRT1_INTFLAG        (2)       
+#define MRT2_INTFLAG        (4)       
+#define MRT3_INTFLAG        (8)       
+#define MRTn_INTFLAG(ch)    (1 << (ch))       
+
+' ...\lpc_chip_82x\inc\packing.h (4 hits)
+#define __PACKING_H_       
+#define PRE_PACK   ' Nothing */       
+#define POST_PACK  ' Nothing */       
+#define ALIGNED(n) ' Nothing */       
+
+' ...\lpc_chip_82x\inc\pinint_8xx.h (29 hits)
+#define __PININT_8XX_H_       
+#define PININT_ISEL_RESERVED    (~$ff)       
+#define PININT_IENR_RESERVED    (~$ff)       
+#define PININT_SIENR_RESERVED   (~$ff)       
+#define PININT_CIENR_RESERVED   (~$ff)       
+#define PININT_IENF_RESERVED    (~$ff)       
+#define PININT_SIENF_RESERVED   (~$ff)       
+#define PININT_CIENF_RESERVED   (~$ff)       
+#define PININT_RISE_RESERVED    (~$ff)       
+#define PININT_FALL_RESERVED    (~$ff)       
+#define PININT_IST_RESERVED     (~$ff)       
+#define PININT_PMCTRL_RESERVED  (~$ff000003)       
+#define PININT_PMSRC_RESERVED   $ff       
+#define PININT_PMCFG_RESERVED   (1<<7)       
+#define PININT_PMCTRL_PMATCH_SEL (1 << 0)        
+#define PININT_PMCTRL_RXEV_ENA   (1 << 1)        
+#define PININT_SRC_BITSOURCE_START  8       
+#define PININT_SRC_BITSOURCE_MASK   7       
+#define PININT_SRC_BITCFG_START  8       
+#define PININT_SRC_BITCFG_MASK   7       
+#define PININTCH0         (1 << 0)       
+#define PININTCH1         (1 << 1)       
+#define PININTCH2         (1 << 2)       
+#define PININTCH3         (1 << 3)       
+#define PININTCH4         (1 << 4)       
+#define PININTCH5         (1 << 5)       
+#define PININTCH6         (1 << 6)       
+#define PININTCH7         (1 << 7)       
+#define PININTCH(ch)      (1 << (ch))       
+
+' ...\lpc_chip_82x\inc\pmu_8xx.h (14 hits)
+#define __PMU_8XX_H_       
+#define PMU_PCON_RESERVED      (($f<<4)|($6<<8)|$fffff000)       
+#define PMU_DPDCTRL_RESERVED   (~$f)       
+#define PMU_PCON_PM_SLEEP   ($0)  /*!< ARM WFI enter sleep mode */  
+#define PMU_PCON_PM_DEEPSLEEP  ($1)  /*!< ARM WFI enter Deep-sleep mode */   
+#define PMU_PCON_PM_POWERDOWN  ($2)  /*!< ARM WFI enter Power-down mode */   
+#define PMU_PCON_PM_DEEPPOWERDOWN ($3)  /*!< ARM WFI enter Deep Power-down mode */    
+#define PMU_PCON_NODPD    (1 << 3) /*!< Disable deep power-down mode */  
+#define PMU_PCON_SLEEPFLAG   (1 << 8) /*!< Sleep mode flag */   
+#define PMU_PCON_DPDFLAG   (1 << 11) /*!< Deep power-down flag */   
+#define PMU_DPDCTRL_WAKEUPPHYS      (1 << 0) /** Enable wake-up pin hysteresis */      
+#define PMU_DPDCTRL_WAKEPAD         (1 << 1) /** Disable the Wake-up */      
+#define PMU_DPDCTRL_LPOSCEN         (1 << 2) /** Enable the low-power oscillator (10 khz self wk) */      
+#define PMU_DPDCTRL_LPOSCDPDEN      (1 << 3) /** Enable the low-power oscillator in deep power-down*/      
+
+' ...\lpc_chip_82x\inc\ring_buffer.h (3 hits)
+#define __RING_BUFFER_H_       
+#define RB_VHEAD(rb)              (*(volatile uint32_t *) &(rb)->head)       
+#define RB_VTAIL(rb)              (*(volatile uint32_t *) &(rb)->tail)       
+
+' ...\lpc_chip_82x\inc\romapi_8xx.h (7 hits)
+#define __ROMAPI_8XX_H_       
+#define LPC_ROM_API_BASE_LOC $1FFF1FF8      
+#define LPC_ROM_API  (*(LPC_ROM_API_T * *) LPC_ROM_API_BASE_LOC)     
+#define LPC_PWRD_API    ((LPC_ROM_API)->pPWRD)       
+#define LPC_I2CD_API    ((LPC_ROM_API)->pI2CD)       
+#define LPC_UARTD_API   ((LPC_ROM_API)->pUARTD)       
+#define IAP_ENTRY_LOCATION        $1FFF1FF1       
+
+' ...\lpc_chip_82x\inc\rom_i2c_8xx.h (1 hit)
+#define __ROM_I2C_8XX_H_       
+
+' ...\lpc_chip_82x\inc\rom_pwr_8xx.h (17 hits)
+#define __ROM_PWR_8XX_H_       
+#define CPU_FREQ_EQU    0       
+#define CPU_FREQ_LTE    1       
+#define CPU_FREQ_GTE    2       
+#define CPU_FREQ_APPROX 3       
+#define PLL_CMD_SUCCESS    0       
+#define PLL_INVALID_FREQ   1       
+#define PLL_INVALID_MODE   2       
+#define PLL_FREQ_NOT_FOUND 3       
+#define PLL_NOT_LOCKED     4       
+#define PWR_DEFAULT         0       
+#define PWR_CPU_PERFORMANCE 1       
+#define PWR_EFFICIENCY      2       
+#define PWR_LOW_CURRENT     3       
+#define PWR_CMD_SUCCESS  0       
+#define PWR_INVALID_FREQ 1       
+#define PWR_INVALID_MODE 2       
+
+' ...\lpc_chip_82x\inc\rom_uart_8xx.h (18 hits)
+#define __ROM_UART_8XX_H_       
+#define OVERRUN_ERR_EN  (1 << 0) /*!< Bit 0: Enable overrun error */    
+#define UNDERRUN_ERR_EN  (1 << 1) /*!< Bit 1: Enable underrun error */    
+#define FRAME_ERR_EN  (1 << 2) /*!< Bit 2: enable frame error */    
+#define PARITY_ERR_EN  (1 << 3) /*!< Bit 3: enable parity error */    
+#define RXNOISE_ERR_EN  (1 << 4) /*!< Bit 4: enable receive noise error */    
+#define ALL_ERR_EN   (OVERRUN_ERR_EN | UNDERRUN_ERR_EN | FRAME_ERR_EN | PARITY_ERR_EN | \    
+#define NO_ERR_EN   0    
+#define TX_MODE_BUF_EMPTY  ($00)     
+#define RX_MODE_BUF_FULL  ($00)     
+#define TX_MODE_SZERO_SEND_CRLF ($01)      
+#define RX_MODE_CRLF_RECVD  ($01)     
+#define TX_MODE_SZERO_SEND_LF ($02)      
+#define RX_MODE_LF_RECVD  ($02)     
+#define TX_MODE_SZERO   ($03)    
+#define DRIVER_MODE_POLLING  ($00) /*!< Polling mode */    
+#define DRIVER_MODE_INTERRUPT ($01) /*!< Interrupt mode */     
+#define DRIVER_MODE_DMA   ($02) /*!< DMA mode */   
+
+' ...\lpc_chip_82x\inc\rtc_ut.h (3 hits)
+#define __RTC_UT_H_       
+#define TM_YEAR_BASE    (1900)       
+#define TM_DAYOFWEEK    (1)       
+
+' ...\lpc_chip_82x\inc\sct_8xx.h (55 hits)
+#define __SCT_8XX_H_       
+#define CONFIG_SCT_nEV   (8)   /*!< Number of events */    
+#define CONFIG_SCT_nRG   (8)   /*!< Number of match/compare registers */    
+#define CONFIG_SCT_nOU   (6)   /*!< Number of outputs */    
+#define SCT_CONFIG_RESERVED             $fff80000       
+#define SCT_CTRL_RESERVED               ((7<<13)|(7u<<29))       
+#define SCT_LIMIT_RESERVED              (~($3f|($3f<<16))       
+#define SCT_HALT_RESERVED               (~($3f|($3f<<16))       
+#define SCT_STOP_RESERVED               (~($3f|($3f<<16))       
+#define SCT_START_RESERVED              (~($3f|($3f<<16))       
+#define SCT_STATE_RESERVED              (~($1f|($1f<<16))       
+#define SCT_INPUT_RESERVED              (~($f|($f<<16))       
+#define SCT_REGMODE_RESERVED            (~($1f|($1f<<16))       
+#define SCT_OUTPUT_RESERVED             (~$f)       
+#define SCT_OUTPUTDIRCTRL_RESERVED      (~$ff)       
+#define SCT_RES_RESERVED                (~$ff)       
+#define SCT_EVEN_RESERVED               (~$3f)       
+#define SCT_EVFLAG_RESERVED             (~$3f)       
+#define SCT_CONEN_RESERVED              (~$f)       
+#define SCT_CONFLAG_RESERVED            (~($f|(3u<<30)))       
+#define SCT_CAPCTRL_RESERVED            (~($3f|($3f<<16)))       
+#define SCT_EVn_STATE_RESERVED          (~3)       
+#define SCT_EVn_CTRL_RESERVED           ($ff800000)       
+#define SCT_OUTn_SET_RESERVED           (~$3f)       
+#define SCT_OUTn_CLR_RESERVED           (~$3f)       
+#define SCT_CONFIG_16BIT_COUNTER        $00000000    /*!< Operate as 2 16-bit counters */   
+#define SCT_CONFIG_32BIT_COUNTER        $00000001    /*!< Operate as 1 32-bit counter */   
+#define SCT_CONFIG_CLKMODE_BUSCLK       ($0 << 1)    /*!< Bus clock */   
+#define SCT_CONFIG_CLKMODE_SCTCLK       ($1 << 1)    /*!< SCT clock */   
+#define SCT_CONFIG_CLKMODE_INCLK        ($2 << 1)    /*!< Input clock selected in CLKSEL field */   
+#define SCT_CONFIG_CLKMODE_INEDGECLK    ($3 << 1)    /*!< Input clock edge selected in CLKSEL field */   
+#define SCT_CONFIG_NORELOAD_U           ($1 << 7)    /*!< Prevent match register reload */   
+#define SCT_CONFIG_NORELOAD_L           ($1 << 7)    /*!< Prevent lower match register reload */   
+#define SCT_CONFIG_NORELOAD_H           ($1 << 8)    /*!< Prevent upper match register reload */   
+#define SCT_CONFIG_AUTOLIMIT_U          ($1 << 17)    /*!< Limits counter(unified) based on MATCH0 */   
+#define SCT_CONFIG_AUTOLIMIT_L          ($1 << 17)    /*!< Limits counter(L) based on MATCH0 */   
+#define SCT_CONFIG_AUTOLIMIT_H          ($1 << 18)    /*!< Limits counter(L) based on MATCH0 */   
+#define COUNTUP_TO_LIMIT_THEN_CLEAR_TO_ZERO     0    /*!< Direction for low or unified counter */   
+#define COUNTUP_TO LIMIT_THEN_COUNTDOWN_TO_ZERO 1       
+#define SCT_CTRL_STOP_L                 (1 << 1)    /*!< Stop low counter */   
+#define SCT_CTRL_HALT_L                 (1 << 2)    /*!< Halt low counter */   
+#define SCT_CTRL_CLRCTR_L               (1 << 3)    /*!< Clear low or unified counter */   
+#define SCT_CTRL_BIDIR_L(x)             (((x) & $01) << 4)  /*!< Bidirectional bit */     
+#define SCT_CTRL_PRE_L(x)               (((x) & $FF) << 5)  /*!< Prescale clock for low or unified counter */     
+#define COUNTUP_TO_LIMIT_THEN_CLEAR_TO_ZERO     0    /*!< Direction for high counter */   
+#define COUNTUP_TO LIMIT_THEN_COUNTDOWN_TO_ZERO 1       
+#define SCT_CTRL_STOP_H                 (1 << 17)    /*!< Stop high counter */   
+#define SCT_CTRL_HALT_H                 (1 << 18)    /*!< Halt high counter */   
+#define SCT_CTRL_CLRCTR_H               (1 << 19)    /*!< Clear high counter */   
+#define SCT_CTRL_BIDIR_H(x)             (((x) & $01) << 20)       
+#define SCT_CTRL_PRE_H(x)               (((x) & $FF) << 21) /*!< Prescale clock for high counter */      
+#define SCT_RES_NOCHANGE                (0)       
+#define SCT_RES_SET_OUTPUT              (1)       
+#define SCT_RES_CLEAR_OUTPUT            (2)       
+#define SCT_RES_TOGGLE_OUTPUT           (3)       
+
+' ...\lpc_chip_82x\inc\sct_pwm_8xx.h (1 hit)
+#define __SCT_PWM_8XX_H_       
+
+' ...\lpc_chip_82x\inc\spim_8xx.h (1 hit)
+#define __SPIM_8XX_H_       
+
+' ...\lpc_chip_82x\inc\spis_8xx.h (5 hits)
+#define __SPIS_8XX_H_       
+#define SPI_STAT_CLR_RXOV       ((uint32_t) (1 << 2))       
+#define SPI_STAT_CLR_TXUR       ((uint32_t) (1 << 3))       
+#define SPI_STAT_CLR_SSA        ((uint32_t) (1 << 4))       
+#define SPI_STAT_CLR_SSD        ((uint32_t) (1 << 5))       
+
+' ...\lpc_chip_82x\inc\spi_8xx.h (1 hit)
+#define __SPI_8XX_H_       
+
+' ...\lpc_chip_82x\inc\spi_common_8xx.h (99 hits)
+#define __SPI_COMMON_8XX_H_       
+#define SPI_CFG_RESERVED            ((1<<1)|(1<<6)|$fffffe00)       
+#define SPI_DLY_RESERVED            $ffff0000       
+#define SPI_STAT_RESERVED           (~$1ff)       
+#define SPI_INTENSET_RESERVED       (~$3f)       
+#define SPI_INTENCLR_RESERVED       (~$3f)       
+#define SPI_RXDAT_RESERVED          ((7<<17)|($7ffu<<21))       
+#define SPI_TXDATCTL_RESERVED       ((7<<17)|(1<<23)|($fu<<28))       
+#define SPI_TXDAT_RESERVED          $ffff0000       
+#define SPI_TXCTRL_RESERVED         ($ffff|(7<<17)|(1<<23)|($fu<<28))       
+#define SPI_DIV_RESERVED            $ffff0000       
+#define SPI_INTSTAT_RESERVED        (~$3f)       
+#define SPI_CFG_BITMASK         ($1BD)      /** SPI register bit mask */ 
+#define SPI_CFG_SPI_EN          (1 << 0)     /** SPI Slave Mode Select */  
+#define SPI_CFG_SLAVE_EN        (0 << 0)     /** SPI Master Mode Select */  
+#define SPI_CFG_MASTER_EN       (1 << 2)     /** SPI MSB First mode enable */  
+#define SPI_CFG_MSB_FIRST_EN    (0 << 3)     /** SPI LSB First mode enable */  
+#define SPI_CFG_LSB_FIRST_EN    (1 << 3)     /** SPI Clock Phase Select */  
+#define SPI_CFG_CPHA_FIRST      (0 << 4)     /** Capture data on the first edge, Change data on the following edge */  
+#define SPI_CFG_CPHA_SECOND     (1 << 4)     /** SPI Clock Polarity Select */  
+#define SPI_CFG_CPOL_LO         (0 << 5)     /** The rest state of the clock (between frames) is low. */  
+#define SPI_CFG_CPOL_HI         (1 << 5)     /** The rest state of the clock (between frames) is high. */  
+#define SPI_CFG_LBM_EN          (1 << 7)     /** SPI control 1 loopback mode enable */  
+#define SPI_CFG_SPOL_LO         (0 << 8)     /** SPI SSEL0 Polarity Select */  
+#define SPI_CFG_SPOL_HI         (1 << 8)     /** SSEL0 is active High */  
+#define SPI_CFG_SPOLNUM_HI(n)   (1 << ((n) + 8))   /** SSELN is active High, selects 0 - 3 */    
+#define  SPI_DLY_BITMASK            ($FFFF)    /** SPI DLY Register Mask */   
+#define  SPI_DLY_PRE_DELAY(n)       (((n) & $0F) << 0)  /** Time in SPI clocks between SSEL assertion and the beginning of a data frame */     
+#define  SPI_DLY_POST_DELAY(n)      (((n) & $0F) << 4)  /** Time in SPI clocks between the end of a data frame and SSEL deassertion. */     
+#define  SPI_DLY_FRAME_DELAY(n)     (((n) & $0F) << 8)  /** Minimum time in SPI clocks between adjacent data frames. */     
+#define  SPI_DLY_TRANSFER_DELAY(n)  (((n) & $0F) << 12) /** Minimum time in SPI clocks that the SSEL is deasserted between transfers. */      
+#define SPI_STAT_BITMASK            ($1FF)     /** SPI STAT Register BitMask */  
+#define SPI_STAT_RXRDY              (1 << 0)    /** Receiver Ready Flag */   
+#define SPI_STAT_TXRDY              (1 << 1)    /** Transmitter Ready Flag */   
+#define SPI_STAT_RXOV               (1 << 2)    /** Receiver Overrun interrupt flag */   
+#define SPI_STAT_TXUR               (1 << 3)    /** Transmitter Underrun interrupt flag (In Slave Mode only) */   
+#define SPI_STAT_SSA                (1 << 4)    /** Slave Select Assert */   
+#define SPI_STAT_SSD                (1 << 5)    /** Slave Select Deassert */   
+#define SPI_STAT_STALLED            (1 << 6)    /** Stalled status flag */   
+#define SPI_STAT_EOT                (1 << 7)    /** End Transfer flag */   
+#define SPI_STAT_MSTIDLE            (1 << 8)    /** Idle status flag */   
+#define SPI_INTENSET_BITMASK        ($3F)     /** SPI INTENSET Register BitMask */  
+#define SPI_INTENSET_RXDYEN         (1 << 0)    /** Enable Interrupt when receiver data is available */   
+#define SPI_INTENSET_TXDYEN         (1 << 1)    /** Enable Interrupt when the transmitter holding register is available. */   
+#define SPI_INTENSET_RXOVEN         (1 << 2)    /**  Enable Interrupt when a receiver overrun occurs */   
+#define SPI_INTENSET_TXUREN         (1 << 3)    /**  Enable Interrupt when a transmitter underrun occurs (In Slave Mode Only)*/   
+#define SPI_INTENSET_SSAEN          (1 << 4)    /**  Enable Interrupt when the Slave Select is asserted.*/   
+#define SPI_INTENSET_SSDEN          (1 << 5)    /**  Enable Interrupt when the Slave Select is deasserted..*/   
+#define SPI_INTENCLR_BITMASK        ($3F)     /** SPI INTENCLR Register BitMask */  
+#define SPI_INTENCLR_RXDYEN         (1 << 0)    /** Disable Interrupt when receiver data is available */   
+#define SPI_INTENCLR_TXDYEN         (1 << 1)    /** Disable Interrupt when the transmitter holding register is available. */   
+#define SPI_INTENCLR_RXOVEN         (1 << 2)    /** Disable Interrupt when a receiver overrun occurs */   
+#define SPI_INTENCLR_TXUREN         (1 << 3)    /** Disable Interrupt when a transmitter underrun occurs (In Slave Mode Only) */   
+#define SPI_INTENCLR_SSAEN          (1 << 4)    /** Disable Interrupt when the Slave Select is asserted. */   
+#define SPI_INTENCLR_SSDEN          (1 << 5)    /** Disable Interrupt when the Slave Select is deasserted.. */   
+#define SPI_RXDAT_BITMASK           ($1FFFFF)    /** SPI RXDAT Register BitMask */   
+#define SPI_RXDAT_DATA(n)           ((n) & $FFFF)   /** Receiver Data  */    
+#define SPI_RXDAT_RXSSELN_ACTIVE    (0 << 16)    /** The state of SSEL pin is active */   
+#define SPI_RXDAT_RXSSELN_INACTIVE  ((1 << 16)    /** The state of SSEL pin is inactive */   
+#define SPI_RXDAT_RXSSELNUM_INACTIVE(n) (1 << ((n) + 16)) /** The state of SSELN pin is inactive */      
+#define SPI_RXDAT_SOT               (1 << 20)    /** Start of Transfer flag  */   
+#define SPI_TXDATCTL_BITMASK        ($F71FFFF)    /** SPI TXDATCTL Register BitMask */   
+#define SPI_TXDATCTL_DATA(n)        ((n) & $FFFF)   /** SPI Transmit Data */    
+#define SPI_TXDATCTL_CTRLMASK       ($F710000)    /** SPI TXDATCTL Register BitMask for control bits only */   
+#define SPI_TXDATCTL_ASSERT_SSEL    (0 << 16)    /** Assert SSEL0 pin */   
+#define SPI_TXDATCTL_DEASSERT_SSEL  (1 << 16)    /** Deassert SSEL0 pin */   
+#define SPI_TXDATCTL_DEASSERTNUM_SSEL(n)    (1 << ((n) + 16)) /** Deassert SSELN pin */      
+#define SPI_TXDATCTL_DEASSERT_ALL   ($F << 16)    /** Deassert all SSEL pins */   
+#define SPI_TXDATCTL_EOT            (1 << 20)    /** End of Transfer flag (TRANSFER_DELAY is applied after sending the current frame) */   
+#define SPI_TXDATCTL_EOF            (1 << 21)    /** End of Frame flag (FRAME_DELAY is applied after sending the current part) */   
+#define SPI_TXDATCTL_RXIGNORE       (1 << 22)    /** Receive Ignore Flag */   
+#define SPI_TXDATCTL_FLEN(n)        (((n) & $0F) << 24) /** Frame length - 1 */      
+#define SPI_TXDAT_DATA(n)           ((n) & $FFFF)   /** SPI Transmit Data */    
+#define SPI_TXCTL_BITMASK           ($F7F0000)    /** SPI TXDATCTL Register BitMask */   
+#define SPI_TXCTL_ASSERT_SSEL       (0 << 16)    /** Assert SSEL0 pin */   
+#define SPI_TXCTL_DEASSERT_SSEL     (1 << 16)    /** Deassert SSEL0 pin */   
+#define SPI_TXCTL_DEASSERTNUM_SSEL(n)   (1 << ((n) + 16)) /** Deassert SSELN pin */      
+#define SPI_TXDATCTL_DEASSERT_ALL   ($F << 16)    /** Deassert all SSEL pins */   
+#define SPI_TXCTL_EOT               (1 << 20)    /** End of Transfer flag (TRANSFER_DELAY is applied after sending the current frame) */   
+#define SPI_TXCTL_EOF               (1 << 21)    /** End of Frame flag (FRAME_DELAY is applied after sending the current part) */   
+#define SPI_TXCTL_RXIGNORE          (1 << 22)    /** Receive Ignore Flag */   
+#define SPI_TXCTL_FLEN(n)           ((((n) - 1) & $0F) << 24) /** Frame length, 0 - 16 */      
+#define SPI_TXCTL_FLENMASK          ($F << 24)    /** Frame length mask */   
+#define SPI_DIV_VAL(n)          ((n) & $FFFF)    /** Rate divider value mask (In Master Mode only)*/   
+#define SPI_INTSTAT_BITMASK         ($3F)     /** SPI INTSTAT Register Bitmask */  
+#define SPI_INTSTAT_RXRDY           (1 << 0)    /** Receiver Ready Flag */   
+#define SPI_INTSTAT_TXRDY           (1 << 1)    /** Transmitter Ready Flag */   
+#define SPI_INTSTAT_RXOV            (1 << 2)    /** Receiver Overrun interrupt flag */   
+#define SPI_INTSTAT_TXUR            (1 << 3)    /** Transmitter Underrun interrupt flag (In Slave Mode only) */   
+#define SPI_INTSTAT_SSA             (1 << 4)    /** Slave Select Assert */   
+#define SPI_INTSTAT_SSD             (1 << 5)    /** Slave Select Deassert */   
+#define SPI_CLOCK_CPHA0_CPOL0 (SPI_CFG_CPOL_LO | SPI_CFG_CPHA_FIRST) /**< CPHA = 0, CPOL = 0 */      
+#define SPI_CLOCK_MODE0 SPI_CLOCK_CPHA0_CPOL0       /**< Alias for CPHA = 0, CPOL = 0
+#define SPI_CLOCK_CPHA1_CPOL0 SPI_CFG_CPOL_LO | SPI_CFG_CPHA_SECOND  /**< CPHA = 0, CPOL = 1 */     
+#define SPI_CLOCK_MODE1 SPI_CLOCK_CPHA1_CPOL0       /**< Alias for CPHA = 0, CPOL = 1
+#define SPI_CLOCK_CPHA0_CPOL1 SPI_CFG_CPOL_HI | SPI_CFG_CPHA_FIRST  /**< CPHA = 1, CPOL = 0 */     
+#define SPI_CLOCK_MODE2 SPI_CLOCK_CPHA0_CPOL1       /**< Alias for CPHA = 1, CPOL = 0
+#define SPI_CLOCK_CPHA1_CPOL1 SPI_CFG_CPOL_HI | SPI_CFG_CPHA_SECOND  /**< CPHA = 1, CPOL = 1 */     
+#define SPI_CLOCK_MODE3 SPI_CLOCK_CPHA1_CPOL1       /**< Alias for CPHA = 1, CPOL = 1
+
+' ...\lpc_chip_82x\inc\stopwatch.h (1 hit)
+#define __STOPWATCH_H_       
+
+' ...\lpc_chip_82x\inc\swm_8xx.h (3 hits)
+#define __SWM_8XX_H_       
+#define SWM_PINENABLE0_RESERVED  (~$1ffffff)       
+#define SWM_PINENABLE0_RESERVED  (~$1ff)       
+
+' ...\lpc_chip_82x\inc\syscon_8xx.h (68 hits)
+#define __SYSCTL_8XX_H_       
+#define SYSCTL_RST_POR    (1 << 0) /*!< POR reset status */      
+#define SYSCTL_RST_EXTRST (1 << 1) /*!< External reset status */      
+#define SYSCTL_RST_WDT    (1 << 2) /*!< Watchdog reset status */      
+#define SYSCTL_RST_BOD    (1 << 3) /*!< Brown-out detect reset status */      
+#define SYSCTL_RST_SYSRST (1 << 4) /*!< software system reset status */      
+#define SYSCTL_WAKEUP_SPI0TINT    (1 << 0) /*!< SPI0 interrupt wake-up */      
+#define SYSCTL_WAKEUP_SPI1INT     (1 << 1) /*!< SPI0 interrupt wake-up */      
+#define SYSCTL_WAKEUP_USART0INT   (1 << 3) /*!< USART0 interrupt wake-up */      
+#define SYSCTL_WAKEUP_USART1INT   (1 << 4) /*!< USART1 interrupt wake-up */      
+#define SYSCTL_WAKEUP_USART2INT   (1 << 5) /*!< USART2 interrupt wake-up */      
+#define SYSCTL_WAKEUP_I2C0INT     (1 << 8) /*!< I2C0 interrupt wake-up */      
+#define SYSCTL_WAKEUP_I2C1INT     (1 << 7) /*!< I2C1 interrupt wake-up [Available only on LPC82X] */      
+#define SYSCTL_WAKEUP_I2C2INT     (1 << 21) /*!< I2C2 interrupt wake-up [Available only on LPC82X] */      
+#define SYSCTL_WAKEUP_I2C3INT     (1 << 22) /*!< I2C3 interrupt wake-up [Available only on LPC82X] */      
+#define SYSCTL_WAKEUP_WWDTINT     (1 << 12) /*!< WWDT interrupt wake-up */      
+#define SYSCTL_WAKEUP_BODINT      (1 << 13) /*!< Brown Out Detect (BOD) interrupt wake-up */      
+#define SYSCTL_WAKEUP_WKTINT      (1 << 15) /*!< Self wake-up timer interrupt wake-up */      
+#define SYSCTL_WAKEUP_I2CINT      SYSCTL_WAKEUP_I2C0INT /*!< Same as #SYSCTL_WAKEUP_I2CINT */       
+#define SYSCTL_DEEPSLP_BOD_PD    (1 << 3) /*!< BOD power-down control in Deep-sleep mode, powered down */      
+#define SYSCTL_DEEPSLP_WDTOSC_PD (1 << 6) /*!< Watchdog oscillator power control in Deep-sleep, powered down */      
+#define SYSCTL_SLPWAKE_IRCOUT_PD (1 << 0) /*!< IRC oscillator output wake-up configuration */      
+#define SYSCTL_SLPWAKE_IRC_PD    (1 << 1) /*!< IRC oscillator power-down wake-up configuration */      
+#define SYSCTL_SLPWAKE_FLASH_PD  (1 << 2) /*!< Flash wake-up configuration */      
+#define SYSCTL_SLPWAKE_BOD_PD    (1 << 3) /*!< BOD wake-up configuration */      
+#define SYSCTL_SLPWAKE_ADC_PD    (1 << 4) /*!< ADC wake-up configuration [Available only on LPC82x] */      
+#define SYSCTL_SLPWAKE_SYSOSC_PD (1 << 5) /*!< System oscillator wake-up configuration */      
+#define SYSCTL_SLPWAKE_WDTOSC_PD (1 << 6) /*!< Watchdog oscillator wake-up configuration */      
+#define SYSCTL_SLPWAKE_SYSPLL_PD (1 << 7) /*!< System PLL wake-up configuration */      
+#define SYSCTL_SLPWAKE_ACMP_PD   (1 << 15) /*!< Analog comparator wake-up configuration */      
+#define SYSCTL_NMISRC_ENABLE   ((uint32_t) 1 << 31) /*!< Enable the Non-Maskable Interrupt (NMI) source */      
+#define SYSCTL_SYSMEMREMAP_RESERVED     (~3)       
+#define SYSCTL_SYSPLLCTRL_RESERVED      (~$7f)       
+#define SYSCTL_SYSPLLSTAT_RESERVED      (~1)       
+#define SYSCTL_SYSOSCCTRL_RESERVED      (~3)       
+#define SYSCTL_WDTOSCCTRL_RESERVED      (~$1ff)       
+#define SYSCTL_SYSRSTSTAT_RESERVED      (~$1f)       
+#define SYSCTL_SYSPLLCLKSEL_RESERVED    (~3)       
+#define SYSCTL_SYSPLLCLKUEN_RESERVED    (~1)       
+#define SYSCTL_MAINCLKSEL_RESERVED      (~3)       
+#define SYSCTL_MAINCLKUEN_RESERVED      (~1)       
+#define SYSCTL_SYSAHBCLKDIV_RESERVED    (~$ff)       
+#define SYSCTL_UARTCLKDIV_RESERVED      (~$ff)       
+#define SYSCTL_CLKOUTSEL_RESERVED       (~3)       
+#define SYSCTL_CLKOUTUEN_RESERVED       (~1)       
+#define SYSCTL_CLKOUTDIV_RESERVED       (~$ff)       
+#define SYSCTL_UARTFRGDIV_RESERVED      (~$ff)       
+#define SYSCTL_UARTFRGMULT_RESERVED     (~$ff)       
+#define SYSCTL_EXTTRACECMD_RESERVED     (~3)       
+#define SYSCTL_IOCONCLKDIV_RESERVED     (~$ff)       
+#define SYSCTL_BODCTRL_RESERVED         (~$1f)       
+#define SYSCTL_SYSTCKCAL_RESERVED       $fc000000       
+#define SYSCTL_IRQLATENCY_RESERVED      (~$ff)       
+#define SYSCTL_NMISRC_RESERVED          (~($1f|(1u<<31)))       
+#define SYSCTL_PINTSEL_RESERVED         (~$3f)       
+#define SYSCTL_STARTERP0_RESERVED       (~$ff)       
+#define SYSCTL_PRESETCTRL_RESERVED      $fffe2000       
+#define SYSCTL_SYSAHBCLKCTRL_RESERVED   $da100000       
+#define SYSCTL_PIOPORCAP0_RESERVED      $fffc0000       
+#define SYSCTL_STARTERP1_RESERVED       ((1<<2)|(1<<6)|(7<<9)|(1<<14)|$ff9f0000)       
+#define SYSCTL_PRESETCTRL_RESERVED      $ffffe000       
+#define SYSCTL_SYSAHBCLKCTRL_RESERVED   $fff00000       
+#define SYSCTL_PIOPORCAP0_RESERVED      $ffffc000       
+#define SYSCTL_STARTERP1_RESERVED       ((1<<2)|(3<<6)|(7<<9)|(1<<14)|($1f<<16)|$ff800000)       
+#define SYSCTL_PDSLEEPCFG_RESERVED      (~(1<<3)|(3<<4)|(1<<6)) */       
+#define SYSCTL_PDAWAKECFG_RESERVED */       
+#define SYSCTL_PDRUNCFG_RESERVED   */       
+#define RESET_I2C    RESET_I2C0       
+
+' ...\lpc_chip_82x\inc\sys_config.h (3 hits)
+#define __SYS_CONFIG_H_       
+#define CHIP_LPC8XX       
+#define CHIP_LPC82X       
+
+' ...\lpc_chip_82x\inc\uart_8xx.h (64 hits)
+#define __UART_8XX_H_       
+#define UART_CFG_ENABLE         ($01 << 0)       
+#define UART_CFG_DATALEN_7      ($00 << 2)  /*!< UART 7 bit length mode */     
+#define UART_CFG_DATALEN_8      ($01 << 2)  /*!< UART 8 bit length mode */     
+#define UART_CFG_DATALEN_9      ($02 << 2)  /*!< UART 9 bit length mode */     
+#define UART_CFG_PARITY_NONE    ($00 << 4)  /*!< No parity */     
+#define UART_CFG_PARITY_EVEN    ($02 << 4)  /*!< Even parity */     
+#define UART_CFG_PARITY_ODD     ($03 << 4)  /*!< Odd parity */     
+#define UART_CFG_STOPLEN_1      ($00 << 6)  /*!< UART One Stop Bit Select */     
+#define UART_CFG_STOPLEN_2      ($01 << 6)  /*!< UART Two Stop Bits Select */     
+#define UART_CFG_CTSEN          ($01 << 9)  /*!< CTS enable bit */     
+#define UART_CFG_SYNCEN         ($01 << 11) /*!< Synchronous mode enable bit */      
+#define UART_CFG_CLKPOL         ($01 << 12) /*!< Un_RXD rising edge sample enable bit */      
+#define UART_CFG_SYNCMST        ($01 << 14) /*!< Select master mode (synchronous mode) enable bit */      
+#define UART_CFG_LOOP           ($01 << 15) /*!< Loopback mode enable bit */      
+#define UART_CFG_OETA           ($01 << 18)    /*!< Output Enable Turnaround time for RS485 */       
+#define UART_CFG_AUTOADDR       ($01 << 19)    /*!< Automatic address matching enable */       
+#define UART_CFG_OESEL          ($01 << 20)    /*!< Output enable select */       
+#define UART_CFG_OEPOL          ($01 << 21)    /*!< Output enable polarity */       
+#define UART_CFG_RXPOL          ($01 << 22)    /*!< Receive data polarity */       
+#define UART_CFG_TXPOL          ($01 << 22)    /*!< Transmit data polarity */       
+#define UART_CFG_RESERVED       ((1<<1)|(1<<7)|(1<<8)|(1<<10)|(1<<13)|(3 << 16)|($ffu<<24))       
+#define UART_CFG_RESERVED       ((1<<1)|(1<<7)|(1<<8)|(1<<10)|(1<<13)|($ffffu<<16))       
+#define UART_CTRL_TXBRKEN       ($01 << 1)  /*!< Continuous break enable bit */     
+#define UART_CTRL_ADDRDET       ($01 << 2)  /*!< Address detect mode enable bit */     
+#define UART_CTRL_TXDIS         ($01 << 6)  /*!< Transmit disable bit */     
+#define UART_CTRL_CC            ($01 << 8)  /*!< Continuous Clock mode enable bit */     
+#define UART_CTRL_CLRCC         ($01 << 9)  /*!< Clear Continuous Clock bit */     
+#define UART_CTRL_AUTOBAUD      (1 << 16)       /*!< Enable UART Autobaud */       
+#define UART_CTRL_RESERVED      ($FFFEFCB9U)       
+#define UART_CTRL_RESERVED      (1|(7<<3)|(1<<7)|$fffffc00u)       
+#define UART_STAT_RXRDY         ($01 << 0)   /*!< Receiver ready */    
+#define UART_STAT_RXIDLE        ($01 << 1)   /*!< Receiver idle */    
+#define UART_STAT_TXRDY         ($01 << 2)   /*!< Transmitter ready for data */    
+#define UART_STAT_TXIDLE        ($01 << 3)   /*!< Transmitter idle */    
+#define UART_STAT_CTS           ($01 << 4)   /*!< Status of CTS signal */    
+#define UART_STAT_DELTACTS      ($01 << 5)   /*!< Change in CTS state */    
+#define UART_STAT_TXDISINT      ($01 << 6)   /*!< Transmitter disabled */    
+#define UART_STAT_OVERRUNINT    ($01 << 8)   /*!< Overrun Error interrupt flag. */    
+#define UART_STAT_RXBRK         ($01 << 10)  /*!< Received break */     
+#define UART_STAT_DELTARXBRK    ($01 << 11)  /*!< Change in receive break detection */     
+#define UART_STAT_START         ($01 << 12)  /*!< Start detected */     
+#define UART_STAT_FRM_ERRINT    ($01 << 13)  /*!< Framing Error interrupt flag */     
+#define UART_STAT_PAR_ERRINT    ($01 << 14)  /*!< Parity Error interrupt flag */     
+#define UART_STAT_RXNOISEINT    ($01 << 15)  /*!< Received Noise interrupt flag */     
+#define UART_STAT_ABERR         ($01 << 16)        /*!< Auto baud error */       
+#define UART_STAT_RESERVED      ((1<<7)|(1<<9)|($FFFEU<<16))       
+#define UART_STAT_RESERVED      ((1<<7)|(1<<9)|($ffffu<<16))       
+#define UART_INTEN_RXRDY        ($01 << 0)   /*!< Receive Ready interrupt */    
+#define UART_INTEN_TXRDY        ($01 << 2)   /*!< Transmit Ready interrupt */    
+#define UART_INTEN_DELTACTS     ($01 << 5)   /*!< Change in CTS state interrupt */    
+#define UART_INTEN_TXDIS        ($01 << 6)   /*!< Transmitter disable interrupt */    
+#define UART_INTEN_OVERRUN      ($01 << 8)   /*!< Overrun error interrupt */    
+#define UART_INTEN_DELTARXBRK   ($01 << 11)  /*!< Change in receiver break detection interrupt */     
+#define UART_INTEN_START        ($01 << 12)  /*!< Start detect interrupt */     
+#define UART_INTEN_FRAMERR      ($01 << 13)  /*!< Frame error interrupt */     
+#define UART_INTEN_PARITYERR    ($01 << 14)  /*!< Parity error interrupt */     
+#define UART_INTEN_RXNOISE      ($01 << 15)  /*!< Received noise interrupt */     
+#define UART_INTEN_TXIDLE       ($01 << 3)         /*!< TX Idle enable/clear */       
+#define UART_INTEN_ABERR        ($01 << 16)        /*!< Auto baud error */       
+#define UART_INTEN_RESERVED     ((1<<1)|(1<<4)|(1<<7)|(3<<9)|($fffeu<<16))       
+#define UART_INTSTAT_RESERVED   ((1<<1)|(1<<4)|(1<<7)|(3<<9)|($fffeu<<16))       
+#define UART_INTEN_RESERVED     ((1<<1)|(3<<3)|(1<<7)|(3<<9)|($ffffu<<16))       
+#define UART_INTSTAT_RESERVED   ((1<<1)|(3<<3)|(1<<7)|(3<<9)|($ffffu<<16))       
+
+' ...\lpc_chip_82x\inc\wkt_8xx.h (5 hits)
+#define __WKT_8XX_H_       
+#define WKT_CTRL_RESERVED (~7)       
+#define WKT_CTRL_CLKSEL        ((uint32_t) (1 << 0)) /*!< Select the self wake-up timer clock source */      
+#define WKT_CTRL_ALARMFLAG     ((uint32_t) (1 << 1)) /*!< Wake-up or alarm timer flag */      
+#define WKT_CTRL_CLEARCTR      ((uint32_t) (1 << 2)) /*!< Clears the self wake-up timer */      
+
+' ...\lpc_chip_82x\inc\wwdt_8xx.h (13 hits)
+#define __WWDT_8XX_H_       
+#define WDT_OSC     (LPC8XX_IRC_FREQ)       
+#define WWDT_MOD_RESERVED       (~$3f)       
+#define WWDT_TC_RESERVED        $ff000000       
+#define WWDT_FEED_RESERVED      (~$ff)       
+#define WWDT_TV_RESERVED        $ff000000       
+#define WWDT_WARNINT_RESERVED   (~$3ff)       
+#define WWDT_WINDOW_RESERVED    $ff000000       
+#define WWDT_WDMOD_BITMASK          ((uint32_t) $1F)       
+#define WWDT_WDMOD_WDEN             ((uint32_t) (1 << 0))       
+#define WWDT_WDMOD_WDRESET          ((uint32_t) (1 << 1))       
+#define WWDT_WDMOD_WDTOF            ((uint32_t) (1 << 2))       
+#define WWDT_WDMOD_WDINT            ((uint32_t) (1 << 3))       
+
+' ...\lpc_chip_82x\src\dma_8xx.c (3 hits)
+#define ASTR(str)  #str       
+#define ALIGN(x) _Pragma(ASTR(data_alignment=##x))       
+#define ALIGN(x) __attribute__((aligned(x)))       
+
+' ...\lpc_chip_82x\src\pmu_8xx.c (1 hit)
+#define SCB_SCR_RESERVED (~(SCB_SCR_SLEEPONEXIT_Msk|SCB_SCR_SLEEPDEEP_Msk|SCB_SCR_SEVONPEND_Msk))       
+
+' ...\lpc_chip_82x\src\ring_buffer.c (2 hits)
+#define RB_INDH(rb)                ((rb)->head & ((rb)->count - 1))       
+#define RB_INDT(rb)                ((rb)->tail & ((rb)->count - 1))       
+
+' ...\lpc_chip_82x\src\swm_8xx.c (2 hits)
+#define PINASSIGN_IDX(movable)  (((movable) >> 4))       
+#define PINSHIFT(movable)       (((movable) & $F) << 3)       
+
+' ...\lpc_chip_82x\src\syscon_8xx.c (6 hits)
+#define PDSLEEPWRMASK   ($0000FFB7)       
+#define PDSLEEPDATMASK  ($00000048)       
+#define PDWAKEUPWRMASK  ($00006D00)       
+#define PDWAKEUPDATMASK ($000080FF)       
+#define PDWAKEUPWRMASK  ($00006D10)       
+#define PDWAKEUPDATMASK ($000080EF)       
+
+' ...\lpc_chip_82x\src\sysinit_8xx.c (2 hits)
+#define CONFIG_MAIN_FREQ  60000000    
+#define CONFIG_SYS_FREQ   MAX_CLOCK_FREQ   
+
+#endif
+

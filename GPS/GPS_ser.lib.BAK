@@ -1,0 +1,1070 @@
+#ifndef gps_ser_loaded
+#define gps_ser_loaded
+
+'FIXME Items
+' - add config code to detect baud and to autoconfig the device (NMEA messages counts, etc.)
+
+#include <RTC.bas>   
+#include "__LIB\Ab_Extensions.lib"
+#include "GPS\GPS_defs.lib"
+
+'#############################################################################################################################
+'~~		Initialization Stuffs
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+'~~ ' DIM VARIABLES
+
+DIM GPS_TEMP_STR(GPS_MAX_NMEA_MSG_LEN) AS STRING
+
+DIM GPS_NMEA_MSG_CNT(GPS_NUM_NMEA_MSG_TYPES) AS INTEGER			' CNTER FOR THE # OF SENT RX'D FOR EACH TYPE OF GPS SENT
+
+DIM GPS_NMEA_MSG_FLD_STR(GPS_MAX_NMEA_MSG_FLD_LEN) AS STRING
+DIM GPS_NMEA_MSG_FLD_POS(GPS_MAX_NMEA_MSG_FLD_CNT) AS INTEGER	' INIT FLD POINTER ARRAY (USED DURING PARSING)
+
+DIM GPS_LAST_NMEA_MSG_TIME AS INTEGER
+
+DIM GPS_MONTH AS INTEGER
+DIM GPS_DAY AS INTEGER
+DIM GPS_YEAR AS INTEGER
+DIM GPS_LOCAL_TIME AS INTEGER
+DIM GPS_UTC_TIME AS INTEGER
+DIM GPS_POSITION_FIX AS INTEGER
+DIM GPS_SATELLITE_CNT AS INTEGER
+DIM GPS_POSITION_DOP AS INTEGER
+DIM GPS_HORIZONTAL_DOP AS INTEGER
+DIM GPS_VERTICAL_DOP AS INTEGER
+DIM GPS_LATITUDE AS INTEGER
+DIM GPS_LONGITUDE AS INTEGER
+DIM GPS_ALTITUDE AS INTEGER
+DIM GPS_GROUND_TRACK AS INTEGER
+DIM GPS_GROUND_SPEED AS INTEGER
+dim GPS_RXSerIntimeout, GPS_RXSerialBitPeriod, GPS_RXHalfBitDwellPeriod as integer
+
+#if GPS_NUM_XMIT_NMEA_MSGS >= 1
+DIM GPS_MSG1(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 2
+DIM GPS_MSG2(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 3
+DIM GPS_MSG3(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 4
+DIM GPS_MSG4(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 5
+DIM GPS_MSG5(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 6
+DIM GPS_MSG6(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 7
+DIM GPS_MSG7(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 8
+DIM GPS_MSG8(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+#if GPS_NUM_XMIT_NMEA_MSGS >= 9
+DIM GPS_MSG9(GPS_MAX_NMEA_MSG_LEN) AS STRING					' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+#endif
+'~
+'-----------------------------------------------------------------------------------------------------------------------------
+doGPS_RXInitSerial:		'~~		' By doing it this way the variables become global (nice trick, Bruce)
+	' Storing these serial routine times in global RAM variables so that they can be tweaked during runtime
+	' Once the dust settles, consider just #def'g them...
+	' If appropriate, consider intermediate use of floats for better accuracy?
+	GPS_RXSerInTimeout = Default_GPS_RXSerIntimeout				' 
+	GPS_RXSerialBitPeriod = Default_GPS_RXSerialBitPeriod		' See GPS_defs.lib
+	GPS_RXHalfBitDwellPeriod = Default_GPS_RXHalfBitDwellPeriod	' See GPS_defs.lib
+	return				'~								
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_RXInitSerial
+	input(GPS_SER_RX_PT_NO) 	' set the port as an input to listen from gps tx
+'	timer = 0
+#ifdef scopedebug
+		output(22)
+		out(22) = 0
+		#endif
+	GOSUB doGPS_RXInitSerial
+ENDSUB
+'~ '-----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+'~~ 	Bit banged serial input - shamelessly raped from BASIClibs, crafted to be moar efficient & more descript in this context
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+' on LPC824
+' 1)	2.4000640 uS / 'IntVar = Timer'
+' 2)	1.2418561 uS / 'Interrupt Toggle (interrupt(0) followed by interrupt(1))
+' 3)	0.6668794	uS / 'IntVar = 0'
+' 4)	0.2000640	uS / 'IntVar = IntVar >> 3'
+' 5)	1.1333759	uS / 'IntVar = in(1)'
+' 6)	1.2334082	uS / 'IntVar = in(1) (Input(1) asserted)'
+' 7)	0.6999681 uS / 'If IntVar=Test Then IntVar=Int - false test'
+' 8)	0.6999681 uS / 'If IntVar=Test Then IntVar=Int - true test'
+' 9)	0.2000035 uS / 'IntVar +=1'
+
+' validation via concatenation
+' 1+(2|2)+3+4+5+7+8  (input(1) not asserted)
+' 8.3856011 uS / '1+(2|2)+3+4+5+7+8'	Expected 7.0421756
+' 8.1561918 uS / '1+(2|2)+3+4+6+7+8'	Expected 7.1422079
+
+' 4.9334884 uS / 'Dbl Timer'			Expected 4.800128
+' 2.3333893 uS / 'Dbl In(x) w2 input'	Expected 2.4668164
+' 2.3333922 uS / 'Dbl In(x) no input'	Expected 2.2667518
+
+
+FUNCTION GPS_RXAutoBaud as integer
+
+	#define GPS_RXAutoBaudBitCount  256
+	DIM  GPS_RXSerialBitTimeout AS INTEGER
+	dim GPS_RXSerBitStartTime as integer
+	dim GPS_RXSerBitTime(GPS_RXAutoBaudBitCount) as byte
+	dim GPS_RXSerBitShortestTypicalTime as integer
+	dim GPS_RXstart,i AS INTEGER
+
+	GPS_RXSerialBitTimeout = GPS_RXSerIntimeout>>3						' divide timeout by 8 for some reason.?. Thinking TO is for a byte, 8b/B, 
+	i=0
+	GPS_RXstart = TIMER													' looking for stop/idle, capture the start of things to enable timeout threshold detection
+
+	' not-idle wait for idle
+   	while IN(GPS_SER_RX_PT_NO) = 0										' if bit is low (non-idle) at instantiation, wait for it to go high
+'		if (TIMER-GPS_RXstart > GPS_RXSerialBitTimeout) then return -1	' not neg logic, so pin is held low too long - abort
+	loop
+'-----------------------------------------------------------------------------------------------------------------------------
+	DO	
+	' now high/idle, wait for bit start
+		while IN(GPS_SER_RX_PT_NO)											' look for start bit	
+'			if (TIMER-GPS_RXstart > GPS_RXSerIntimeout) then return -1		' If no start bit edge in time, abort
+		loop
+
+	' now we're low, capture time and then look for a l2h transition and capture the bit width time
+		GPS_RXSerBitStartTime = timer
+		
+		while IN(GPS_SER_RX_PT_NO) = 0										' if bit is low (non-idle) at instantiation, wait for it to go high
+'			if (TIMER-GPS_RXstart > GPS_RXSerialBitTimeout) then return -1	' not neg logic, so pin is held low too long - abort
+		loop
+
+	' now we're high, capture the bit width time
+		GPS_RXSerBitTime(i) = timer - GPS_RXSerBitStartTime
+
+		i+=1
+	until i >= GPS_RXAutoBaudBitCount
+
+	' now we now have some 255 bits stored,
+	' [need to short from shortest to longest?], then analyze to see what is the shortest time to
+	' for now, just print them and look at them in excel
+
+' print "PreSort:"
+	' i=0
+	' do
+	' print i, GPS_RXSerBitTime(i)
+	' i+=1
+	' until i >= GPS_RXAutoBaudBitCount
+
+	
+	dim tempInt as integer
+	dim n,newn as integer
+	dim blahFloat as single
+	
+' print
+' print "Sorting..."
+' print	
+
+	n = GPS_RXAutoBaudBitCount
+	i = 0
+		do ' inline bubblesort
+		newn = 0
+		for i = 1 to n-1
+			if GPS_RXSerBitTime(i-1) > GPS_RXSerBitTime(i)
+				tempInt = GPS_RXSerBitTime(i-1)
+				GPS_RXSerBitTime(i-1)=GPS_RXSerBitTime(i)
+				GPS_RXSerBitTime(i)=tempInt					
+				newn = i
+			end if
+		next i
+		n = newn
+	until n = 0
+	
+	' i=0
+	' do
+	' print i, GPS_RXSerBitTime(i)
+	' i+=1
+	' until i >= GPS_RXAutoBaudBitCount
+
+	
+	
+' ok, we're sorted
+' going to look for smallest non-zero amount that has more than just one or two instances.
+
+dim MinInstances, CurrInstances, ThisValue as integer
+
+MinInstances = 8
+
+doitagain:
+	CurrInstances = 0
+	i=0
+	do
+	if GPS_RXSerBitTime(i) <= 0 then goto continue
+	if GPS_RXSerBitTime(i) <> GPS_RXSerBitTime(i+1) 
+		GPS_RXSerBitTime(i) = 0
+		goto continue
+		endif
+	' we fell through, so we're >0, and repeatable
+	CurrInstances+=1
+	ThisValue = GPS_RXSerBitTime(i)
+	
+	
+continue:
+	i+=1
+	until ((i = GPS_RXAutoBaudBitCount) or (CurrInstances >= MinInstances)	)
+	
+weredone:
+	blahFloat = (1.0/ThisValue)*1000000.0
+	' print ThisValue, CurrInstances, 1*blahFloat;" baud"
+	return 1*blahFloat
+	endfunction
+
+
+FUNCTION GPS_RXSerByte as integer
+	DIM  GPS_RXchr AS INTEGER
+	DIM  GPS_RXSerialBitTimeout AS INTEGER
+	DIM  GPS_RXstart AS INTEGER
+	DIM  GPS_RXBitIndex AS INTEGER
+	
+	GPS_RXchr = 0
+	GPS_RXBitIndex = 1
+
+	GPS_RXstart = TIMER													' looking for stop/idle, capture the start of things to enable timeout threshold detection
+	GPS_RXSerialBitTimeout = GPS_RXSerIntimeout>>3						' divide timeout by 8 for some reason.?. Thinking TO is for a byte, 8b/B, 
+																		' so it stands to reason that bit TO is 1/8th of Byte TO.  .?.
+   	while IN(GPS_SER_RX_PT_NO) = 0										' if bit is low (non-idle) at instantiation, wait for it to go high
+		if (TIMER-GPS_RXstart > GPS_RXSerialBitTimeout) then return -1	' not neg logic, so pin is held low too long - abort
+	loop
+	while IN(GPS_SER_RX_PT_NO)											' look for start bit	
+		if (TIMER-GPS_RXstart > GPS_RXSerIntimeout) then return -1		' If no start bit edge in time, abort
+	loop
+	INTERRUPT (0)														'0.7us start edge detected, canx interrupts and process ???takes 2.5 uSec???  
+	waitmicro(GPS_RXHalfBitDwellPeriod)									' waits 1/2 bbBAUD time -- using the 1uS ticker, adjust for the interrupt call overhead
+#ifdef scopedebug
+		out(22) = 1	'fire a debug tick
+		out(22) = 0
+		#endif
+	' we're waiting out the start bit for 1/2 of the bit time to get the the middle of the next bit
+	' (to allow it to settle), then start clocking in the bits, at the middle of each bit 
+	while GPS_RXBitIndex < $100
+		waitmicro(GPS_RXSerialBitPeriod) 								' wait until the middle of the next bit
+   		if IN(GPS_SER_RX_PT_NO) then GPS_RXchr = GPS_RXBitIndex or GPS_RXchr	' incoming bit is or'd w/ char buffer to capture same
+#ifdef scopedebug
+		out(22) = 1	'fire a debug tick
+		out(22) = 0
+		#endif
+   		GPS_RXBitIndex = GPS_RXBitIndex << 1							' index bit pointer iterated to next sig bit
+	loop																' loop through each of the 8 bits
+	INTERRUPT (1)														' once byte is done, re-enable interrupts
+
+	return GPS_RXchr
+ENDFUNCTION
+'-----------------------------------------------------------------------------------------------------------------------------
+FUNCTION GPS_RXSerIn (GPS_RXcnt, BYREF GPS_RXstr as string) ' if GPS_RXcnt = 0 then read until carriage-return 'or 0
+
+	DIM  GPS_RXchr AS INTEGER
+	DIM  GPS_RXtimeout AS INTEGER
+	DIM  GPS_RXidx AS INTEGER
+
+	GPS_RXtimeout = 0
+	GPS_RXchr = 0
+	GPS_RXidx = 0
+	
+	do													' we're gonna get some characters from the GPS_RX port
+		GPS_RXchr = GPS_RXSerByte							' get next character
+		
+		if GPS_RXchr = -1 								' no char Rcvd
+			GPS_RXstr(GPS_RXidx) = 255						' put $ff in the byreg RXbuffer (why if $00 put therin below?)
+			GPS_RXidx += 1								' increment the RXindex
+			GPS_RXtimeout = -1						' flag a timeout
+			exit									' and exit the do:until loop
+		endif													
+													' ok we get here if a char was actually received
+
+		if (GPS_RXcnt = 0)								' if flagged to grab a string vs a single byte
+			if GPS_RXchr = 0 then exit					' check for a terminating 0 and exit the do:until loop
+			if GPS_RXchr = _CR or GPS_RXchr = _LF  then exit	' check for a terminating 0 and exit the do:until loop
+		endif
+													' we get here if there is more characters to get
+		GPS_RXstr(GPS_RXidx) = GPS_RXchr						' store the character in the BYref buffer
+		GPS_RXidx += 1									' increment the pointer
+	until GPS_RXidx = GPS_RXcnt								' and loop back up to do it all again, until we get the RXbyte count
+	
+	GPS_RXstr(GPS_RXidx) = 0								' we're done, index was incremented, so plop a terminating 0 therein
+	
+	return GPS_RXtimeout							' and return a bool to indicate if it timed out or not.
+ENDFUNCTION
+'~ -----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+'~~		NMEA msg acquisition functions
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+FUNCTION GPS_QUERY_RCVR AS INTEGER
+DIM GPS_NMEA_MSG_CK_BYTE(1) AS STRING
+GPS_DEBUG(DIM X AS INTEGER)
+GPS_DEBUG(PRINT "START QUERY", )
+	IF TIMER-GPS_LAST_NMEA_MSG_TIME<GPS_NMEA_MSG_IDLE_PERIOD
+		GPS_DEBUG(PRINT "QUERY PREEMPTED - NOT ENOUGH TIME PASSED")
+		RETURN 0				' SKIP QUERY IF SENTENCES WON'T EVEN BE CLOSE TO BEING SENT
+		endif
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 1
+	GPS_GET_MSG_1:															' LOOP TO GRAB SENTENCE #1
+GPS_DEBUG(PRINT "Start RX1",)
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+GPS_DEBUG(PRINT GPS_NMEA_MSG_CK_BYTE,)
+GPS_DEBUG(PRINT "1ST BYTE = ";)
+GPS_DEBUG(FOR X = 0 TO LEN(GPS_NMEA_MSG_CK_BYTE))
+GPS_DEBUG(print "$";i2h(GPS_NMEA_MSG_CK_BYTE(X));)
+GPS_DEBUG(PRINT " ";)
+GPS_DEBUG(NEXT X)
+GPS_DEBUG(print)
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_1							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_CK_BYTE RECEIVING THE SENTENCE")
+		GPS_RXSerIn(0,GPS_MSG1)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 2
+	GPS_GET_MSG_2:															' LOOP TO GRAB SENTENCE #2
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_2							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG2)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 3
+	GPS_GET_MSG_3:															' LOOP TO GRAB SENTENCE #3
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_3							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG3)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 4
+	GPS_GET_MSG_4:															' LOOP TO GRAB SENTENCE #4
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_4							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG4)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 5
+	GPS_GET_MSG_5:															' LOOP TO GRAB SENTENCE #5
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_5							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG5)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 6
+	GPS_GET_MSG_6:															' LOOP TO GRAB SENTENCE #6
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_6							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG6)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 7
+	GPS_GET_MSG_7:															' LOOP TO GRAB SENTENCE #7
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_7							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG7)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 8
+	GPS_GET_MSG_8:															' LOOP TO GRAB SENTENCE #8
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_8							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG8)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+	
+	#if GPS_NUM_XMIT_NMEA_MSGS >= 9
+	GPS_GET_MSG_9:															' LOOP TO GRAB SENTENCE #9
+		GPS_RXSerIn(1,GPS_NMEA_MSG_CK_BYTE)						' GRAB THE NEXT INCOMING BYTE
+		IF GPS_NMEA_MSG_CK_BYTE(0)<>36 THEN GOTO GPS_GET_MSG_9							' CK IT TO SEE IF IT IS A $ (BEGINING OF SENTENCE)
+		GPS_RXSerIn(0,GPS_MSG9)					' IF SO, GRAB THE REST OF THE SENTENCE
+	#endif
+
+	GPS_LAST_NMEA_MSG_TIME = TIMER											' SET READTIMER TO PREVENT LISTENING WHEN SENTENCES JUST RECEIVED
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG1)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG2)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG3)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG4)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG5)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG6)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG7)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG8)
+GPS_DEBUG(PRINT "GOT GPS_NMEA_MSG_STR ";GPS_MSG9)
+	RETURN 1
+
+ENDFUNCTION															' FUNCTIONAL, NOT VARIABLE - NOTHING REALLY RETURNED BUT A LOT DONE... :-)
+'-----------------------------------------------------------------------------------------------------------------------------
+FUNCTION GPS_CK_NMEA_MSG_CKSUM(BYREF GPS_NMEA_MSG_STR AS STRING) AS INTEGER
+
+'	EM-411 NMEA CKSUM: THE ABSOLUTE VALUE CALCULATED BY EXCLUSIVE-OR'ING THE 8 DATA BITS OF EACH CHARACTER IN THE SENTENCE,
+'	BETWEEN, BUT EXCLUDING, “$” AND “*”. THE HEX VALUE OF THE MOST SIGNIFICANT AND LEAST SIGNIFICANT NIBBLE OF THE RESULT
+'	ARE CONVERTTED TO TWO ASCII CHARACTERS (0-9,A-F) FOR TRANSMISSION. THE MOST SIGNIFICANT CHARACTER IS TRANSMITTED FIRST.
+
+DIM GPS_NMEA_MSG_ACT_CHKSUM AS INTEGER
+DIM GPS_NMEA_MSG_MSC AS INTEGER
+DIM GPS_NMEA_MSG_LSC AS INTEGER
+DIM GPS_NMEA_MSG_RPT_CHKSUM AS INTEGER
+DIM I AS INTEGER
+
+	GPS_NMEA_MSG_ACT_CHKSUM = 0																' INIT SENTENCE CKSUM VARIABLE
+	IF GPS_NMEA_MSG_STR(1) = GPS_NMEA_MSG_PAYLOAD_START 								' CK FOR BEGIN OF PAYLOAD
+		IF GPS_NMEA_MSG_STR(LEN(GPS_NMEA_MSG_STR)-3) = GPS_NMEA_MSG_PAYLOAD_FINISH 		' CK FOR END OF PAYLOAD (LEN-3) = *
+			FOR I = 1 TO LEN(GPS_NMEA_MSG_STR)-4											' LOOP THROUGH PAYLOAD TO
+				GPS_NMEA_MSG_ACT_CHKSUM = GPS_NMEA_MSG_ACT_CHKSUM XOR GPS_NMEA_MSG_STR(I)	' CALCULATE CKSUM
+			NEXT I																			' UNTIL END OF PAYLOAD
+			GPS_NMEA_MSG_MSC = GPS_NMEA_MSG_STR(LEN(GPS_NMEA_MSG_STR)-2)					' GET GPS_NMEA_MSG_MSC FROM RX SENTENCE
+			GPS_TEMP_STR = "$"&CHR(GPS_NMEA_MSG_MSC)										' CONVERT IT TO A HEX STRING
+			GPS_NMEA_MSG_RPT_CHKSUM = VAL(GPS_TEMP_STR)*16									' CONVERT IT TO A DECIMAL MULTIPLIED OUT
+			GPS_NMEA_MSG_LSC = GPS_NMEA_MSG_STR(LEN(GPS_NMEA_MSG_STR)-1)					' GET GPS_NMEA_MSG_LSC FROM RX SENTENCE
+			GPS_TEMP_STR = "$"&CHR(GPS_NMEA_MSG_LSC)										' CONVERT IT TO A HEX STRING
+			GPS_NMEA_MSG_RPT_CHKSUM = GPS_NMEA_MSG_RPT_CHKSUM+VAL(GPS_TEMP_STR)				' ADD DECIMAL CONV LSN TO MSN = CKSUM
+			IF GPS_NMEA_MSG_RPT_CHKSUM = GPS_NMEA_MSG_ACT_CHKSUM 						' SEE IF THE CALC AND RX CKSUMS MATCH AND
+				RETURN 1																	' IF IT ALL JIVES-SET VALID FLAG
+			ELSE
+				RETURN 0
+			ENDIF
+		ENDIF
+	ENDIF
+
+ENDFUNCTION																					' RETURN GPSVALID, GPS_NMEA_MSG_CHKSUM, GPS_NMEA_MSG_CKSUM, AND GPS_NMEA_MSG (LEFT INTACT)
+'-----------------------------------------------------------------------------------------------------------------------------
+FUNCTION GPS_PARSE_NMEA_MSG_FLD(BYREF GPS_NMEA_MSG_STR AS STRING, GPS_NMEA_MSG_FLD_PTR AS INTEGER) AS STRING ' USED TO PARSE OUT A SPECIFIC FLD OUT OF GPS_NMEA_MSG
+																	' 'FLD' IS PASSED TO THIS ROUTINE DENOTING WHICH FLD IS DESIRED
+																	' 0 = BEGINING ( = GPS_NMEA_MSG_ID).  FLD_STR AND FLDFLAG ARE RETURNED.
+																	' FLD_STR = NULL IF ERROR OR CONTENTS OF TARGET FLD
+																	' FLDFLAG = -1 IF ERROR, 1 IF SUCCESS
+	DIM GPS_NMEA_MSG_FLD_POS(GPS_MAX_NMEA_MSG_FLD_CNT) AS INTEGER
+
+	DIM GPS_NUM_MSG_FLDS AS INTEGER
+	DIM GPS_TEMP_INT_1 AS INTEGER
+	DIM I AS INTEGER
+
+	'THE SENTENCE STRUCTURE IS CLEARLY DETAILED IN EACH OF THE PARSEXXX SUBS, BELOW...
+
+	GPS_NUM_MSG_FLDS = 0														' INIT THE NUM OF FLDS TO 0
+	GPS_NMEA_MSG_FLD_STR = ""														' AND NULL OUT THE FLD_STR TO REMOVE ANY LEGACY INFO FROM PRIOR PARSES
+	FOR I = 0 TO GPS_MAX_NMEA_MSG_FLD_CNT										' NULL OUT FLD POINTERS (UP TO 32 (0-31) COMMA-SEPARATED FLDS PER STRING)
+	GPS_NMEA_MSG_FLD_POS(I) = 0													' BY SETTING THE POINTERS TO ZERO
+	NEXT I
+	' FLDFLAG = 0														' FOR ERROR PURPOSES:  FLAG = -1 = ERROR FLAG = 1 = GOOD FLAG = 0 = NOT CKED...
+
+	FOR I = 1 TO LEN(GPS_NMEA_MSG_STR)									' LOOP THROUGH THE SENTENCE AND RECORD THE POSIITONS OF THE FLDS
+	IF GPS_NMEA_MSG_STR(I) = 44 										' IF IT IS A COMMA, (DENOTING THAT THE NEXT CHAR IS A NEW FLD)
+		GPS_NUM_MSG_FLDS = GPS_NUM_MSG_FLDS+1										' THEN BUMP NUM OF FLDS UP ONE
+		GPS_NMEA_MSG_FLD_POS(GPS_NUM_MSG_FLDS) = I+1										' AND RECORD THE START POSITION OF THE NEXT FLD
+	ENDIF															'
+	NEXT I															' AND REPEAT UNTIL THE END OF THE STRING
+
+	IF GPS_NMEA_MSG_FLD_PTR>GPS_NUM_MSG_FLDS OR GPS_NMEA_MSG_FLD_PTR = 0 								' CK TO SEE IF DESIRED FLD IS 0 OR GREATER THAN THE FLDS IN THE SENTENCE
+		GPS_NMEA_MSG_FLD_STR = ""													' IF IT IS, THEN SET THE FLD TO NULL
+		' FLDFLAG = -1												' SET THE FLAG TO AN ERROR STATUS & EXIT THE SUB
+	ELSE															' IT IS A FLD THAT IS CONTAINED IN THE SENTENCE AND THUS,
+		IF GPS_NMEA_MSG_FLD_PTR = 1 												' CK TO SEE IF THIS IS THE FIRST FLD OF THE SENTENCE-IF SO,
+			GPS_TEMP_STR = LEFT(GPS_NMEA_MSG_STR,GPS_NMEA_MSG_FLD_POS(GPS_NMEA_MSG_FLD_PTR+1)-1)			' GRAB THE BEGINING OF THE SENTENCE TO THE END OF THE FLD
+		ELSE														'     ...IT IS NOT THE FIRST FLD...
+			IF GPS_NMEA_MSG_FLD_PTR<GPS_NUM_MSG_FLDS 									' VERIFY THAT IT IS NOT THE LAST FLD AND IF NOT,
+				GPS_TEMP_INT_1 = GPS_NMEA_MSG_FLD_POS(GPS_NMEA_MSG_FLD_PTR+1)
+				GPS_TEMP_STR = LEFT(GPS_NMEA_MSG_STR,GPS_TEMP_INT_1-1)		' GRAB THE BEGINING OF THE SENTENCE TO THE END OF THE FLD
+			ELSE													'      ...IT IS THE LAST FLD...
+				GPS_TEMP_INT_1 = LEN(GPS_NMEA_MSG_STR)-3							' GO GET THE POSITION AT WHICH THE PAYLOAD ENDS (LEN - 3 ['*' + 2 CKSUM DIGITS])
+				GPS_TEMP_STR = LEFT(GPS_NMEA_MSG_STR,GPS_TEMP_INT_1)						' GRAB THE BEGINING OF THE SENTENCE TO THE END OF THE PAYLOAD
+			ENDIF
+		ENDIF
+		GPS_NMEA_MSG_FLD_STR = RIGHT(GPS_TEMP_STR,LEN(GPS_TEMP_STR)-GPS_NMEA_MSG_FLD_POS(GPS_NMEA_MSG_FLD_PTR))				' AND SET THE FLD_STR TO THE CONTENTS OF THE FLD
+		' FLDFLAG = 1													' SET THE FLAG TO DENOTE SUCCESS & EXIT
+	ENDIF
+	RETURN GPS_NMEA_MSG_FLD_STR
+	
+ENDFUNCTION																' FLD IS RETAINED, FLDFLAG IS RETURNED, FLD_STR = FLD CONTENTS
+'~ -----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+'~~		NMEA msg parsing helper function
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_SCALE_FLD(BYREF GPS_NMEA_MSG_FLD_STR AS STRING, GPS_NMEA_FLD_SCALE_FACTOR) ' FLD_STR AND SCALEFACTOR IS PASSED TO THIS SUB TO ADJ SCALING
+
+	DIM GPS_NMEA_MSG_FLD_LEN AS INTEGER
+
+	GPS_NMEA_MSG_FLD_LEN = LEN(GPS_NMEA_MSG_FLD_STR)												' GET THE TOTAL LENGTH OF THE TEXT FLD
+	GPS_TEMP_STR = LEFT(GPS_NMEA_MSG_FLD_STR,GPS_NMEA_MSG_FLD_LEN-GPS_NMEA_FLD_SCALE_FACTOR-1)							' AND SET THE GPS_TEMP_STR TO THE INTEGER PTIONS
+	GPS_NMEA_MSG_FLD_STR = RIGHT(GPS_NMEA_MSG_FLD_STR,GPS_NMEA_FLD_SCALE_FACTOR)								' AND SET THE DECIMAL PTIONS OF THE FLD
+	GPS_NMEA_MSG_FLD_STR = GPS_TEMP_STR&GPS_NMEA_MSG_FLD_STR												' AND CONCATENATE THE INTERGER TO THE DECIMAL PTIONS,
+
+ENDSUB															' TO ARRIVE AT AN INT FOR INT MATH PURPOSES' & EXIT
+'~ -----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+'~~		NMEA msg-specific parsing
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_GGA(BYREF GPS_NMEA_MSG_STR AS STRING) ' PARSE NMEA_GGA —GLOBAL POSITIONING SYSTEM FIXED DATA
+'------------------------------------GPS_NMEA_GGA_MSG TABLE--------------------------------------------------------------------------------
+'$GPGGA,161229.487,3723.2475,N,12158.3416,W,1,07,1.0,9.0,M, , , ,0000*18
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPGGA						GPS_NMEA_NMEA_GGA PROTOCOL HEADER
+'UTC TIME					161229.487					HHMMSS.SSS
+'LATITUDE					3723.2475					DDMM.mmmm
+'N/S INDICATOR				N							N = NORTH OR S = SOUTH
+'LONGITUDE 					12158.3416					DDDMM.mmmm
+'E/W INDICATOR				W							E = EAST OR W = WEST
+'POSITION FIX INDICATOR		1							SEE PFI TABLE
+'SATELLITES USED			07							RANGE 0 TO 12
+'HDOP 						1.0							HORIZONTAL DILUTION OF PRECISION
+'MSL ALTITUDE				9.0				METERS
+'UNITS						M				METERS
+'GEOID SEPARATION							METERS
+'UNITS						M				METERS
+'AGE OF DIFF. CORR.							SECOND		NULL FLDS WHEN DGPS IS NOT USED
+'DIFF. REF. STATION ID		0000
+'CKSUM					*18
+'<CR> <LF>												END OF MSG TERMINATION
+'--------------------PFI TABLE-------------------------
+'VALUE		DESCRIPTION
+'------------------------------------------------------
+'  	0		FIX NOT AVAILABLE OR INVALID
+'  	1		GPS SPS MODE, FIX VALID
+'  	2		DIFFERENTIAL GPS, SPS MODE, FIX VALID
+' 	3-5		NOT SUPPTED
+'  	6		DEAD RECKONING MODE, FIX VALID
+'-----------------------------------------------------------------------------------------------------------------------------
+
+/*  disabled this as 824 doesn't have a flipping RTC - need to fix in #inc, once I figure out how to address the deficiency
+  //thinking that I can do maths from gps time vs. relying on the anyways...
+  
+	' FLD = 1														' GPS TIME-SCALED TO .001 SECONDS
+	' GOSUB GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1)						' GO GET GPS_UTC_TIME TEXT$
+'COMMENTED OUT TO DROP THE DECIMAL SECONDS - NOT NEEDED...
+'	SCALEFACTOR = 3													' SET # OF DEC POINTS TO MULTIPLY BY (MOVE DEC POINT)
+	' GOSUB GPS_SCALE_FLD(GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1),0)												' ADJUST SCALING TO GET FLD FACTORED PROPERLY
+
+	' GPS_TEMP_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1)
+	' GPS_TEMP_STR = GPS_SCALE_FLD(GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1),0)
+
+	' GPS_UTC_TIME = VAL(GPS_SCALE_FLD(GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1),0))												' SAVE GPS_UTC_TIME'S NUMERIC INTEGER VALUE
+	' IF GPS_UTC_TIME <GPS_LOCAL_TIME_DELTA THEN
+		' GPS_LOCAL_TIME = GPS_UTC_TIME + (240000-GPS_LOCAL_TIME_DELTA)
+	' ELSE
+		' GPS_LOCAL_TIME = GPS_UTC_TIME - GPS_LOCAL_TIME_DELTA
+	' ENDIF 
+*/
+
+
+	' PRESENT POSITION LATITUDE-SCALED TO .0001 DEGREES LATITUDE			
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,2)						' GO GET GPS_LATITUDE TEXT$
+	GPS_TEMP_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,4)							' FLD_STR NOW HAS DDMmmmm DATA IN IT-NEED TO CONVERT TO DDdddddd
+	GPS_TEMP_STR = RIGHT(GPS_TEMP_STR,6)									' ADJUST SCALING TO GET FLD FACTORED PROPERLY
+	GPS_NMEA_MSG_FLD_STR = LEFT(GPS_NMEA_MSG_FLD_STR,LEN(GPS_NMEA_MSG_FLD_STR)-6) & STR((VAL(GPS_TEMP_STR)*100)/60)	' AND CONCATENATE THE (D)DD PTION RESULTING IN TEXT DDdddddd
+	GPS_LATITUDE = VAL(GPS_NMEA_MSG_FLD_STR)											' SAVE GPS_LATITUDE'S NUMERIC VALUE SCALED FOR INTEGER MATH
+
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,3)						' GO GET GPS_LATITUDE N/S TEXT$
+	IF STRCOMP(GPS_NMEA_MSG_FLD_STR,"S") = 0 THEN GPS_LATITUDE = -GPS_LATITUDE				' CK TO SEE IF WE ARE SOUTH OF EQUATOR & IF SO, NEGATE IT AS POSITIVE IS NORTH OF EQUATOR...
+
+	' PRESENT POSITION LONGITUDE-SCALED TO .0001 DEGREES LONGITUDE	
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,4)						' GO GET GPS_LONGITUDE TEXT$
+	GPS_TEMP_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,4)							' FLD_STR NOW HAS DDMmmmm DATA IN IT-NEED TO CONVERT TO DDdddddd
+	GPS_TEMP_STR = RIGHT(GPS_TEMP_STR,6)									' ADJUST SCALING TO GET FLD FACTORED PROPERLY
+	GPS_NMEA_MSG_FLD_STR = LEFT(GPS_NMEA_MSG_FLD_STR,LEN(GPS_NMEA_MSG_FLD_STR)-6) & STR((VAL(GPS_TEMP_STR)*100)/60)	' AND CONCATENATE THE (D)DD PTION RESULTING IN TEXT DDdddddd
+	GPS_LONGITUDE = VAL(GPS_NMEA_MSG_FLD_STR)											' SAVE GPS_LONGITUDE'S NUMERIC VALUE SCALED FOR INTEGER MATH
+
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,5)						' GO GET GPS_LONGITUDE N/S TEXT$
+	IF STRCOMP(GPS_NMEA_MSG_FLD_STR,"E") = 0 THEN GPS_LONGITUDE = -GPS_LONGITUDE				' CK TO SEE IF WE ARE E OF PM & IF SO, NEGATE IT AS POSITIVE IS WEST OF PM...
+
+	' GPS POSITION FIX INDICATOR
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,6)						' GPS POSITION FIX INDICATOR - GO GET IT
+	GPS_POSITION_FIX = VAL(GPS_NMEA_MSG_FLD_STR)											' AND SAVE IT'S NUMERIC VALUE TO GPS_POSITION_FIX-NO SCALING REQUIRED-ALREADY AN INTEGER...
+	
+	' # OF SV USED
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,7)						' GOT GET GPS SPACE VEHICLE CNT
+	GPS_SATELLITE_CNT = VAL(GPS_NMEA_MSG_FLD_STR)											' AND SAVE IT'S NUMERIC VALUE TO GPS_SATELLITE_CNT-NO SCALING REQUIRED-ALREADY AN INTEGER...
+
+	' H-DOP GOTTEN ELSEWHERE
+	
+	' MEAN-SEA-LEVEL ALTITUDE-SCALED AT 0.1 METERS ACCURACY
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,9)						' GO GET MSL TEXT$
+	GPS_NMEA_MSG_FLD_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,1)							' SET # OF DEC POINTS TO MULTIPLY BY (MOVE DEC POINT)
+	GPS_ALTITUDE = VAL(GPS_NMEA_MSG_FLD_STR)											' SAVE GPS_ALTITUDE'S NUMERIC VALUE SCALED FOR INTEGER MATH
+	
+	GPS_NMEA_MSG_CNT(GPS_NMEA_GGA_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_GGA_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_GLL(BYREF GPS_NMEA_MSG_STR AS STRING) 
+
+/* 
+'------------------------------------GLL TABLE--------------------------------------------------------------------------------
+' $GPGLL,3723.2475,N,12158.3416,W,161229.487,A,A*41
+' -----------------------------------------------------------------------------------------------------------------------------
+' NAME						EXAMPLE			UNITS		DESCRIPTION
+' -----------------------------------------------------------------------------------------------------------------------------
+' MSG ID					$GPGLL						GLL PROTOCOL HEADER
+' LATITUDE					3723.2475					DDMM.mmmm
+' N/S INDICATOR				N							N = NORTH OR S = SOUTH
+' LONGITUDE 					12158.3416					DDDMM.mmmm
+' E/W INDICATOR				W							E = EAST OR W = WEST
+' UTC TIME					161229.487					HHMMSS.SSS
+' STATUS						A							A = DATA VALID OR V = DATA NOT VALID
+' MODE						A							A = AUTONOMOUS, D = DGPS, E = DR(ONLY PRESENT IN NMEA VERSION 3.00)
+' CKSUM					*41
+' <CR> <LF>												END OF MSG TERMINATION
+*/ 
+'*
+'-----------------------------------------------------------------------------------------------------------------------------
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_GLL_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_GLL_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_GSA(BYREF GPS_NMEA_MSG_STR AS STRING) 
+ '------------------------------------GSA TABLE--------------------------------------------------------------------------------
+'$GPGSA,A,3,07,02,26,27,09,04,15, , , , , ,1.8,1.0,1.5*33
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPGSA						GSA PROTOCOL HEADER
+'MODE 1						A							SEE MODE 1 TABLE
+'MODE 2						3							SEE MODE 2 TABLE
+'SATELLITE USED1			07							SV ON CHANNEL 1
+'SATELLITE USED1			02							SV ON CHANNEL 2
+'....	....
+'SATELLITE USED1										SV ON CHANNEL 12
+'PDOP						1.8							POSITION DILUTION OF PRECISION
+'HDOP 						1.0							HORIZONTAL DILUTION OF PRECISION
+'VDOP						1.5							VERTICAL DILUTION OF PRECISION
+'CKSUM					*33
+'<CR> <LF>												END OF MSG TERMINATION
+'--------------------MODE 1 TABLE----------------------
+'VALUE		DESCRIPTION
+'------------------------------------------------------
+'  	M		MANUAL—FORCED TO OPERATE IN 2D OR 3D MODE
+'  	A		2D AUTOMATIC—ALLOWED TO AUTOMATICALLY SWITCH 2D/3D
+'--------------------MODE 2 TABLE----------------------
+'VALUE		DESCRIPTION
+'------------------------------------------------------
+'	1		FIX NOT AVAILABLE
+'	2		2D (<= 3 SVS USED)
+'	3		3D (>= 4 SVS USED)
+
+'* '-----------------------------------------------------------------------------------------------------------------------------
+
+	' GPS POSITIONAL DILLUTION OF PRECISION-SCALED AT 0.1 FACTOR
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,15)
+	GPS_NMEA_MSG_FLD_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,1)
+	GPS_POSITION_DOP = VAL(GPS_NMEA_MSG_FLD_STR)
+	
+	' GPS HORIZONTAL DILLUTION OF PRECISION-SCALED AT 0.1 FACTOR
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,16)
+	GPS_NMEA_MSG_FLD_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,1)
+	GPS_HORIZONTAL_DOP = VAL(GPS_NMEA_MSG_FLD_STR)
+
+	' GPS VERTICAL DILLUTION OF PRECISION-SCALED AT 0.1 FACTOR
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,17)
+	GPS_NMEA_MSG_FLD_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,1)
+	GPS_VERTICAL_DOP = VAL(GPS_NMEA_MSG_FLD_STR)
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_GSA_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_GSA_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_GSV(BYREF GPS_NMEA_MSG_STR AS STRING) 
+'------------------------------------GSV TABLE--------------------------------------------------------------------------------
+'$GPGSV,2,1,07,07,79,048,42,02,51,062,43,26,36,256,42,27,27,138,42*71
+'$GPGSV,2,2,07,09,23,313,42,04,19,159,41,15,12,041,42*41
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPGSV						GSV PROTOCOL HEADER
+'NUMBER OF MSGS1		2							RANGE 1 TO 3
+'MSG NUMBER1			1							RANGE 1 TO 3
+'SATELLITES IN VIEW			07
+'SATELLITE ID				07							CHANNEL 1 (RANGE 1 TO 32)
+'ELEVATION					79				DEGREES		CHANNEL 1 (MAXIMUM 90)
+'AZIMUTH					048				DEGREES		CHANNEL 1 (TRUE, RANGE 0 TO 359)
+'SNR (C/NO)					42				DBHZ		RANGE 0 TO 99, NULL WHEN NOT TRACKING
+'....	....
+'SATELLITE ID				27							CHANNEL 4 (RANGE 1 TO 32)
+'ELEVATION					27				DEGREES		CHANNEL 4 (MAXIMUM 90)
+'AZIMUTH					138				DEGREES		CHANNEL 4 (TRUE, RANGE 0 TO 359)
+'SNR (C/NO)					42				DBHZ		RANGE 0 TO 99, NULL WHEN NOT TRACKING
+'CKSUM					*71
+'<CR> <LF>												END OF MSG TERMINATION
+
+'DEPENDING ON THE NUMBER OF SATELLITES TRACKED, MULTIPLE MSGS OF GSV DATA MAY BE REQUIRED.
+'* '-----------------------------------------------------------------------------------------------------------------------------
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_GSV_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_GSV_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_MSS(BYREF GPS_NMEA_MSG_STR AS STRING) 
+'------------------------------------MSS TABLE--------------------------------------------------------------------------------
+'$GPMSS,55,27,318.0,100,1,*57
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPMSS						MSS PROTOCOL HEADER
+'SIGNAL STRENGTH			55				DB			SS OF TRACKED FREQUENCY
+'SIGNAL-TO-NOISE RATIO		27				DB			SNR OF TRACKED FREQUENCY
+'BEACON FREQUENCY			318.0			KHZ			CURRENTLY TRACKED FREQUENCY
+'BEACON BIT RATE			100							BITS PER SECOND
+'CHANNEL NUMBER				1							THE CHANNEL OF THE BEACON BEING USED IF AMULTI-CHANNEL BEACON RECEIVER IS USED
+'CKSUM					*57
+'<CR> <LF>												END OF MSG TERMINATION
+'* '-----------------------------------------------------------------------------------------------------------------------------
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_MSS_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_MSS_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_RMC(BYREF GPS_NMEA_MSG_STR AS STRING) 
+'------------------------------------RMC TABLE--------------------------------------------------------------------------------
+'$GPRMC,161229.487,A,3723.2475,N,12158.3416,W,0.13,309.62,120598, ,*10
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPRMC						RMC PROTOCOL HEADER
+'UTC TIME					161229.487					HHMMSS.sss
+'STATUS1					A							A = DATA VALID OR V = DATA NOT VALID
+'LATITUDE					3723.2475					DDMM.mmmm
+'N/S INDICATOR				N							N = NORTH OR S = SOUTH
+'LONGITUDE 					12158.3416					DDDMM.mmmm
+'E/W INDICATOR				W							E = EAST OR W = WEST
+'SPEED OVER GROUND			0.13			KNOTS
+'COURSE OVER GROUND			309.62			DEGREES		TRUE
+'DATE						120598						DDMMYY
+'MAGNETIC VARIATION							DEGREES		E = EAST OR W = WEST
+'MODE						A							A = AUTONOMOUS, D = DGPS, E = DR
+'CKSUM					*10
+'<CR> <LF>												END OF MSG TERMINATION
+'* '-----------------------------------------------------------------------------------------------------------------------------
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_RMC_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_RMC_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_VTG(BYREF GPS_NMEA_MSG_STR AS STRING) 
+'------------------------------------VTG TABLE--------------------------------------------------------------------------------
+'$GPVTG,309.62,T, ,M,0.13,N,0.2,K,A*23
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPVTG						VTG PROTOCOL HEADER
+'COURSE						309.62			DEGREES		MEASURED HEADING
+'REFERENCE					T							TRUE
+'COURSE	DEGREES											MEASURED HEADING
+'REFERENCE					M							MAGNETIC1
+'SPEED						0.13			KNOTS		MEASURED HORIZONTAL SPEED
+'UNITS						N							KNOTS
+'SPEED						0.2				KM/HR		MEASURED HORIZONTAL SPEED
+'UNITS						K							KILOMETERS PER HOUR
+'MODE						A							A = AUTONOMOUS, D = DGPS, E = DR
+'CKSUM					*23
+'<CR> <LF>												END OF MSG TERMINATION
+'-----------------------------------------------------------------------------------------------------------------------------
+
+' GPS COURSE-SCALED AT .01 DEGREES TRUE HEADING
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1)
+	GPS_NMEA_MSG_FLD_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,2)
+	GPS_NMEA_MSG_FLD_STR = LEFT(GPS_NMEA_MSG_FLD_STR,LEN(GPS_NMEA_MSG_FLD_STR)-1)
+	GPS_GROUND_TRACK = VAL(GPS_NMEA_MSG_FLD_STR)												' SAVE GPS_GROUND_TRACK'S NUMERIC VALUE SCALED FOR INTEGER MATH
+
+' GPS COURSE SPEED (IN KM/HR)-SCALED AT .1 KPH
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,7)
+	GPS_NMEA_MSG_FLD_STR = GPS_SCALE_FLD(GPS_NMEA_MSG_FLD_STR,1)
+	GPS_GROUND_SPEED = VAL(GPS_NMEA_MSG_FLD_STR)												' SAVE GPS_GROUND_SPEED'S NUMERIC VALUE SCALED FOR INTEGER MATH
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_VTG_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_VTG_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB GPS_PARSE_NMEA_ZDA(BYREF GPS_NMEA_MSG_STR AS STRING) 
+'------------------------------------ZDA TABLE-----------------'~~ ---------------------------------------------------------------
+'$GPZDA,181813,14,10,2003,00,00*4F
+'-----------------------------------------------------------------------------------------------------------------------------
+'NAME						EXAMPLE			UNITS		DESCRIPTION
+'-----------------------------------------------------------------------------------------------------------------------------
+'MSG ID					$GPZDA						ZDA PROTOCOL HEADER
+'UTC TIME					181813						EITHER USING VALID IONO/UTC OR ESTIMATED FROM DEFAULT LEAP SECONDS
+'DAY						14							01 TO 31
+'MONTH						10							01 TO 12
+'YEAR						2003						1980 TO 2079
+'LOCAL ZONE HOUR			00							OFFSET FROM UTC (SET TO 00)
+'LOCAL ZONE MINUTES			00							OFFSET FROM UTC (SET TO 00)
+'CKSUM	 				*4F
+'<CR> <LF>												END OF MSG TERMINATION
+'-----------------'~ ------------------------------------------------------------------------------------------------------------
+
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,1)
+	GPS_UTC_TIME = VAL(GPS_NMEA_MSG_FLD_STR)
+	
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,2)
+	GPS_DAY = VAL(GPS_NMEA_MSG_FLD_STR)
+	
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,3)
+	GPS_MONTH = VAL(GPS_NMEA_MSG_FLD_STR)
+	
+	GPS_NMEA_MSG_FLD_STR = GPS_PARSE_NMEA_MSG_FLD(GPS_NMEA_MSG_STR,4)
+	GPS_YEAR = VAL(GPS_NMEA_MSG_FLD_STR)
+	
+	IF GPS_UTC_TIME < GPS_LOCAL_TIME_DELTA 
+		GPS_LOCAL_TIME = GPS_UTC_TIME +(240000-GPS_LOCAL_TIME_DELTA)
+		IF GPS_DAY = 1 
+			IF GPS_MONTH = 1 
+				GPS_MONTH = 12
+				GPS_DAY = 31
+				GPS_YEAR = GPS_YEAR - 1
+			ELSE
+				GPS_MONTH = GPS_MONTH - 1
+				IF GPS_MONTH = 1 OR GPS_MONTH = 3 OR GPS_MONTH = 5 OR GPS_MONTH = 7 OR GPS_MONTH = 8 OR GPS_MONTH = 10 OR GPS_MONTH = 12
+					GPS_DAY = 31
+				ELSE
+					IF GPS_MONTH <> 2 
+						GPS_DAY = 30
+					ELSE
+						IF GPS_YEAR MOD 4 = 0 
+							GPS_DAY = 29
+						ELSE
+							GPS_DAY = 28
+						ENDIF
+					ENDIF
+				ENDIF
+			ENDIF
+		ELSE
+			GPS_DAY = GPS_DAY -1
+		ENDIF
+	ELSE
+		GPS_LOCAL_TIME = GPS_UTC_TIME-GPS_LOCAL_TIME_DELTA
+	ENDIF
+
+	GPS_NMEA_MSG_CNT(GPS_NMEA_ZDA_MSG) = GPS_NMEA_MSG_CNT(GPS_NMEA_ZDA_MSG)+1							' FOR DEBUG PURPOSES
+
+ENDSUB
+'~ -----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+'~~		Core library functions
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+FUNCTION GPS_PARSE_NMEA_MSG(BYREF GPS_NMEA_MSG_STR AS STRING) AS INTEGER
+' GPS_DEBUG(PRINT "PARSING ";GPS_NMEA_MSG_STR)
+
+	DIM GPS_NMEA_MSG_ID(6) AS STRING
+	GPS_NMEA_MSG_ID = LEFT(GPS_NMEA_MSG_STR,6)					' GET GPS_NMEA_MSG_ID AS EMBEDDED $ IS DISALLOWED
+
+	IF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID0) = 0 			' PARSE GPGAA SENTENCE 
+		GPS_PARSE_NMEA_GGA(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID1) = 0 		' PARSE GPGSA SENTENCE 
+		GPS_PARSE_NMEA_GSA(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID2) = 0 		' PARSE GPVTG SENTENCE 
+		GPS_PARSE_NMEA_VTG(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID3) = 0 		' PARSE GPZDA SENTENCE 
+		GPS_PARSE_NMEA_ZDA(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID4) = 0 		' PARSE GPGLL SENTENCE 
+		GPS_PARSE_NMEA_GLL(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID5) = 0 		' PARSE GPGSV SENTENCE
+		GPS_PARSE_NMEA_GSV(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID6) = 0 		' PARSE GPMSS SENTENCE 
+		GPS_PARSE_NMEA_MSS(GPS_NMEA_MSG_STR)
+	ELSEIF STRCOMP(GPS_NMEA_MSG_ID,GPS_NMEA_MSG_ID7) = 0 		' PARSE GPRMC SENTENCE 
+		GPS_PARSE_NMEA_RMC(GPS_NMEA_MSG_STR)
+	ELSE
+	' WE SHOULD NEVER GET HERE...
+		RETURN 0
+	ENDIF
+	RETURN 1
+ENDFUNCTION
+'-----------------------------------------------------------------------------------------------------------------------------
+FUNCTION GPS_PARSE_MESSAGES AS INTEGER
+
+	DIM GPS_NMEA_MSG_PARSE_ERROR AS INTEGER
+	DIM GPS_NMEA_MSG_CNT AS INTEGER
+	DIM GPS_NMEA_MSG_STR(GPS_MAX_NMEA_MSG_LEN) AS STRING			' DIM STRING VAR FOR GPS SENTENCE PROCESSING
+
+	GPS_NMEA_MSG_PARSE_ERROR = 0
+ 	GPS_NMEA_MSG_CNT = 1
+
+ 	WHILE GPS_NMEA_MSG_CNT <= GPS_NUM_XMIT_NMEA_MSGS
+ 		SELECT GPS_NMEA_MSG_CNT										' AND PLOP IT INTO THE CORRECT SENTENCE VARIABLE
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 1
+ 				CASE 1
+	 				GPS_NMEA_MSG_STR = "$"&GPS_MSG1				' CONCATENATE A $ ONTO THE BEGINING OF SENT 1 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 2
+	 			CASE 2
+	 				GPS_NMEA_MSG_STR = "$"&GPS_MSG2				' CONCATENATE A $ ONTO THE BEGINING OF SENT 2 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 3
+		 		CASE 3
+		 			GPS_NMEA_MSG_STR = "$"&GPS_MSG3				' CONCATENATE A $ ONTO THE BEGINING OF SENT 3 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 4
+	 			CASE 4
+	 				GPS_NMEA_MSG_STR = "$"&GPS_MSG4				' CONCATENATE A $ ONTO THE BEGINING OF SENT 4 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 5
+	 			CASE 5
+	 				GPS_NMEA_MSG_STR = "$"&GPS_MSG5				' CONCATENATE A $ ONTO THE BEGINING OF SENT 5 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 6
+ 				CASE 6
+ 					GPS_NMEA_MSG_STR = "$"&GPS_MSG6				' CONCATENATE A $ ONTO THE BEGINING OF SENT 6 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 7
+ 				CASE 7
+ 					GPS_NMEA_MSG_STR = "$"&GPS_MSG7				' CONCATENATE A $ ONTO THE BEGINING OF SENT 7 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 8
+ 				CASE 8
+ 					GPS_NMEA_MSG_STR = "$"&GPS_MSG8				' CONCATENATE A $ ONTO THE BEGINING OF SENT 8 TO COMPLETE IT
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 9
+ 				CASE 9
+ 					GPS_NMEA_MSG_STR = "$"&GPS_MSG9				' CONCATENATE A $ ONTO THE BEGINING OF SENT 9 TO COMPLETE IT
+			#endif
+ 		ENDSELECT
+ 		IF GPS_CK_NMEA_MSG_CKSUM(GPS_NMEA_MSG_STR)  					' CK THE CKSUM OF THE SENTENCE
+			IF (GPS_PARSE_NMEA_MSG(GPS_NMEA_MSG_STR) = 0) 	
+				GPS_NMEA_MSG_PARSE_ERROR = GPS_NMEA_MSG_PARSE_ERROR + 1				
+				GPS_DEBUG(PRINT "PARSE RETURNED INVALID (0) WITH ";GPS_NMEA_MSG_STR)
+			ELSE
+				GPS_DEBUG(PRINT "PARSE RETURNED VALID (1) WITH ";GPS_NMEA_MSG_STR)
+			ENDIF
+		ELSE
+			GPS_DEBUG(PRINT "CKSUM RETURNED INVALID (0) WITH ";GPS_NMEA_MSG_STR)
+		ENDIF
+		GPS_NMEA_MSG_CNT = GPS_NMEA_MSG_CNT+1
+ 	LOOP
+	GPS_DEBUG(PRINT "COMPLETED ";GPS_NUM_XMIT_NMEA_MSGS;" SENTENCES.  # OF ERRORS: ";GPS_NMEA_MSG_PARSE_ERROR)
+	IF GPS_NMEA_MSG_PARSE_ERROR < GPS_NUM_XMIT_NMEA_MSGS 
+		GPS_DEBUG(PRINT "RETURNING FROM GPS_PARSE AS VALID - ";(GPS_NUM_XMIT_NMEA_MSGS-GPS_NMEA_MSG_PARSE_ERROR);"/";GPS_NUM_XMIT_NMEA_MSGS;" PASSED PARSING")
+		RETURN 1
+	ELSE
+		GPS_DEBUG(PRINT "RETURNING FROM GPS_PARSE AS INVALID - ";(GPS_NUM_XMIT_NMEA_MSGS-GPS_NMEA_MSG_PARSE_ERROR);"/";GPS_NUM_XMIT_NMEA_MSGS;" PASSED PARSING")
+		RETURN 0
+	ENDIF
+ENDFUNCTION
+'~ -----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+'~~		Library Dev Helper code
+'#############################################################################################################################
+'-----------------------------------------------------------------------------------------------------------------------------
+SUB PRINT_GPS_DATA
+
+DIM X AS INTEGER
+
+	PRINT "------------------------------------------------------------------------"
+	PRINT "DATE: ";GPS_MONTH;"-";GPS_DAY;"-";GPS_YEAR,"";
+	PRINT "LOC : ";
+	GPS_TEMP_STR = STR(GPS_LOCAL_TIME)
+	FOR X = 1 TO 6-LEN(GPS_TEMP_STR)
+		GPS_TEMP_STR = "0" & GPS_TEMP_STR
+	NEXT X
+	PRINT LEFT(GPS_TEMP_STR,2);":";
+	GPS_TEMP_STR = RIGHT(GPS_TEMP_STR,4)
+	PRINT LEFT(GPS_TEMP_STR,2);":";RIGHT(GPS_TEMP_STR,2),"";
+	PRINT "BAUD: ";GPS_SER_RX_PT_BAUD,"";
+	PRINT "RUNG: ";
+	IF HOUR(-1)<10 THEN PRINT "0";
+	PRINT HOUR(-1);":";
+	IF MINUTE(-1)<10 THEN PRINT "0";
+	PRINT MINUTE(-1);":";
+	IF SECOND(-1)<10 THEN PRINT "0";
+	PRINT SECOND(-1),"";
+	PRINT "UTC : ";
+	GPS_TEMP_STR = STR(GPS_UTC_TIME)
+	FOR X = 1 TO 6-LEN(GPS_TEMP_STR)
+		GPS_TEMP_STR = "0" & GPS_TEMP_STR
+	NEXT X
+	PRINT LEFT(GPS_TEMP_STR,2);":";
+	GPS_TEMP_STR = RIGHT(GPS_TEMP_STR,4)
+	PRINT LEFT(GPS_TEMP_STR,2);":";RIGHT(GPS_TEMP_STR,2)
+
+	PRINT "PFI : ";GPS_POSITION_FIX,"";
+	if GPS_POSITION_FIX<10 then print "","";
+	PRINT "SVC : ";GPS_SATELLITE_CNT,"";
+	if GPS_SATELLITE_CNT<10 then print "","";
+	PRINT "PDOP: ";GPS_POSITION_DOP,"";
+	if GPS_POSITION_DOP<10 then print "","";
+	PRINT "HDOP: ";GPS_HORIZONTAL_DOP,"";
+	if GPS_HORIZONTAL_DOP<10 then print "","";
+	PRINT "VDOP: ";GPS_VERTICAL_DOP
+
+	PRINT "LAT : ";GPS_LATITUDE,"";
+	if GPS_LATITUDE<10 then print "","";
+	PRINT "LON : ";GPS_LONGITUDE,"";
+	if GPS_LONGITUDE<10 then print "","";
+	PRINT "ALT : ";GPS_ALTITUDE,"";
+	if GPS_ALTITUDE<10 then print "","";
+	PRINT "CRS : ";GPS_GROUND_TRACK,"";
+	if GPS_GROUND_TRACK<10 then print "","";
+	PRINT "SPD : ";GPS_GROUND_SPEED
+	PRINT
+
+	PRINT "SENT CNTS:","";
+	PRINT "GGA : ";GPS_NMEA_MSG_CNT(GPS_NMEA_GGA_MSG),"";
+	if GPS_NMEA_MSG_CNT(GPS_NMEA_GGA_MSG)<10 then print "","";
+	PRINT "GSA : ";GPS_NMEA_MSG_CNT(GPS_NMEA_GSA_MSG),"";
+	if GPS_NMEA_MSG_CNT(GPS_NMEA_GSA_MSG)<10 then print "","";
+	PRINT "VTG : ";GPS_NMEA_MSG_CNT(GPS_NMEA_VTG_MSG),"";
+	if GPS_NMEA_MSG_CNT(GPS_NMEA_VTG_MSG)<10 then print "","";
+	PRINT "ZDA : ";GPS_NMEA_MSG_CNT(GPS_NMEA_ZDA_MSG)
+
+	PRINT "","","GLL : ";GPS_NMEA_MSG_CNT(GPS_NMEA_GLL_MSG),"";
+	if GPS_NMEA_MSG_CNT(GPS_NMEA_GLL_MSG)<10 then print "","";
+	PRINT "GSV : ";GPS_NMEA_MSG_CNT(GPS_NMEA_GSV_MSG),"";
+	if GPS_NMEA_MSG_CNT(GPS_NMEA_GSV_MSG)<10 then print "","";
+	PRINT "MSS : ";GPS_NMEA_MSG_CNT(GPS_NMEA_MSS_MSG),"";
+	if GPS_NMEA_MSG_CNT(GPS_NMEA_MSS_MSG)<10 then print "","";
+	PRINT "RMC : ";GPS_NMEA_MSG_CNT(GPS_NMEA_RMC_MSG)
+	PRINT
+	
+	FOR X = 1 TO GPS_NUM_XMIT_NMEA_MSGS
+		SELECT X
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 1
+				CASE 1
+					PRINT "$";GPS_MSG1
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 2
+				CASE 2
+					PRINT "$";GPS_MSG2
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 3
+				CASE 3
+					PRINT "$";GPS_MSG3
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 4
+				CASE 4
+					PRINT "$";GPS_MSG4
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 5
+				CASE 5
+					PRINT "$";GPS_MSG5
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 6
+				CASE 6
+					PRINT "$";GPS_MSG6
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 7
+				CASE 7
+					PRINT "$";GPS_MSG7
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 8
+				CASE 8
+					PRINT "$";GPS_MSG8
+			#endif
+			#if GPS_NUM_XMIT_NMEA_MSGS >= 9
+				CASE 9
+					PRINT "$";GPS_MSG9
+			#endif
+				CASE ELSE
+	ENDSELECT
+	NEXT X
+	' PRINT "-------------------------------------------------------------------------------------------"
+
+ENDSUB
+'~ -----------------------------------------------------------------------------------------------------------------------------
+'#############################################################################################################################
+#endif

@@ -1,6 +1,6 @@
 #ifndef FAT_VERBOSE_ERROR_CODE
 #define FAT_VERBOSE_ERROR_CODE
-#include "C:\MY_CODE\ARMBASIC\lib/ARMbasic_Extensions.lib"
+#include "__lib/AB_Extensions.lib"
 
 #ifndef enable_fat_verbose
 	#define enable_fat_verbose 0

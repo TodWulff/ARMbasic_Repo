@@ -1,0 +1,12 @@
+#ifndef ABRTOS_MUTEX_SUPPORT
+#define ABRTOS_MUTEX_SUPPORT
+
+#define ABRTOS_MOD		ABRTOS_LOG_MOD_MUTEX
+
+' #define	ABRTOS_LOG_EVENT_OK			0
+
+
+
+
+
+#endif

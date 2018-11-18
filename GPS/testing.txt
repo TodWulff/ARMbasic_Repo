@@ -1,0 +1,3216 @@
+
+Analyzing S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas
+get addresses
+ <= done
+
+bpp.exe -DLPC824 -I"S:/_Dev/__My_Code/ARMbasic_Repo" -I"C:/Users/TAJS/Documents/_Dev/ARMbasic_libs/CoridiumBASICLibs_v937" "S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas" >C:/Users/TAJS/AppData/Local/Temp/Coridium/GPS_Test.bpp
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:17:
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1107:4: warning: #warning 
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1108:4: warning: #warning DEBUG FACILITIES ARE DISABLED
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1109:4: warning: #warning 
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:19:
+C:/Users/TAJS/Documents/_Dev/ARMbasic_libs/CoridiumBASICLibs_v937/RTC.bas:25:4: warning: #warning LPC8xx does not have RTC hardware
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/GPS\GPS_ser.lib:6,
+                 from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:22:
+S:/_Dev/__My_Code/ARMbasic_Repo/GPS\GPS_defs.lib:65:3: warning: #warning 38400 Baud yields an idle period of 864000 us
+S:/_Dev/__My_Code/ARMbasic_Repo/GPS\GPS_defs.lib:144:3: warning: #warning "GPS DEBUG FACILITIES ARE DISABLED"
+ Manual...
+Compiling C:/Users/TAJS/AppData/Local/Temp/Coridium/GPS_Test.bpp
+ARMbasic[9.37m] on the PC  Copyright 2017, Coridium Corp.
+
+... (14.55K code + 1.15K const)/18K   4.26/5K data programmed
+
+compile done
+Programming Flash *+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+
+done
+Executing...
+
+Welcome to ARMbasic Kernel[8.40b] with Floating Point            Copyright 2017, Coridium Corp.
+  for the LPC824    
+
+Personal use copy for Beta Testing                                                                           
+Commercial customers contact Coridium for licensing
+
+stopButton
+toggleReset
+
+
+Welcome to ARMbasic Kernel[8.40b] with Floating Point            Copyright 2017, Coridium Corp.
+  for the LPC824    
+
+Personal use copy for Beta Testing                                                                           
+Commercial customers contact Coridium for licensing
+
+ 
+ 
+ 
+ 
+
+Analyzing S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas
+get addresses
+ <= done
+
+bpp.exe -DLPC824 -I"S:/_Dev/__My_Code/ARMbasic_Repo" -I"C:/Users/TAJS/Documents/_Dev/ARMbasic_libs/CoridiumBASICLibs_v937" "S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas" >C:/Users/TAJS/AppData/Local/Temp/Coridium/GPS_Test.bpp
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1071,
+                 from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:17:
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib/debugger.lib:8:7: warning: no newline at end of file
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:17:
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1074:4: warning: #warning 
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1075:4: warning: #warning DEBUG FACILITIES ARE ENABLED
+S:/_Dev/__My_Code/ARMbasic_Repo/__lib\AB_Extensions.lib:1076:4: warning: #warning 
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:19:
+C:/Users/TAJS/Documents/_Dev/ARMbasic_libs/CoridiumBASICLibs_v937/RTC.bas:25:4: warning: #warning LPC8xx does not have RTC hardware
+In file included from S:/_Dev/__My_Code/ARMbasic_Repo/GPS\GPS_ser.lib:6,
+                 from S:/_Dev/__My_Code/ARMbasic_Repo/GPS_Test.bas:22:
+S:/_Dev/__My_Code/ARMbasic_Repo/GPS\GPS_defs.lib:65:3: warning: #warning 38400 Baud yields an idle period of 864000 us
+S:/_Dev/__My_Code/ARMbasic_Repo/GPS\GPS_defs.lib:144:3: warning: #warning "GPS DEBUG FACILITIES ARE DISABLED"
+ Manual...
+Compiling C:/Users/TAJS/AppData/Local/Temp/Coridium/GPS_Test.bpp
+ARMbasic[9.37m] on the PC  Copyright 2017, Coridium Corp.
+
+... (15.68K code + 1.57K const)/18K   4.32/5K data programmed
+
+compile done
+Programming Flash *+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+
+done
+Executing...
+
+Welcome to ARMbasic Kernel[8.40b] with Floating Point            Copyright 2017, Coridium Corp.
+  for the LPC824    
+
+Personal use copy for Beta Testing                                                                           
+Commercial customers contact Coridium for licensing
+
+Starting Loop at: 35370700 uS
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 35871541 uS
+GPS_RXSerWentIdle     : 35871546 uS
+GPS_RXSerWentLow      : 36168051 uS
+GPS_RXhalfBitDwellStart   : 36168055 uS
+GPS_RXhalfBitDwellEnd     : 36168066 uS
+
+b0 received: 36168089 uS
+b1 received: 36168114 uS
+b2 received: 36168140 uS
+b3 received: 36168166 uS
+b4 received: 36168191 uS
+b5 received: 36168217 uS
+b6 received: 36168243 uS
+b7 received: 36168268 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 36211063 uS
+GPS_RXSerWentIdle     : 36211068 uS
+GPS_RXSerWentLow      : 36211082 uS
+GPS_RXhalfBitDwellStart   : 36211086 uS
+GPS_RXhalfBitDwellEnd     : 36211097 uS
+
+b0 received: 36211120 uS
+b1 received: 36211145 uS
+b2 received: 36211171 uS
+b3 received: 36211197 uS
+b4 received: 36211223 uS
+b5 received: 36211249 uS
+b6 received: 36211274 uS
+b7 received: 36211300 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 36264928 uS
+GPS_RXSerWentIdle     : 36265027 uS
+GPS_RXSerWentLow      : 36265077 uS
+GPS_RXhalfBitDwellStart   : 36265081 uS
+GPS_RXhalfBitDwellEnd     : 36265092 uS
+
+b0 received: 36265115 uS
+b1 received: 36265140 uS
+b2 received: 36265166 uS
+b3 received: 36265192 uS
+b4 received: 36265218 uS
+b5 received: 36265244 uS
+b6 received: 36265270 uS
+b7 received: 36265295 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 36818854 uS
+GPS_RXSerWentIdle     : 36818858 uS
+GPS_RXSerWentLow      : 37173274 uS
+GPS_RXhalfBitDwellStart   : 37173278 uS
+GPS_RXhalfBitDwellEnd     : 37173289 uS
+
+b0 received: 37173312 uS
+b1 received: 37173337 uS
+b2 received: 37173363 uS
+b3 received: 37173389 uS
+b4 received: 37173414 uS
+b5 received: 37173440 uS
+b6 received: 37173466 uS
+b7 received: 37173491 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 37216285 uS
+GPS_RXSerWentIdle     : 37216290 uS
+GPS_RXSerWentLow      : 37216309 uS
+GPS_RXhalfBitDwellStart   : 37216313 uS
+GPS_RXhalfBitDwellEnd     : 37216323 uS
+
+b0 received: 37216347 uS
+b1 received: 37216372 uS
+b2 received: 37216398 uS
+b3 received: 37216424 uS
+b4 received: 37216450 uS
+b5 received: 37216476 uS
+b6 received: 37216501 uS
+b7 received: 37216527 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 37270155 uS
+GPS_RXSerWentIdle     : 37270249 uS
+GPS_RXSerWentLow      : 37270298 uS
+GPS_RXhalfBitDwellStart   : 37270303 uS
+GPS_RXhalfBitDwellEnd     : 37270313 uS
+
+b0 received: 37270336 uS
+b1 received: 37270362 uS
+b2 received: 37270388 uS
+b3 received: 37270414 uS
+b4 received: 37270439 uS
+b5 received: 37270465 uS
+b6 received: 37270491 uS
+b7 received: 37270516 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 37824073 uS
+GPS_RXSerWentIdle     : 37824077 uS
+GPS_RXSerWentLow      : 38177592 uS
+GPS_RXhalfBitDwellStart   : 38177596 uS
+GPS_RXhalfBitDwellEnd     : 38177607 uS
+
+b0 received: 38177630 uS
+b1 received: 38177655 uS
+b2 received: 38177681 uS
+b3 received: 38177707 uS
+b4 received: 38177733 uS
+b5 received: 38177758 uS
+b6 received: 38177784 uS
+b7 received: 38177810 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 38220604 uS
+GPS_RXSerWentIdle     : 38220609 uS
+GPS_RXSerWentLow      : 38220623 uS
+GPS_RXhalfBitDwellStart   : 38220627 uS
+GPS_RXhalfBitDwellEnd     : 38220638 uS
+
+b0 received: 38220661 uS
+b1 received: 38220687 uS
+b2 received: 38220713 uS
+b3 received: 38220739 uS
+b4 received: 38220764 uS
+b5 received: 38220790 uS
+b6 received: 38220816 uS
+b7 received: 38220841 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 38274469 uS
+GPS_RXSerWentIdle     : 38274563 uS
+GPS_RXSerWentLow      : 38274612 uS
+GPS_RXhalfBitDwellStart   : 38274617 uS
+GPS_RXhalfBitDwellEnd     : 38274627 uS
+
+b0 received: 38274650 uS
+b1 received: 38274676 uS
+b2 received: 38274702 uS
+b3 received: 38274728 uS
+b4 received: 38274753 uS
+b5 received: 38274779 uS
+b6 received: 38274805 uS
+b7 received: 38274830 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 38828385 uS
+GPS_RXSerWentIdle     : 38828390 uS
+GPS_RXSerWentLow      : 39178411 uS
+GPS_RXhalfBitDwellStart   : 39178416 uS
+GPS_RXhalfBitDwellEnd     : 39178426 uS
+
+b0 received: 39178449 uS
+b1 received: 39178475 uS
+b2 received: 39178500 uS
+b3 received: 39178526 uS
+b4 received: 39178552 uS
+b5 received: 39178577 uS
+b6 received: 39178603 uS
+b7 received: 39178629 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 39221424 uS
+GPS_RXSerWentIdle     : 39221429 uS
+GPS_RXSerWentLow      : 39221443 uS
+GPS_RXhalfBitDwellStart   : 39221447 uS
+GPS_RXhalfBitDwellEnd     : 39221457 uS
+
+b0 received: 39221480 uS
+b1 received: 39221506 uS
+b2 received: 39221532 uS
+b3 received: 39221558 uS
+b4 received: 39221583 uS
+b5 received: 39221610 uS
+b6 received: 39221635 uS
+b7 received: 39221661 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 39275289 uS
+GPS_RXSerWentIdle     : 39275382 uS
+GPS_RXSerWentLow      : 39275432 uS
+GPS_RXhalfBitDwellStart   : 39275436 uS
+GPS_RXhalfBitDwellEnd     : 39275447 uS
+
+b0 received: 39275470 uS
+b1 received: 39275495 uS
+b2 received: 39275521 uS
+b3 received: 39275548 uS
+b4 received: 39275573 uS
+b5 received: 39275599 uS
+b6 received: 39275625 uS
+b7 received: 39275650 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 39829208 uS
+GPS_RXSerWentIdle     : 39829213 uS
+GPS_RXSerWentLow      : 40186138 uS
+GPS_RXhalfBitDwellStart   : 40186142 uS
+GPS_RXhalfBitDwellEnd     : 40186152 uS
+
+b0 received: 40186175 uS
+b1 received: 40186201 uS
+b2 received: 40186226 uS
+b3 received: 40186252 uS
+b4 received: 40186278 uS
+b5 received: 40186303 uS
+b6 received: 40186329 uS
+b7 received: 40186355 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 40229148 uS
+GPS_RXSerWentIdle     : 40229153 uS
+GPS_RXSerWentLow      : 40229162 uS
+GPS_RXhalfBitDwellStart   : 40229166 uS
+GPS_RXhalfBitDwellEnd     : 40229177 uS
+
+b0 received: 40229200 uS
+b1 received: 40229225 uS
+b2 received: 40229251 uS
+b3 received: 40229277 uS
+b4 received: 40229303 uS
+b5 received: 40229329 uS
+b6 received: 40229354 uS
+b7 received: 40229380 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 40283008 uS
+GPS_RXSerWentIdle     : 40283102 uS
+GPS_RXSerWentLow      : 40283152 uS
+GPS_RXhalfBitDwellStart   : 40283156 uS
+GPS_RXhalfBitDwellEnd     : 40283166 uS
+
+b0 received: 40283190 uS
+b1 received: 40283215 uS
+b2 received: 40283241 uS
+b3 received: 40283267 uS
+b4 received: 40283293 uS
+b5 received: 40283319 uS
+b6 received: 40283344 uS
+b7 received: 40283370 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 40836926 uS
+GPS_RXSerWentIdle     : 40836931 uS
+GPS_RXSerWentLow      : 41181572 uS
+GPS_RXhalfBitDwellStart   : 41181576 uS
+GPS_RXhalfBitDwellEnd     : 41181587 uS
+
+b0 received: 41181610 uS
+b1 received: 41181635 uS
+b2 received: 41181661 uS
+b3 received: 41181687 uS
+b4 received: 41181712 uS
+b5 received: 41181738 uS
+b6 received: 41181764 uS
+b7 received: 41181789 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 41224584 uS
+GPS_RXSerWentIdle     : 41224589 uS
+GPS_RXSerWentLow      : 41224608 uS
+GPS_RXhalfBitDwellStart   : 41224612 uS
+GPS_RXhalfBitDwellEnd     : 41224623 uS
+
+b0 received: 41224646 uS
+b1 received: 41224671 uS
+b2 received: 41224697 uS
+b3 received: 41224723 uS
+b4 received: 41224749 uS
+b5 received: 41224775 uS
+b6 received: 41224800 uS
+b7 received: 41224826 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 41278453 uS
+GPS_RXSerWentIdle     : 41278552 uS
+GPS_RXSerWentLow      : 41278612 uS
+GPS_RXhalfBitDwellStart   : 41278617 uS
+GPS_RXhalfBitDwellEnd     : 41278627 uS
+
+b0 received: 41278650 uS
+b1 received: 41278676 uS
+b2 received: 41278702 uS
+b3 received: 41278728 uS
+b4 received: 41278753 uS
+b5 received: 41278779 uS
+b6 received: 41278805 uS
+b7 received: 41278830 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 41832301 uS
+GPS_RXSerWentIdle     : 41832306 uS
+GPS_RXSerWentLow      : 42184235 uS
+GPS_RXhalfBitDwellStart   : 42184239 uS
+GPS_RXhalfBitDwellEnd     : 42184250 uS
+
+b0 received: 42184273 uS
+b1 received: 42184298 uS
+b2 received: 42184324 uS
+b3 received: 42184350 uS
+b4 received: 42184375 uS
+b5 received: 42184401 uS
+b6 received: 42184427 uS
+b7 received: 42184452 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 42227247 uS
+GPS_RXSerWentIdle     : 42227252 uS
+GPS_RXSerWentLow      : 42227271 uS
+GPS_RXhalfBitDwellStart   : 42227275 uS
+GPS_RXhalfBitDwellEnd     : 42227286 uS
+
+b0 received: 42227309 uS
+b1 received: 42227334 uS
+b2 received: 42227360 uS
+b3 received: 42227386 uS
+b4 received: 42227412 uS
+b5 received: 42227438 uS
+b6 received: 42227463 uS
+b7 received: 42227489 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 42281117 uS
+GPS_RXSerWentIdle     : 42281216 uS
+GPS_RXSerWentLow      : 42281277 uS
+GPS_RXhalfBitDwellStart   : 42281281 uS
+GPS_RXhalfBitDwellEnd     : 42281291 uS
+
+b0 received: 42281315 uS
+b1 received: 42281340 uS
+b2 received: 42281366 uS
+b3 received: 42281392 uS
+b4 received: 42281418 uS
+b5 received: 42281444 uS
+b6 received: 42281469 uS
+b7 received: 42281495 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 42834964 uS
+GPS_RXSerWentIdle     : 42834969 uS
+GPS_RXSerWentLow      : 43196111 uS
+GPS_RXhalfBitDwellStart   : 43196115 uS
+GPS_RXhalfBitDwellEnd     : 43196126 uS
+
+b0 received: 43196149 uS
+b1 received: 43196174 uS
+b2 received: 43196200 uS
+b3 received: 43196226 uS
+b4 received: 43196251 uS
+b5 received: 43196277 uS
+b6 received: 43196303 uS
+b7 received: 43196328 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 43239122 uS
+GPS_RXSerWentIdle     : 43239126 uS
+GPS_RXSerWentLow      : 43239146 uS
+GPS_RXhalfBitDwellStart   : 43239150 uS
+GPS_RXhalfBitDwellEnd     : 43239160 uS
+
+b0 received: 43239183 uS
+b1 received: 43239209 uS
+b2 received: 43239235 uS
+b3 received: 43239261 uS
+b4 received: 43239287 uS
+b5 received: 43239313 uS
+b6 received: 43239338 uS
+b7 received: 43239364 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 43292992 uS
+GPS_RXSerWentIdle     : 43293091 uS
+GPS_RXSerWentLow      : 43293141 uS
+GPS_RXhalfBitDwellStart   : 43293145 uS
+GPS_RXhalfBitDwellEnd     : 43293156 uS
+
+b0 received: 43293179 uS
+b1 received: 43293204 uS
+b2 received: 43293230 uS
+b3 received: 43293256 uS
+b4 received: 43293282 uS
+b5 received: 43293308 uS
+b6 received: 43293333 uS
+b7 received: 43293359 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 43846915 uS
+GPS_RXSerWentIdle     : 43846920 uS
+GPS_RXSerWentLow      : 44191357 uS
+GPS_RXhalfBitDwellStart   : 44191361 uS
+GPS_RXhalfBitDwellEnd     : 44191372 uS
+
+b0 received: 44191395 uS
+b1 received: 44191420 uS
+b2 received: 44191446 uS
+b3 received: 44191472 uS
+b4 received: 44191498 uS
+b5 received: 44191523 uS
+b6 received: 44191549 uS
+b7 received: 44191575 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 44234368 uS
+GPS_RXSerWentIdle     : 44234373 uS
+GPS_RXSerWentLow      : 44234397 uS
+GPS_RXhalfBitDwellStart   : 44234401 uS
+GPS_RXhalfBitDwellEnd     : 44234412 uS
+
+b0 received: 44234435 uS
+b1 received: 44234460 uS
+b2 received: 44234486 uS
+b3 received: 44234512 uS
+b4 received: 44234538 uS
+b5 received: 44234564 uS
+b6 received: 44234589 uS
+b7 received: 44234615 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 44288244 uS
+GPS_RXSerWentIdle     : 44288348 uS
+GPS_RXSerWentLow      : 44288404 uS
+GPS_RXhalfBitDwellStart   : 44288408 uS
+GPS_RXhalfBitDwellEnd     : 44288418 uS
+
+b0 received: 44288441 uS
+b1 received: 44288467 uS
+b2 received: 44288493 uS
+b3 received: 44288519 uS
+b4 received: 44288544 uS
+b5 received: 44288571 uS
+b6 received: 44288596 uS
+b7 received: 44288622 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 45706099 uS
+GPS_RXSerWentIdle     : 45706104 uS
+GPS_RXSerWentLow      : 46195298 uS
+GPS_RXhalfBitDwellStart   : 46195303 uS
+GPS_RXhalfBitDwellEnd     : 46195313 uS
+
+b0 received: 46195336 uS
+b1 received: 46195362 uS
+b2 received: 46195387 uS
+b3 received: 46195413 uS
+b4 received: 46195439 uS
+b5 received: 46195464 uS
+b6 received: 46195490 uS
+b7 received: 46195516 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 46238311 uS
+GPS_RXSerWentIdle     : 46238315 uS
+GPS_RXSerWentLow      : 46238335 uS
+GPS_RXhalfBitDwellStart   : 46238339 uS
+GPS_RXhalfBitDwellEnd     : 46238349 uS
+
+b0 received: 46238372 uS
+b1 received: 46238398 uS
+b2 received: 46238424 uS
+b3 received: 46238450 uS
+b4 received: 46238476 uS
+b5 received: 46238502 uS
+b6 received: 46238527 uS
+b7 received: 46238553 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 46292181 uS
+GPS_RXSerWentIdle     : 46292285 uS
+GPS_RXSerWentLow      : 46292341 uS
+GPS_RXhalfBitDwellStart   : 46292345 uS
+GPS_RXhalfBitDwellEnd     : 46292356 uS
+
+b0 received: 46292379 uS
+b1 received: 46292404 uS
+b2 received: 46292430 uS
+b3 received: 46292456 uS
+b4 received: 46292482 uS
+b5 received: 46292508 uS
+b6 received: 46292533 uS
+b7 received: 46292559 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 46846031 uS
+GPS_RXSerWentIdle     : 46846036 uS
+GPS_RXSerWentLow      : 47203593 uS
+GPS_RXhalfBitDwellStart   : 47203597 uS
+GPS_RXhalfBitDwellEnd     : 47203608 uS
+
+b0 received: 47203631 uS
+b1 received: 47203656 uS
+b2 received: 47203682 uS
+b3 received: 47203708 uS
+b4 received: 47203733 uS
+b5 received: 47203759 uS
+b6 received: 47203785 uS
+b7 received: 47203811 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 47246604 uS
+GPS_RXSerWentIdle     : 47246608 uS
+GPS_RXSerWentLow      : 47246628 uS
+GPS_RXhalfBitDwellStart   : 47246632 uS
+GPS_RXhalfBitDwellEnd     : 47246642 uS
+
+b0 received: 47246665 uS
+b1 received: 47246691 uS
+b2 received: 47246717 uS
+b3 received: 47246743 uS
+b4 received: 47246769 uS
+b5 received: 47246795 uS
+b6 received: 47246820 uS
+b7 received: 47246846 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 47300474 uS
+GPS_RXSerWentIdle     : 47300573 uS
+GPS_RXSerWentLow      : 47300633 uS
+GPS_RXhalfBitDwellStart   : 47300638 uS
+GPS_RXhalfBitDwellEnd     : 47300648 uS
+
+b0 received: 47300671 uS
+b1 received: 47300697 uS
+b2 received: 47300723 uS
+b3 received: 47300749 uS
+b4 received: 47300774 uS
+b5 received: 47300800 uS
+b6 received: 47300826 uS
+b7 received: 47300851 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 47854323 uS
+GPS_RXSerWentIdle     : 47854327 uS
+GPS_RXSerWentLow      : 48202513 uS
+GPS_RXhalfBitDwellStart   : 48202517 uS
+GPS_RXhalfBitDwellEnd     : 48202528 uS
+
+b0 received: 48202551 uS
+b1 received: 48202576 uS
+b2 received: 48202602 uS
+b3 received: 48202628 uS
+b4 received: 48202653 uS
+b5 received: 48202679 uS
+b6 received: 48202705 uS
+b7 received: 48202730 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 48245525 uS
+GPS_RXSerWentIdle     : 48245530 uS
+GPS_RXSerWentLow      : 48245549 uS
+GPS_RXhalfBitDwellStart   : 48245553 uS
+GPS_RXhalfBitDwellEnd     : 48245564 uS
+
+b0 received: 48245587 uS
+b1 received: 48245612 uS
+b2 received: 48245638 uS
+b3 received: 48245664 uS
+b4 received: 48245690 uS
+b5 received: 48245716 uS
+b6 received: 48245741 uS
+b7 received: 48245767 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 48299394 uS
+GPS_RXSerWentIdle     : 48299498 uS
+GPS_RXSerWentLow      : 48299554 uS
+GPS_RXhalfBitDwellStart   : 48299558 uS
+GPS_RXhalfBitDwellEnd     : 48299569 uS
+
+b0 received: 48299592 uS
+b1 received: 48299617 uS
+b2 received: 48299643 uS
+b3 received: 48299669 uS
+b4 received: 48299695 uS
+b5 received: 48299721 uS
+b6 received: 48299746 uS
+b7 received: 48299772 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 48853243 uS
+GPS_RXSerWentIdle     : 48853248 uS
+GPS_RXSerWentLow      : 49209185 uS
+GPS_RXhalfBitDwellStart   : 49209190 uS
+GPS_RXhalfBitDwellEnd     : 49209200 uS
+
+b0 received: 49209223 uS
+b1 received: 49209249 uS
+b2 received: 49209274 uS
+b3 received: 49209300 uS
+b4 received: 49209326 uS
+b5 received: 49209351 uS
+b6 received: 49209377 uS
+b7 received: 49209403 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 49252198 uS
+GPS_RXSerWentIdle     : 49252202 uS
+GPS_RXSerWentLow      : 49252222 uS
+GPS_RXhalfBitDwellStart   : 49252226 uS
+GPS_RXhalfBitDwellEnd     : 49252236 uS
+
+b0 received: 49252259 uS
+b1 received: 49252285 uS
+b2 received: 49252311 uS
+b3 received: 49252337 uS
+b4 received: 49252362 uS
+b5 received: 49252388 uS
+b6 received: 49252414 uS
+b7 received: 49252439 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 49306068 uS
+GPS_RXSerWentIdle     : 49306167 uS
+GPS_RXSerWentLow      : 49306227 uS
+GPS_RXhalfBitDwellStart   : 49306232 uS
+GPS_RXhalfBitDwellEnd     : 49306242 uS
+
+b0 received: 49306265 uS
+b1 received: 49306291 uS
+b2 received: 49306317 uS
+b3 received: 49306343 uS
+b4 received: 49306368 uS
+b5 received: 49306394 uS
+b6 received: 49306420 uS
+b7 received: 49306445 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000093
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 49859919 uS
+GPS_RXSerWentIdle     : 49859924 uS
+GPS_RXSerWentLow      : 50211738 uS
+GPS_RXhalfBitDwellStart   : 50211742 uS
+GPS_RXhalfBitDwellEnd     : 50211753 uS
+
+b0 received: 50211776 uS
+b1 received: 50211801 uS
+b2 received: 50211827 uS
+b3 received: 50211853 uS
+b4 received: 50211878 uS
+b5 received: 50211904 uS
+b6 received: 50211930 uS
+b7 received: 50211955 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 50254749 uS
+GPS_RXSerWentIdle     : 50254754 uS
+GPS_RXSerWentLow      : 50254773 uS
+GPS_RXhalfBitDwellStart   : 50254777 uS
+GPS_RXhalfBitDwellEnd     : 50254788 uS
+
+b0 received: 50254811 uS
+b1 received: 50254836 uS
+b2 received: 50254862 uS
+b3 received: 50254888 uS
+b4 received: 50254914 uS
+b5 received: 50254940 uS
+b6 received: 50254965 uS
+b7 received: 50254991 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 50308619 uS
+GPS_RXSerWentIdle     : 50308718 uS
+GPS_RXSerWentLow      : 50308779 uS
+GPS_RXhalfBitDwellStart   : 50308783 uS
+GPS_RXhalfBitDwellEnd     : 50308793 uS
+
+b0 received: 50308816 uS
+b1 received: 50308842 uS
+b2 received: 50308868 uS
+b3 received: 50308894 uS
+b4 received: 50308920 uS
+b5 received: 50308946 uS
+b6 received: 50308971 uS
+b7 received: 50308997 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 50862468 uS
+GPS_RXSerWentIdle     : 50862473 uS
+GPS_RXSerWentLow      : 51210388 uS
+GPS_RXhalfBitDwellStart   : 51210392 uS
+GPS_RXhalfBitDwellEnd     : 51210403 uS
+
+b0 received: 51210426 uS
+b1 received: 51210451 uS
+b2 received: 51210477 uS
+b3 received: 51210503 uS
+b4 received: 51210528 uS
+b5 received: 51210554 uS
+b6 received: 51210580 uS
+b7 received: 51210605 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 51253400 uS
+GPS_RXSerWentIdle     : 51253405 uS
+GPS_RXSerWentLow      : 51253429 uS
+GPS_RXhalfBitDwellStart   : 51253434 uS
+GPS_RXhalfBitDwellEnd     : 51253444 uS
+
+b0 received: 51253467 uS
+b1 received: 51253493 uS
+b2 received: 51253519 uS
+b3 received: 51253545 uS
+b4 received: 51253570 uS
+b5 received: 51253596 uS
+b6 received: 51253622 uS
+b7 received: 51253647 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 51307274 uS
+GPS_RXSerWentIdle     : 51307378 uS
+GPS_RXSerWentLow      : 51307434 uS
+GPS_RXhalfBitDwellStart   : 51307438 uS
+GPS_RXhalfBitDwellEnd     : 51307448 uS
+
+b0 received: 51307472 uS
+b1 received: 51307497 uS
+b2 received: 51307523 uS
+b3 received: 51307549 uS
+b4 received: 51307575 uS
+b5 received: 51307601 uS
+b6 received: 51307626 uS
+b7 received: 51307652 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 51861123 uS
+GPS_RXSerWentIdle     : 51861128 uS
+GPS_RXSerWentLow      : 52213699 uS
+GPS_RXhalfBitDwellStart   : 52213703 uS
+GPS_RXhalfBitDwellEnd     : 52213714 uS
+
+b0 received: 52213737 uS
+b1 received: 52213762 uS
+b2 received: 52213788 uS
+b3 received: 52213814 uS
+b4 received: 52213839 uS
+b5 received: 52213865 uS
+b6 received: 52213891 uS
+b7 received: 52213917 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 52256711 uS
+GPS_RXSerWentIdle     : 52256716 uS
+GPS_RXSerWentLow      : 52256730 uS
+GPS_RXhalfBitDwellStart   : 52256735 uS
+GPS_RXhalfBitDwellEnd     : 52256745 uS
+
+b0 received: 52256768 uS
+b1 received: 52256794 uS
+b2 received: 52256820 uS
+b3 received: 52256846 uS
+b4 received: 52256871 uS
+b5 received: 52256897 uS
+b6 received: 52256923 uS
+b7 received: 52256948 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 52310576 uS
+GPS_RXSerWentIdle     : 52310670 uS
+GPS_RXSerWentLow      : 52310720 uS
+GPS_RXhalfBitDwellStart   : 52310724 uS
+GPS_RXhalfBitDwellEnd     : 52310734 uS
+
+b0 received: 52310758 uS
+b1 received: 52310783 uS
+b2 received: 52310809 uS
+b3 received: 52310835 uS
+b4 received: 52310861 uS
+b5 received: 52310887 uS
+b6 received: 52310912 uS
+b7 received: 52310938 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 52864496 uS
+GPS_RXSerWentIdle     : 52864501 uS
+GPS_RXSerWentLow      : 53215938 uS
+GPS_RXhalfBitDwellStart   : 53215942 uS
+GPS_RXhalfBitDwellEnd     : 53215953 uS
+
+b0 received: 53215976 uS
+b1 received: 53216001 uS
+b2 received: 53216027 uS
+b3 received: 53216053 uS
+b4 received: 53216078 uS
+b5 received: 53216104 uS
+b6 received: 53216130 uS
+b7 received: 53216155 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 53258948 uS
+GPS_RXSerWentIdle     : 53258953 uS
+GPS_RXSerWentLow      : 53258972 uS
+GPS_RXhalfBitDwellStart   : 53258976 uS
+GPS_RXhalfBitDwellEnd     : 53258987 uS
+
+b0 received: 53259010 uS
+b1 received: 53259035 uS
+b2 received: 53259061 uS
+b3 received: 53259088 uS
+b4 received: 53259113 uS
+b5 received: 53259139 uS
+b6 received: 53259165 uS
+b7 received: 53259190 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 53312819 uS
+GPS_RXSerWentIdle     : 53312912 uS
+GPS_RXSerWentLow      : 53312967 uS
+GPS_RXhalfBitDwellStart   : 53312971 uS
+GPS_RXhalfBitDwellEnd     : 53312982 uS
+
+b0 received: 53313005 uS
+b1 received: 53313030 uS
+b2 received: 53313057 uS
+b3 received: 53313083 uS
+b4 received: 53313108 uS
+b5 received: 53313134 uS
+b6 received: 53313160 uS
+b7 received: 53313185 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 53866743 uS
+GPS_RXSerWentIdle     : 53866748 uS
+GPS_RXSerWentLow      : 54222398 uS
+GPS_RXhalfBitDwellStart   : 54222402 uS
+GPS_RXhalfBitDwellEnd     : 54222412 uS
+
+b0 received: 54222436 uS
+b1 received: 54222461 uS
+b2 received: 54222487 uS
+b3 received: 54222513 uS
+b4 received: 54222538 uS
+b5 received: 54222564 uS
+b6 received: 54222590 uS
+b7 received: 54222615 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 54265410 uS
+GPS_RXSerWentIdle     : 54265414 uS
+GPS_RXSerWentLow      : 54265439 uS
+GPS_RXhalfBitDwellStart   : 54265443 uS
+GPS_RXhalfBitDwellEnd     : 54265453 uS
+
+b0 received: 54265476 uS
+b1 received: 54265502 uS
+b2 received: 54265528 uS
+b3 received: 54265554 uS
+b4 received: 54265580 uS
+b5 received: 54265606 uS
+b6 received: 54265631 uS
+b7 received: 54265657 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 54319284 uS
+GPS_RXSerWentIdle     : 54319383 uS
+GPS_RXSerWentLow      : 54319443 uS
+GPS_RXhalfBitDwellStart   : 54319447 uS
+GPS_RXhalfBitDwellEnd     : 54319458 uS
+
+b0 received: 54319481 uS
+b1 received: 54319507 uS
+b2 received: 54319533 uS
+b3 received: 54319559 uS
+b4 received: 54319584 uS
+b5 received: 54319610 uS
+b6 received: 54319636 uS
+b7 received: 54319661 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000093
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 55737152 uS
+GPS_RXSerWentIdle     : 55737157 uS
+GPS_RXSerWentLow      : 56225938 uS
+GPS_RXhalfBitDwellStart   : 56225942 uS
+GPS_RXhalfBitDwellEnd     : 56225952 uS
+
+b0 received: 56225975 uS
+b1 received: 56226001 uS
+b2 received: 56226026 uS
+b3 received: 56226052 uS
+b4 received: 56226078 uS
+b5 received: 56226103 uS
+b6 received: 56226130 uS
+b7 received: 56226155 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 56268950 uS
+GPS_RXSerWentIdle     : 56268955 uS
+GPS_RXSerWentLow      : 56268974 uS
+GPS_RXhalfBitDwellStart   : 56268978 uS
+GPS_RXhalfBitDwellEnd     : 56268989 uS
+
+b0 received: 56269012 uS
+b1 received: 56269037 uS
+b2 received: 56269063 uS
+b3 received: 56269089 uS
+b4 received: 56269115 uS
+b5 received: 56269141 uS
+b6 received: 56269166 uS
+b7 received: 56269192 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 56322821 uS
+GPS_RXSerWentIdle     : 56322914 uS
+GPS_RXSerWentLow      : 56322964 uS
+GPS_RXhalfBitDwellStart   : 56322968 uS
+GPS_RXhalfBitDwellEnd     : 56322978 uS
+
+b0 received: 56323002 uS
+b1 received: 56323027 uS
+b2 received: 56323053 uS
+b3 received: 56323079 uS
+b4 received: 56323105 uS
+b5 received: 56323131 uS
+b6 received: 56323156 uS
+b7 received: 56323182 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 56876740 uS
+GPS_RXSerWentIdle     : 56876745 uS
+GPS_RXSerWentLow      : 57234144 uS
+GPS_RXhalfBitDwellStart   : 57234148 uS
+GPS_RXhalfBitDwellEnd     : 57234158 uS
+
+b0 received: 57234181 uS
+b1 received: 57234207 uS
+b2 received: 57234232 uS
+b3 received: 57234259 uS
+b4 received: 57234284 uS
+b5 received: 57234310 uS
+b6 received: 57234336 uS
+b7 received: 57234361 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 57277155 uS
+GPS_RXSerWentIdle     : 57277159 uS
+GPS_RXSerWentLow      : 57277184 uS
+GPS_RXhalfBitDwellStart   : 57277188 uS
+GPS_RXhalfBitDwellEnd     : 57277198 uS
+
+b0 received: 57277221 uS
+b1 received: 57277247 uS
+b2 received: 57277273 uS
+b3 received: 57277299 uS
+b4 received: 57277325 uS
+b5 received: 57277351 uS
+b6 received: 57277376 uS
+b7 received: 57277402 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 57331030 uS
+GPS_RXSerWentIdle     : 57331129 uS
+GPS_RXSerWentLow      : 57331179 uS
+GPS_RXhalfBitDwellStart   : 57331183 uS
+GPS_RXhalfBitDwellEnd     : 57331194 uS
+
+b0 received: 57331217 uS
+b1 received: 57331242 uS
+b2 received: 57331268 uS
+b3 received: 57331294 uS
+b4 received: 57331320 uS
+b5 received: 57331346 uS
+b6 received: 57331371 uS
+b7 received: 57331397 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 57884953 uS
+GPS_RXSerWentIdle     : 57884958 uS
+GPS_RXSerWentLow      : 58230129 uS
+GPS_RXhalfBitDwellStart   : 58230134 uS
+GPS_RXhalfBitDwellEnd     : 58230144 uS
+
+b0 received: 58230167 uS
+b1 received: 58230193 uS
+b2 received: 58230218 uS
+b3 received: 58230244 uS
+b4 received: 58230270 uS
+b5 received: 58230295 uS
+b6 received: 58230321 uS
+b7 received: 58230347 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 58273141 uS
+GPS_RXSerWentIdle     : 58273146 uS
+GPS_RXSerWentLow      : 58273165 uS
+GPS_RXhalfBitDwellStart   : 58273170 uS
+GPS_RXhalfBitDwellEnd     : 58273180 uS
+
+b0 received: 58273203 uS
+b1 received: 58273229 uS
+b2 received: 58273255 uS
+b3 received: 58273281 uS
+b4 received: 58273306 uS
+b5 received: 58273332 uS
+b6 received: 58273358 uS
+b7 received: 58273383 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 58327010 uS
+GPS_RXSerWentIdle     : 58327107 uS
+GPS_RXSerWentLow      : 58327162 uS
+GPS_RXhalfBitDwellStart   : 58327172 uS
+GPS_RXhalfBitDwellEnd     : 58327182 uS
+
+b0 received: 58327205 uS
+b1 received: 58327231 uS
+b2 received: 58327257 uS
+b3 received: 58327283 uS
+b4 received: 58327308 uS
+b5 received: 58327334 uS
+b6 received: 58327360 uS
+b7 received: 58327385 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 58880855 uS
+GPS_RXSerWentIdle     : 58880860 uS
+GPS_RXSerWentLow      : 59236195 uS
+GPS_RXhalfBitDwellStart   : 59236199 uS
+GPS_RXhalfBitDwellEnd     : 59236210 uS
+
+b0 received: 59236233 uS
+b1 received: 59236258 uS
+b2 received: 59236284 uS
+b3 received: 59236310 uS
+b4 received: 59236336 uS
+b5 received: 59236361 uS
+b6 received: 59236387 uS
+b7 received: 59236413 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 59279207 uS
+GPS_RXSerWentIdle     : 59279218 uS
+GPS_RXSerWentLow      : 59279242 uS
+GPS_RXhalfBitDwellStart   : 59279246 uS
+GPS_RXhalfBitDwellEnd     : 59279257 uS
+
+b0 received: 59279280 uS
+b1 received: 59279305 uS
+b2 received: 59279331 uS
+b3 received: 59279357 uS
+b4 received: 59279383 uS
+b5 received: 59279409 uS
+b6 received: 59279434 uS
+b7 received: 59279460 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 59333088 uS
+GPS_RXSerWentIdle     : 59333198 uS
+GPS_RXSerWentLow      : 59333249 uS
+GPS_RXhalfBitDwellStart   : 59333253 uS
+GPS_RXhalfBitDwellEnd     : 59333263 uS
+
+b0 received: 59333287 uS
+b1 received: 59333312 uS
+b2 received: 59333338 uS
+b3 received: 59333364 uS
+b4 received: 59333390 uS
+b5 received: 59333416 uS
+b6 received: 59333441 uS
+b7 received: 59333467 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 59886940 uS
+GPS_RXSerWentIdle     : 59886945 uS
+GPS_RXSerWentLow      : 60234644 uS
+GPS_RXhalfBitDwellStart   : 60234648 uS
+GPS_RXhalfBitDwellEnd     : 60234658 uS
+
+b0 received: 60234682 uS
+b1 received: 60234707 uS
+b2 received: 60234733 uS
+b3 received: 60234759 uS
+b4 received: 60234784 uS
+b5 received: 60234810 uS
+b6 received: 60234836 uS
+b7 received: 60234861 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 60277655 uS
+GPS_RXSerWentIdle     : 60277659 uS
+GPS_RXSerWentLow      : 60277678 uS
+GPS_RXhalfBitDwellStart   : 60277683 uS
+GPS_RXhalfBitDwellEnd     : 60277693 uS
+
+b0 received: 60277716 uS
+b1 received: 60277742 uS
+b2 received: 60277768 uS
+b3 received: 60277794 uS
+b4 received: 60277819 uS
+b5 received: 60277845 uS
+b6 received: 60277871 uS
+b7 received: 60277896 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 60331525 uS
+GPS_RXSerWentIdle     : 60331629 uS
+GPS_RXSerWentLow      : 60331685 uS
+GPS_RXhalfBitDwellStart   : 60331689 uS
+GPS_RXhalfBitDwellEnd     : 60331699 uS
+
+b0 received: 60331722 uS
+b1 received: 60331748 uS
+b2 received: 60331774 uS
+b3 received: 60331800 uS
+b4 received: 60331826 uS
+b5 received: 60331852 uS
+b6 received: 60331877 uS
+b7 received: 60331903 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 60885373 uS
+GPS_RXSerWentIdle     : 60885378 uS
+GPS_RXSerWentLow      : 61243356 uS
+GPS_RXhalfBitDwellStart   : 61243360 uS
+GPS_RXhalfBitDwellEnd     : 61243370 uS
+
+b0 received: 61243393 uS
+b1 received: 61243419 uS
+b2 received: 61243444 uS
+b3 received: 61243471 uS
+b4 received: 61243496 uS
+b5 received: 61243522 uS
+b6 received: 61243548 uS
+b7 received: 61243573 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 61286368 uS
+GPS_RXSerWentIdle     : 61286373 uS
+GPS_RXSerWentLow      : 61286397 uS
+GPS_RXhalfBitDwellStart   : 61286401 uS
+GPS_RXhalfBitDwellEnd     : 61286412 uS
+
+b0 received: 61286435 uS
+b1 received: 61286460 uS
+b2 received: 61286486 uS
+b3 received: 61286513 uS
+b4 received: 61286538 uS
+b5 received: 61286564 uS
+b6 received: 61286590 uS
+b7 received: 61286615 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 61340242 uS
+GPS_RXSerWentIdle     : 61340341 uS
+GPS_RXSerWentLow      : 61340391 uS
+GPS_RXhalfBitDwellStart   : 61340395 uS
+GPS_RXhalfBitDwellEnd     : 61340405 uS
+
+b0 received: 61340428 uS
+b1 received: 61340454 uS
+b2 received: 61340480 uS
+b3 received: 61340506 uS
+b4 received: 61340532 uS
+b5 received: 61340558 uS
+b6 received: 61340583 uS
+b7 received: 61340609 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 61894165 uS
+GPS_RXSerWentIdle     : 61894170 uS
+GPS_RXSerWentLow      : 62238571 uS
+GPS_RXhalfBitDwellStart   : 62238575 uS
+GPS_RXhalfBitDwellEnd     : 62238586 uS
+
+b0 received: 62238609 uS
+b1 received: 62238635 uS
+b2 received: 62238660 uS
+b3 received: 62238686 uS
+b4 received: 62238712 uS
+b5 received: 62238737 uS
+b6 received: 62238763 uS
+b7 received: 62238789 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 62281583 uS
+GPS_RXSerWentIdle     : 62281588 uS
+GPS_RXSerWentLow      : 62281612 uS
+GPS_RXhalfBitDwellStart   : 62281616 uS
+GPS_RXhalfBitDwellEnd     : 62281627 uS
+
+b0 received: 62281650 uS
+b1 received: 62281676 uS
+b2 received: 62281702 uS
+b3 received: 62281728 uS
+b4 received: 62281753 uS
+b5 received: 62281779 uS
+b6 received: 62281805 uS
+b7 received: 62281830 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 62335458 uS
+GPS_RXSerWentIdle     : 62335563 uS
+GPS_RXSerWentLow      : 62335618 uS
+GPS_RXhalfBitDwellStart   : 62335623 uS
+GPS_RXhalfBitDwellEnd     : 62335633 uS
+
+b0 received: 62335656 uS
+b1 received: 62335682 uS
+b2 received: 62335708 uS
+b3 received: 62335734 uS
+b4 received: 62335759 uS
+b5 received: 62335785 uS
+b6 received: 62335811 uS
+b7 received: 62335836 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 62889305 uS
+GPS_RXSerWentIdle     : 62889310 uS
+GPS_RXSerWentLow      : 63241285 uS
+GPS_RXhalfBitDwellStart   : 63241289 uS
+GPS_RXhalfBitDwellEnd     : 63241300 uS
+
+b0 received: 63241323 uS
+b1 received: 63241348 uS
+b2 received: 63241374 uS
+b3 received: 63241400 uS
+b4 received: 63241425 uS
+b5 received: 63241451 uS
+b6 received: 63241477 uS
+b7 received: 63241502 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 63284297 uS
+GPS_RXSerWentIdle     : 63284302 uS
+GPS_RXSerWentLow      : 63284326 uS
+GPS_RXhalfBitDwellStart   : 63284331 uS
+GPS_RXhalfBitDwellEnd     : 63284341 uS
+
+b0 received: 63284364 uS
+b1 received: 63284390 uS
+b2 received: 63284416 uS
+b3 received: 63284442 uS
+b4 received: 63284467 uS
+b5 received: 63284493 uS
+b6 received: 63284519 uS
+b7 received: 63284544 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 63338172 uS
+GPS_RXSerWentIdle     : 63338277 uS
+GPS_RXSerWentLow      : 63338332 uS
+GPS_RXhalfBitDwellStart   : 63338337 uS
+GPS_RXhalfBitDwellEnd     : 63338347 uS
+
+b0 received: 63338370 uS
+b1 received: 63338396 uS
+b2 received: 63338422 uS
+b3 received: 63338448 uS
+b4 received: 63338473 uS
+b5 received: 63338499 uS
+b6 received: 63338525 uS
+b7 received: 63338550 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 63892024 uS
+GPS_RXSerWentIdle     : 63892029 uS
+GPS_RXSerWentLow      : 64253212 uS
+GPS_RXhalfBitDwellStart   : 64253216 uS
+GPS_RXhalfBitDwellEnd     : 64253226 uS
+
+b0 received: 64253249 uS
+b1 received: 64253275 uS
+b2 received: 64253300 uS
+b3 received: 64253326 uS
+b4 received: 64253352 uS
+b5 received: 64253377 uS
+b6 received: 64253404 uS
+b7 received: 64253429 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 64296224 uS
+GPS_RXSerWentIdle     : 64296228 uS
+GPS_RXSerWentLow      : 64296253 uS
+GPS_RXhalfBitDwellStart   : 64296257 uS
+GPS_RXhalfBitDwellEnd     : 64296267 uS
+
+b0 received: 64296291 uS
+b1 received: 64296316 uS
+b2 received: 64296342 uS
+b3 received: 64296368 uS
+b4 received: 64296394 uS
+b5 received: 64296420 uS
+b6 received: 64296445 uS
+b7 received: 64296471 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 64350098 uS
+GPS_RXSerWentIdle     : 64350197 uS
+GPS_RXSerWentLow      : 64350247 uS
+GPS_RXhalfBitDwellStart   : 64350251 uS
+GPS_RXhalfBitDwellEnd     : 64350261 uS
+
+b0 received: 64350285 uS
+b1 received: 64350310 uS
+b2 received: 64350336 uS
+b3 received: 64350362 uS
+b4 received: 64350388 uS
+b5 received: 64350414 uS
+b6 received: 64350439 uS
+b7 received: 64350465 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 65768034 uS
+GPS_RXSerWentIdle     : 65768039 uS
+GPS_RXSerWentLow      : 66251751 uS
+GPS_RXhalfBitDwellStart   : 66251755 uS
+GPS_RXhalfBitDwellEnd     : 66251765 uS
+
+b0 received: 66251788 uS
+b1 received: 66251814 uS
+b2 received: 66251839 uS
+b3 received: 66251865 uS
+b4 received: 66251891 uS
+b5 received: 66251916 uS
+b6 received: 66251942 uS
+b7 received: 66251968 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 66294763 uS
+GPS_RXSerWentIdle     : 66294768 uS
+GPS_RXSerWentLow      : 66294792 uS
+GPS_RXhalfBitDwellStart   : 66294796 uS
+GPS_RXhalfBitDwellEnd     : 66294807 uS
+
+b0 received: 66294830 uS
+b1 received: 66294855 uS
+b2 received: 66294881 uS
+b3 received: 66294907 uS
+b4 received: 66294933 uS
+b5 received: 66294959 uS
+b6 received: 66294984 uS
+b7 received: 66295010 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 66348639 uS
+GPS_RXSerWentIdle     : 66348738 uS
+GPS_RXSerWentLow      : 66348798 uS
+GPS_RXhalfBitDwellStart   : 66348803 uS
+GPS_RXhalfBitDwellEnd     : 66348813 uS
+
+b0 received: 66348836 uS
+b1 received: 66348862 uS
+b2 received: 66348888 uS
+b3 received: 66348914 uS
+b4 received: 66348939 uS
+b5 received: 66348965 uS
+b6 received: 66348991 uS
+b7 received: 66349016 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 66902490 uS
+GPS_RXSerWentIdle     : 66902494 uS
+GPS_RXSerWentLow      : 67254615 uS
+GPS_RXhalfBitDwellStart   : 67254619 uS
+GPS_RXhalfBitDwellEnd     : 67254630 uS
+
+b0 received: 67254653 uS
+b1 received: 67254678 uS
+b2 received: 67254704 uS
+b3 received: 67254730 uS
+b4 received: 67254755 uS
+b5 received: 67254781 uS
+b6 received: 67254807 uS
+b7 received: 67254832 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 67297626 uS
+GPS_RXSerWentIdle     : 67297630 uS
+GPS_RXSerWentLow      : 67297660 uS
+GPS_RXhalfBitDwellStart   : 67297664 uS
+GPS_RXhalfBitDwellEnd     : 67297674 uS
+
+b0 received: 67297698 uS
+b1 received: 67297723 uS
+b2 received: 67297749 uS
+b3 received: 67297775 uS
+b4 received: 67297801 uS
+b5 received: 67297827 uS
+b6 received: 67297852 uS
+b7 received: 67297878 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 67351506 uS
+GPS_RXSerWentIdle     : 67351610 uS
+GPS_RXSerWentLow      : 67351666 uS
+GPS_RXhalfBitDwellStart   : 67351670 uS
+GPS_RXhalfBitDwellEnd     : 67351681 uS
+
+b0 received: 67351704 uS
+b1 received: 67351729 uS
+b2 received: 67351755 uS
+b3 received: 67351781 uS
+b4 received: 67351807 uS
+b5 received: 67351833 uS
+b6 received: 67351858 uS
+b7 received: 67351884 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 67905355 uS
+GPS_RXSerWentIdle     : 67905359 uS
+GPS_RXSerWentLow      : 68260374 uS
+GPS_RXhalfBitDwellStart   : 68260378 uS
+GPS_RXhalfBitDwellEnd     : 68260388 uS
+
+b0 received: 68260412 uS
+b1 received: 68260437 uS
+b2 received: 68260463 uS
+b3 received: 68260489 uS
+b4 received: 68260514 uS
+b5 received: 68260540 uS
+b6 received: 68260566 uS
+b7 received: 68260591 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 68303385 uS
+GPS_RXSerWentIdle     : 68303390 uS
+GPS_RXSerWentLow      : 68303409 uS
+GPS_RXhalfBitDwellStart   : 68303414 uS
+GPS_RXhalfBitDwellEnd     : 68303424 uS
+
+b0 received: 68303447 uS
+b1 received: 68303473 uS
+b2 received: 68303499 uS
+b3 received: 68303525 uS
+b4 received: 68303550 uS
+b5 received: 68303576 uS
+b6 received: 68303602 uS
+b7 received: 68303627 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 68357256 uS
+GPS_RXSerWentIdle     : 68357355 uS
+GPS_RXSerWentLow      : 68357415 uS
+GPS_RXhalfBitDwellStart   : 68357420 uS
+GPS_RXhalfBitDwellEnd     : 68357430 uS
+
+b0 received: 68357453 uS
+b1 received: 68357479 uS
+b2 received: 68357505 uS
+b3 received: 68357531 uS
+b4 received: 68357556 uS
+b5 received: 68357582 uS
+b6 received: 68357608 uS
+b7 received: 68357633 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000093
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 68911104 uS
+GPS_RXSerWentIdle     : 68911108 uS
+GPS_RXSerWentLow      : 69259972 uS
+GPS_RXhalfBitDwellStart   : 69259976 uS
+GPS_RXhalfBitDwellEnd     : 69259987 uS
+
+b0 received: 69260010 uS
+b1 received: 69260035 uS
+b2 received: 69260061 uS
+b3 received: 69260087 uS
+b4 received: 69260112 uS
+b5 received: 69260138 uS
+b6 received: 69260164 uS
+b7 received: 69260189 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 69302984 uS
+GPS_RXSerWentIdle     : 69302989 uS
+GPS_RXSerWentLow      : 69303013 uS
+GPS_RXhalfBitDwellStart   : 69303018 uS
+GPS_RXhalfBitDwellEnd     : 69303028 uS
+
+b0 received: 69303051 uS
+b1 received: 69303077 uS
+b2 received: 69303103 uS
+b3 received: 69303129 uS
+b4 received: 69303154 uS
+b5 received: 69303180 uS
+b6 received: 69303206 uS
+b7 received: 69303231 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 69356860 uS
+GPS_RXSerWentIdle     : 69356959 uS
+GPS_RXSerWentLow      : 69357008 uS
+GPS_RXhalfBitDwellStart   : 69357013 uS
+GPS_RXhalfBitDwellEnd     : 69357023 uS
+
+b0 received: 69357046 uS
+b1 received: 69357072 uS
+b2 received: 69357098 uS
+b3 received: 69357124 uS
+b4 received: 69357149 uS
+b5 received: 69357175 uS
+b6 received: 69357201 uS
+b7 received: 69357226 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 69910785 uS
+GPS_RXSerWentIdle     : 69910789 uS
+GPS_RXSerWentLow      : 70268112 uS
+GPS_RXhalfBitDwellStart   : 70268116 uS
+GPS_RXhalfBitDwellEnd     : 70268126 uS
+
+b0 received: 70268149 uS
+b1 received: 70268175 uS
+b2 received: 70268200 uS
+b3 received: 70268226 uS
+b4 received: 70268252 uS
+b5 received: 70268277 uS
+b6 received: 70268303 uS
+b7 received: 70268329 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 70311122 uS
+GPS_RXSerWentIdle     : 70311127 uS
+GPS_RXSerWentLow      : 70311146 uS
+GPS_RXhalfBitDwellStart   : 70311150 uS
+GPS_RXhalfBitDwellEnd     : 70311161 uS
+
+b0 received: 70311184 uS
+b1 received: 70311209 uS
+b2 received: 70311235 uS
+b3 received: 70311261 uS
+b4 received: 70311287 uS
+b5 received: 70311313 uS
+b6 received: 70311338 uS
+b7 received: 70311364 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 70364992 uS
+GPS_RXSerWentIdle     : 70365091 uS
+GPS_RXSerWentLow      : 70365141 uS
+GPS_RXhalfBitDwellStart   : 70365145 uS
+GPS_RXhalfBitDwellEnd     : 70365156 uS
+
+b0 received: 70365179 uS
+b1 received: 70365204 uS
+b2 received: 70365230 uS
+b3 received: 70365256 uS
+b4 received: 70365282 uS
+b5 received: 70365308 uS
+b6 received: 70365334 uS
+b7 received: 70365359 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 70918915 uS
+GPS_RXSerWentIdle     : 70918920 uS
+GPS_RXSerWentLow      : 71265234 uS
+GPS_RXhalfBitDwellStart   : 71265238 uS
+GPS_RXhalfBitDwellEnd     : 71265248 uS
+
+b0 received: 71265272 uS
+b1 received: 71265297 uS
+b2 received: 71265323 uS
+b3 received: 71265349 uS
+b4 received: 71265374 uS
+b5 received: 71265400 uS
+b6 received: 71265426 uS
+b7 received: 71265451 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 71308246 uS
+GPS_RXSerWentIdle     : 71308251 uS
+GPS_RXSerWentLow      : 71308265 uS
+GPS_RXhalfBitDwellStart   : 71308269 uS
+GPS_RXhalfBitDwellEnd     : 71308280 uS
+
+b0 received: 71308303 uS
+b1 received: 71308328 uS
+b2 received: 71308354 uS
+b3 received: 71308380 uS
+b4 received: 71308406 uS
+b5 received: 71308432 uS
+b6 received: 71308457 uS
+b7 received: 71308483 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 71362110 uS
+GPS_RXSerWentIdle     : 71362209 uS
+GPS_RXSerWentLow      : 71362258 uS
+GPS_RXhalfBitDwellStart   : 71362263 uS
+GPS_RXhalfBitDwellEnd     : 71362273 uS
+
+b0 received: 71362296 uS
+b1 received: 71362322 uS
+b2 received: 71362348 uS
+b3 received: 71362374 uS
+b4 received: 71362399 uS
+b5 received: 71362425 uS
+b6 received: 71362451 uS
+b7 received: 71362476 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 71916033 uS
+GPS_RXSerWentIdle     : 71916038 uS
+GPS_RXSerWentLow      : 72271649 uS
+GPS_RXhalfBitDwellStart   : 72271653 uS
+GPS_RXhalfBitDwellEnd     : 72271663 uS
+
+b0 received: 72271686 uS
+b1 received: 72271712 uS
+b2 received: 72271737 uS
+b3 received: 72271764 uS
+b4 received: 72271789 uS
+b5 received: 72271815 uS
+b6 received: 72271841 uS
+b7 received: 72271866 uS
+
+Byte took: 189 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 72314660 uS
+GPS_RXSerWentIdle     : 72314665 uS
+GPS_RXSerWentLow      : 72314679 uS
+GPS_RXhalfBitDwellStart   : 72314684 uS
+GPS_RXhalfBitDwellEnd     : 72314694 uS
+
+b0 received: 72314717 uS
+b1 received: 72314743 uS
+b2 received: 72314769 uS
+b3 received: 72314795 uS
+b4 received: 72314820 uS
+b5 received: 72314846 uS
+b6 received: 72314872 uS
+b7 received: 72314897 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 72368525 uS
+GPS_RXSerWentIdle     : 72368625 uS
+GPS_RXSerWentLow      : 72368674 uS
+GPS_RXhalfBitDwellStart   : 72368679 uS
+GPS_RXhalfBitDwellEnd     : 72368689 uS
+
+b0 received: 72368712 uS
+b1 received: 72368738 uS
+b2 received: 72368764 uS
+b3 received: 72368790 uS
+b4 received: 72368815 uS
+b5 received: 72368841 uS
+b6 received: 72368867 uS
+b7 received: 72368892 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 72922450 uS
+GPS_RXSerWentIdle     : 72922455 uS
+GPS_RXSerWentLow      : 73268927 uS
+GPS_RXhalfBitDwellStart   : 73268931 uS
+GPS_RXhalfBitDwellEnd     : 73268942 uS
+
+b0 received: 73268965 uS
+b1 received: 73268990 uS
+b2 received: 73269016 uS
+b3 received: 73269042 uS
+b4 received: 73269067 uS
+b5 received: 73269093 uS
+b6 received: 73269119 uS
+b7 received: 73269145 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 73311939 uS
+GPS_RXSerWentIdle     : 73311944 uS
+GPS_RXSerWentLow      : 73311963 uS
+GPS_RXhalfBitDwellStart   : 73311968 uS
+GPS_RXhalfBitDwellEnd     : 73311978 uS
+
+b0 received: 73312001 uS
+b1 received: 73312027 uS
+b2 received: 73312053 uS
+b3 received: 73312079 uS
+b4 received: 73312104 uS
+b5 received: 73312130 uS
+b6 received: 73312156 uS
+b7 received: 73312181 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 73365810 uS
+GPS_RXSerWentIdle     : 73365909 uS
+GPS_RXSerWentLow      : 73365958 uS
+GPS_RXhalfBitDwellStart   : 73365963 uS
+GPS_RXhalfBitDwellEnd     : 73365973 uS
+
+b0 received: 73365996 uS
+b1 received: 73366022 uS
+b2 received: 73366048 uS
+b3 received: 73366074 uS
+b4 received: 73366099 uS
+b5 received: 73366125 uS
+b6 received: 73366151 uS
+b7 received: 73366176 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 73919735 uS
+GPS_RXSerWentIdle     : 73919740 uS
+GPS_RXSerWentLow      : 74277383 uS
+GPS_RXhalfBitDwellStart   : 74277387 uS
+GPS_RXhalfBitDwellEnd     : 74277398 uS
+
+b0 received: 74277421 uS
+b1 received: 74277447 uS
+b2 received: 74277472 uS
+b3 received: 74277498 uS
+b4 received: 74277524 uS
+b5 received: 74277549 uS
+b6 received: 74277575 uS
+b7 received: 74277601 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 74320395 uS
+GPS_RXSerWentIdle     : 74320400 uS
+GPS_RXSerWentLow      : 74320414 uS
+GPS_RXhalfBitDwellStart   : 74320419 uS
+GPS_RXhalfBitDwellEnd     : 74320429 uS
+
+b0 received: 74320452 uS
+b1 received: 74320478 uS
+b2 received: 74320504 uS
+b3 received: 74320530 uS
+b4 received: 74320555 uS
+b5 received: 74320581 uS
+b6 received: 74320607 uS
+b7 received: 74320632 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 74374259 uS
+GPS_RXSerWentIdle     : 74374353 uS
+GPS_RXSerWentLow      : 74374402 uS
+GPS_RXhalfBitDwellStart   : 74374407 uS
+GPS_RXhalfBitDwellEnd     : 74374417 uS
+
+b0 received: 74374440 uS
+b1 received: 74374466 uS
+b2 received: 74374492 uS
+b3 received: 74374518 uS
+b4 received: 74374543 uS
+b5 received: 74374569 uS
+b6 received: 74374595 uS
+b7 received: 74374620 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+stopButton
+toggleReset
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 75792183 uS
+GPS_RXSerWentIdle     : 75792188 uS
+GPS_RXSerWentLow      : 76276042 uS
+GPS_RXhalfBitDwellStart   : 76276047 uS
+GPS_RXhalfBitDwellEnd     : 76276057 uS
+
+b0 received: 76276080 uS
+b1 received: 76276106 uS
+b2 received: 76276131 uS
+b3 received: 76276157 uS
+b4 received: 76276183 uS
+b5 received: 76276208 uS
+b6 received: 76276234 uS
+b7 received: 76276260 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 76319055 uS
+GPS_RXSerWentIdle     : 76319059 uS
+GPS_RXSerWentLow      : 76319079 uS
+GPS_RXhalfBitDwellStart   : 76319083 uS
+GPS_RXhalfBitDwellEnd     : 76319093 uS
+
+b0 received: 76319116 uS
+b1 received: 76319142 uS
+b2 received: 76319168 uS
+b3 received: 76319194 uS
+b4 received: 76319220 uS
+b5 received: 76319246 uS
+b6 received: 76319271 uS
+b7 received: 76319297 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 76372925 uS
+GPS_RXSerWentIdle     : 76373019 uS
+GPS_RXSerWentLow      : 76373068 uS
+GPS_RXhalfBitDwellStart   : 76373073 uS
+GPS_RXhalfBitDwellEnd     : 76373083 uS
+
+b0 received: 76373106 uS
+b1 received: 76373132 uS
+b2 received: 76373158 uS
+b3 received: 76373184 uS
+b4 received: 76373209 uS
+b5 received: 76373235 uS
+b6 received: 76373261 uS
+b7 received: 76373286 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 76926845 uS
+GPS_RXSerWentIdle     : 76926849 uS
+GPS_RXSerWentLow      : 77279373 uS
+GPS_RXhalfBitDwellStart   : 77279377 uS
+GPS_RXhalfBitDwellEnd     : 77279388 uS
+
+b0 received: 77279411 uS
+b1 received: 77279436 uS
+b2 received: 77279462 uS
+b3 received: 77279488 uS
+b4 received: 77279513 uS
+b5 received: 77279539 uS
+b6 received: 77279565 uS
+b7 received: 77279590 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 77322383 uS
+GPS_RXSerWentIdle     : 77322388 uS
+GPS_RXSerWentLow      : 77322402 uS
+GPS_RXhalfBitDwellStart   : 77322407 uS
+GPS_RXhalfBitDwellEnd     : 77322417 uS
+
+b0 received: 77322440 uS
+b1 received: 77322466 uS
+b2 received: 77322492 uS
+b3 received: 77322518 uS
+b4 received: 77322543 uS
+b5 received: 77322569 uS
+b6 received: 77322595 uS
+b7 received: 77322620 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 77376249 uS
+GPS_RXSerWentIdle     : 77376343 uS
+GPS_RXSerWentLow      : 77376392 uS
+GPS_RXhalfBitDwellStart   : 77376397 uS
+GPS_RXhalfBitDwellEnd     : 77376407 uS
+
+b0 received: 77376430 uS
+b1 received: 77376456 uS
+b2 received: 77376482 uS
+b3 received: 77376508 uS
+b4 received: 77376533 uS
+b5 received: 77376559 uS
+b6 received: 77376585 uS
+b7 received: 77376610 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 77930167 uS
+GPS_RXSerWentIdle     : 77930171 uS
+GPS_RXSerWentLow      : 78287623 uS
+GPS_RXhalfBitDwellStart   : 78287628 uS
+GPS_RXhalfBitDwellEnd     : 78287638 uS
+
+b0 received: 78287661 uS
+b1 received: 78287687 uS
+b2 received: 78287712 uS
+b3 received: 78287738 uS
+b4 received: 78287764 uS
+b5 received: 78287789 uS
+b6 received: 78287815 uS
+b7 received: 78287841 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 78330636 uS
+GPS_RXSerWentIdle     : 78330641 uS
+GPS_RXSerWentLow      : 78330655 uS
+GPS_RXhalfBitDwellStart   : 78330659 uS
+GPS_RXhalfBitDwellEnd     : 78330669 uS
+
+b0 received: 78330692 uS
+b1 received: 78330718 uS
+b2 received: 78330744 uS
+b3 received: 78330770 uS
+b4 received: 78330796 uS
+b5 received: 78330822 uS
+b6 received: 78330847 uS
+b7 received: 78330873 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 78384501 uS
+GPS_RXSerWentIdle     : 78384594 uS
+GPS_RXSerWentLow      : 78384644 uS
+GPS_RXhalfBitDwellStart   : 78384648 uS
+GPS_RXhalfBitDwellEnd     : 78384659 uS
+
+b0 received: 78384682 uS
+b1 received: 78384707 uS
+b2 received: 78384733 uS
+b3 received: 78384759 uS
+b4 received: 78384785 uS
+b5 received: 78384811 uS
+b6 received: 78384836 uS
+b7 received: 78384862 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 78938417 uS
+GPS_RXSerWentIdle     : 78938422 uS
+GPS_RXSerWentLow      : 79290248 uS
+GPS_RXhalfBitDwellStart   : 79290253 uS
+GPS_RXhalfBitDwellEnd     : 79290263 uS
+
+b0 received: 79290286 uS
+b1 received: 79290312 uS
+b2 received: 79290337 uS
+b3 received: 79290363 uS
+b4 received: 79290389 uS
+b5 received: 79290414 uS
+b6 received: 79290440 uS
+b7 received: 79290466 uS
+
+Byte took: 188 uS to be read
+
+Byte Value: $00000024
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 79333261 uS
+GPS_RXSerWentIdle     : 79333265 uS
+GPS_RXSerWentLow      : 79333279 uS
+GPS_RXhalfBitDwellStart   : 79333284 uS
+GPS_RXhalfBitDwellEnd     : 79333294 uS
+
+b0 received: 79333317 uS
+b1 received: 79333343 uS
+b2 received: 79333369 uS
+b3 received: 79333395 uS
+b4 received: 79333420 uS
+b5 received: 79333446 uS
+b6 received: 79333472 uS
+b7 received: 79333497 uS
+
+Byte took: 194 uS to be read
+
+Byte Value: $00000016
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+
+GPS_RXSerialBitTimeout: 62500 uS
+GPS_RXSerialBitPeriod  : 17 uS
+GPS_RXHalfBitDwellPeriod  : 6 uS
+
+GPS_RXstart           : 79387126 uS
+GPS_RXSerWentIdle     : 79387214 uS
+GPS_RXSerWentLow      : 79387263 uS
+GPS_RXhalfBitDwellStart   : 79387268 uS
+GPS_RXhalfBitDwellEnd     : 79387278 uS
+
+b0 received: 79387301 uS
+b1 received: 79387327 uS
+b2 received: 79387353 uS
+b3 received: 79387379 uS
+b4 received: 79387404 uS
+b5 received: 79387430 uS
+b6 received: 79387456 uS
+b7 received: 79387481 uS
+
+Byte took: 195 uS to be read
+
+Byte Value: $00000096
+
+Of course, collecting the times above impacted the timing of the function's actions...
+
+Welcome to ARMbasic Kernel[8.40b] with Floating Point            Copyright 2017, Coridium Corp.
+  for the LPC824    
+
+Personal use copy for Beta Testing                                                                           
+Commercial customers contact Coridium for licensing
+
+ 
+ 
+ 
+ 
+

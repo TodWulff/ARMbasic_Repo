@@ -1,0 +1,11 @@
+#ifndef ABRTOS_MEM_SUPPORT
+#define ABRTOS_MEM_SUPPORT
+
+#define ABRTOS_MOD		ABRTOS_LOG_MOD_MEM
+
+' #define	ABRTOS_LOG_EVENT_OK			0
+
+
+
+
+#endif

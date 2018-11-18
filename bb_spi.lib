@@ -1,0 +1,522 @@
+#ifndef bb_spi
+#define bb_spi
+#include "__lib/AB_Extensions.lib"
+
+#include "SPI\bb_spi_defs.lib"
+
+#define bb_spi_ARMBASIC_LIB_VER "F100AB"
+
+'==============================================================================
+'-------------------- UM-FAT SPI SUPPORT ROUTINES ------------------ 2007-07-04
+'==============================================================================
+
+DIM bb_spi_RxBuff(255) as integer
+DIM bb_spi_TxBuff(255) as integer
+
+'==============================================================================
+FUNCTION bb_spi_BUSY_QRY AS INTEGER
+	RETURN IN(bb_spi_BUSY) AND 1
+	ENDFUNCTION
+'==============================================================================
+SUB bb_spi_WAIT_FOR_IDLE
+	WHILE bb_spi_BUSY_QRY
+	LOOP
+ENDSUB
+'==============================================================================
+FUNCTION bb_spi_DRDY_QRY AS INTEGER
+	RETURN IN(bb_spi_DRDY) AND 1
+	ENDFUNCTION
+'==============================================================================
+SUB bb_spi_WAIT_FOR_DRDY
+	GOSUB bb_spi_WAIT_FOR_IDLE
+	WHILE bb_spi_DRDY_QRY = LO
+	LOOP
+ENDSUB
+'==============================================================================
+FUNCTION bb_spi_GET_CHAR AS INTEGER
+' HAVING TO BIT BANG SPIIN bb_spi_SSEL, bb_spi_MISO, bb_spi_SCLK, [bb_spi_RECV_CHAR] - TRIED SPIBI AND MANUAL SSEL AS WELL...
+
+	DIM bb_spi_RECV_CHAR AS INTEGER
+	
+	GOSUB bb_spi_WAIT_FOR_IDLE
+	GOSUB bb_spi_WAIT_FOR_DRDY
+
+	#if shared_fat == 1
+		GOSUB SEIZE_SHARED_BUS
+	#endif
+
+	bb_spi_RECV_CHAR = 0
+	OUT(bb_spi_SCLK)=HI
+	
+	OUT(bb_spi_SSEL)=LO
+
+' 		THIS IS 31MS
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+	OUT(bb_spi_SCLK)=LO
+	OUT(bb_spi_SCLK)=HI
+	bb_spi_RECV_CHAR = (bb_spi_RECV_CHAR<<1) OR (IN(bb_spi_MISO) AND 1)
+
+	OUT(bb_spi_SSEL)=HI
+	
+	#if shared_fat == 1
+		GOSUB RELEASE_SHARED_BUS
+	#endif
+	
+	RETURN bb_spi_RECV_CHAR
+
+ENDFUNCTION
+'==============================================================================
+SUB bb_spi_SEND_CHAR (bb_spi_SEND_CH) '  (SSEL MUST BE PULLED LOW FOR WHOLE STRING!!!)
+'	THIS TAKES 24uS
+	SPIMODE 0
+	SPIOUT -1, bb_spi_MOSI, bb_spi_SCLK, [bb_spi_SEND_CH]
+ENDSUB
+'==============================================================================
+FUNCTION bb_spi_DELAY (bb_spi_DELAY_MS AS INTEGER)
+' DELAYS THE MINIMUM DELAY (bb_spi_WAIT_TIME IF PARAMETER PASSSED = 0)
+' OR A NUM OF MS AS ASSERTED BY THE PARAMETER PASSED
+ 
+	DIM bb_spi_DELAY_START AS INTEGER
+	DIM bb_spi_DLY_TIME AS INTEGER
+	
+	bb_spi_DLY_TIME = bb_spi_WAIT_TIME
+	IF bb_spi_DELAY_MS THEN bb_spi_DLY_TIME = 1000 * bb_spi_DELAY_MS
+	bb_spi_DELAY_START = TIMER
+	WHILE TIMER-bb_spi_DELAY_START < bb_spi_DLY_TIME
+	LOOP
+
+ENDSUB
+'==============================================================================
+FUNCTION bb_spi_GET_RESP_STRG AS STRING
+bb_spi_DEBUG(PRINT "GETTING RESPONSE STRING")	
+
+	DIM bb_spi_RECV_CHAR AS INTEGER
+	dim bb_spi_ERR_CHR$(3) as string
+	dim bb_spi_ERR_CODE as integer
+
+	#if shared_fat == 1
+		GOSUB SEIZE_SHARED_BUS
+	#endif
+
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	WHILE bb_spi_DRDY_QRY
+
+		bb_spi_RECV_CHAR = bb_spi_GET_CHAR
+		IF (bb_spi_RECV_CHAR >= 10) AND (bb_spi_RECV_CHAR < 127) AND (bb_spi_RECV_CHAR <> 00) AND (bb_spi_RECV_CHAR <> 33) THEN bb_spi_RxBuff = bb_spi_RxBuff & CHR(bb_spi_RECV_CHAR)
+		IF (bb_spi_RECV_CHAR = 33) THEN
+		#if enable_bb_spi_verbose != 1
+				bb_spi_RxBuff = bb_spi_RxBuff & CHR(bb_spi_RECV_CHAR)
+			ENDIF
+		#else
+				bb_spi_RECV_CHAR = bb_spi_GET_CHAR
+				bb_spi_ERR_CHR$ = "$" & CHR(bb_spi_RECV_CHAR)
+				bb_spi_RECV_CHAR = bb_spi_GET_CHAR
+				bb_spi_ERR_CHR$ = bb_spi_ERR_CHR$ & CHR(bb_spi_RECV_CHAR)
+				bb_spi_ERR_CODE = VAL(bb_spi_ERR_CHR$)	
+bb_spi_DEBUG(PRINT "ERR CODE: ";bb_spi_ERR_CODE)
+bb_spi_DEBUG(bb_spi_ERR_CODE = 254)
+				bb_spi_TEMP$ = bb_spi_GET_ERR_STG(bb_spi_ERR_CODE)
+bb_spi_DEBUG(PRINT "ERR STRING: ";bb_spi_TEMP$)
+				bb_spi_RxBuff = bb_spi_RxBuff + bb_spi_TEMP$
+			ENDIF
+		#endif
+	LOOP															' TO BUILD STRING - INCLUDES EMBEDDED CHARACTERS AS WELL...
+
+	#if shared_fat == 1
+		GOSUB RELEASE_SHARED_BUS
+	#endif
+
+	RETURN bb_spi_RxBuff
+
+ENDFUNCTION
+
+'==============================================================================
+SUB bb_spi_DISP_RESP
+	PRINT bb_spi_RxBuff
+	bb_spi_RxBuff=""
+	PRINT
+ENDSUB
+'==============================================================================
+SUB bb_spi_SEND_STRING (bb_spi_SEND_STR(255) AS STRING)
+
+	DIM bb_spi_SEND_STRG_LOOP AS INTEGER
+	DIM bb_spi_SEND_CH AS INTEGER
+
+	GOSUB bb_spi_WAIT_FOR_IDLE
+
+	#if shared_fat == 1
+		GOSUB SEIZE_SHARED_BUS
+	#endif
+
+	bb_spi_SEND_STR = bb_spi_SEND_STR & CHR(bb_spi_EOL)  ' APPEND A <CR> TO THE END OF THE STRING
+
+	OUT(bb_spi_SSEL)=LO		' BIT BANG THE SPI SSEL SENDSTRING$ FUNCTIONALITY...
+	
+	bb_spi_STRFLAG = 1
+	
+	FOR bb_spi_SEND_STRG_LOOP=0 TO LEN(bb_spi_SEND_STR)-1
+bb_spi_DEBUG(PRINT ".";CHR(bb_spi_SEND_STR(bb_spi_SEND_STRG_LOOP));)
+		GOSUB bb_spi_SEND_CHAR(bb_spi_SEND_STR(bb_spi_SEND_STRG_LOOP))
+	NEXT bb_spi_SEND_STRG_LOOP
+	
+	bb_spi_STRFLAG = 0
+	
+	OUT(bb_spi_SSEL)=HI
+
+	#if shared_fat == 1
+		GOSUB RELEASE_SHARED_BUS
+	#endif
+
+ENDSUB
+
+'==============================================================================
+
+SUB bb_spi_INIT
+
+	#if enable_bb_spi_verbose == 1
+		GOSUB bb_spi_ERR_INIT
+	#endif
+
+	DIR(bb_spi_RSET) = OUTP		' RESET - STROBE LOW TO RESET UALFAT
+	OUT(bb_spi_RSET) = HI
+
+	DIR(bb_spi_SSEL) = OUTP		' SELECT FOR SPI BUS
+	DIR(bb_spi_MOSI) = OUTP		' MOSI FOR SPI BUS
+	DIR(bb_spi_MISO) = INPT		' MISO FOR SPI BUS
+	DIR(bb_spi_SCLK) = OUTP		' CLOCK FOR SPI BUS
+
+	DIR(bb_spi_DRDY) = INPT		' DATA READY HANDSHAKING SIGNAL FOR SPI BUS
+	DIR(bb_spi_BUSY) = INPT		' BUSY HANDSHAKING SIGNAL FOR SPI BUS
+
+	#if shared_fat == 1
+		DIR(SHARED_BUS_REQ) = OUTP
+		OUT(SHARED_BUS_REQ) = LO
+	    DIR(SHARED_BUS_ACK) = INPT
+		GOSUB SEIZE_SHARED_BUS
+	#endif
+
+	OUT(bb_spi_SSEL) = HI			' SSEL AND SCLK HAVE TO BE HIGH AT RESET FOR SPI TO BE THE COMM MODE...
+	OUT(bb_spi_SCLK) = HI
+
+	OUT(bb_spi_RSET) = LO
+	CALL bb_spi_DELAY(0)
+	OUT(bb_spi_RSET) = HI
+	CALL bb_spi_DELAY(0)
+	
+
+' THERE IS A GOOFY SYNC ISSUE WITH THE VERY FIRST COMMAND;
+' THIS IS A HACK FIX, BUT HEY, IT WORKS...
+
+	CALL bb_spi_DELAY(10)
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	GOSUB bb_spi_GET_RESP_STRG
+	GOSUB bb_spi_DISP_RESP
+	GOSUB bb_spi_SEND_STRING("")
+	GOSUB bb_spi_GET_RESP_STRG
+	bb_spi_RxBuff = ""
+
+	#if shared_fat == 1
+		GOSUB RELEASE_SHARED_BUS
+	#endif
+	
+bb_spi_DEBUG(PRINT "FAT INIT DONE")	
+
+ENDSUB
+
+'==============================================================================
+FUNCTION bb_spi_GET_LIBRARY_VERSION AS STRING
+	RETURN bb_spi_ARMBASIC_LIB_VER
+	ENDFUNCTION
+' ==============================================================================
+SUB bb_spi_START_BOOTLOADER
+	GOSUB bb_spi_SEND_STRING("X M")
+	ENDSUB
+' ==============================================================================
+SUB bb_spi_LOAD_SD_FW
+	GOSUB bb_spi_SEND_STRING("X S")
+ENDSUB
+' ==============================================================================
+SUB bb_spi_LOAD_USB_FW
+	GOSUB bb_spi_SEND_STRING("X U")
+ENDSUB
+' ==============================================================================
+SUB bb_spi_HIBERNATE
+'	GOSUB bb_spi_SEND_STRING("Z H")
+ENDSUB
+' ==============================================================================
+FUNCTION bb_spi_GET_RESULT AS INTEGER
+
+	DIM bb_spi_RESULT AS INTEGER
+
+	GOSUB bb_spi_WAIT_FOR_IDLE
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	
+bb_spi_GET_NUTHA_CHAR:
+
+	bb_spi_RESULT = bb_spi_GET_CHAR
+	IF bb_spi_RESULT <> "!" THEN ' RETURN ERROR_UNEXPECTED_VALUE
+
+		PRINT "(NOT !: ";bb_spi_RESULT;") ";
+		GOTO bb_spi_GET_NUTHA_CHAR
+	ENDIF
+	
+	bb_spi_RESULT = VAL("$" & CHR(bb_spi_GET_CHAR) & CHR(bb_spi_GET_CHAR))
+	IF bb_spi_GET_CHAR <> $0D THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_RESULT
+	
+ENDFUNCTION
+' ==============================================================================
+FUNCTION bb_spi_INITIALIZE_SD AS INTEGER
+	DIM bb_spi_RESULT AS INTEGER
+	GOSUB bb_spi_SEND_STRING("I")
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	IF bb_spi_GET_CHAR <> 6 THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_GET_RESULT
+ENDFUNCTION
+' ==============================================================================
+FUNCTION bb_spi_INITIALIZE_USB AS INTEGER
+	GOSUB bb_spi_SEND_STRING("U")
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	IF bb_spi_GET_CHAR <> 6 THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_GET_RESULT
+ENDFUNCTION
+' ==============================================================================
+FUNCTION bb_spi_GET_MODULE_VERSION AS INTEGER
+	DIM bb_spi_RESULT AS INTEGER
+	DIM bb_spi_CHAR AS INTEGER
+	GOSUB bb_spi_SENz_STRING("V")
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	IF bb_spi_GET_CHAR <> 134 THEN RETURN ERROR_UNEXPECTED_VALUE
+	' DUMP THE UNNEEDED PARTS OF THE STRING...
+	CALL bb_spi_GET_CHAR ' u
+	CALL bb_spi_GET_CHAR ' A
+	CALL bb_spi_GET_CHAR ' L
+	CALL bb_spi_GET_CHAR ' F
+	CALL bb_spi_GET_CHAR ' A
+	CALL bb_spi_GET_CHAR ' T
+	CALL bb_spi_GET_CHAR ' SPACE
+	bb_spi_CHAR = bb_spi_GET_CHAR
+	CALL bb_spi_GET_CHAR ' PERIOD
+	bb_spi_RESULT = VAL(CHR(bb_spi_CHAR) & CHR(bb_spi_GET_CHAR) & CHR(bb_spi_GET_CHAR))
+	IF bb_spi_GET_CHAR <> $0D THEN RETURN ERROR_UNEXPECTED_VALUE
+	IF bb_spi_GET_RESULT <> 0 THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_RESULT
+ENDFUNCTION
+' ==============================================================================
+/*
+SUB bb_spi_TOGGLE_WAKE_PIN
+
+	#if shared_fat == 1
+		GOSUB SEIZE_SHARED_BUS
+	#endif
+
+' PUT CODE HERE TO TOGGLE THE WAKE PIN - NEEDED IF YOU PUT IT INTO HEIBERNATE...
+
+	#if shared_fat == 1
+		GOSUB RELEASE_SHARED_BUS
+	#endif
+
+ENDSUB
+
+' ==============================================================================
+
+FUNCTION bb_spi_WAKE_MODULE AS INTEGER
+
+	#if shared_fat == 1
+		GOSUB SEIZE_SHARED_BUS
+	#endif
+
+'	GOSUB bb_spi_TOGGLE_WAKE_PIN
+'	RETURN bb_spi_GET_RESULT
+
+	#if shared_fat == 1
+		GOSUB RELEASE_SHARED_BUS
+	#endif
+
+ENDFUNCTION
+*/
+' ==============================================================================
+
+FUNCTION bb_spi_CHANGE_DIR (BYREF bb_spi_FILE_NAME AS STRING) AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("A " & bb_spi_FILE_NAME)
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	IF bb_spi_GET_CHAR <> 134 THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_MAKE_DIR (BYREF bb_spi_FILE_NAME AS STRING) AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("M " & bb_spi_FILE_NAME)
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	IF bb_spi_GET_CHAR <> 134 THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_OPEN_FILE (bb_spi_FILE_HANDLE AS INTEGER, BYREF bb_spi_FILE_OPEN_MODE AS STRING, BYREF bb_spi_FILE_NAME AS STRING, BYREF bb_spi_FILE_EXT AS STRING) AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("O " & STR(bb_spi_FILE_HANDLE) & bb_spi_FILE_OPEN_MODE & ">" & bb_spi_FILE_NAME & "." & bb_spi_FILE_EXT)
+	GOSUB bb_spi_WAIT_FOR_DRDY
+	IF bb_spi_GET_CHAR <> 6 THEN RETURN ERROR_UNEXPECTED_VALUE
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+/*
+FUNCTION bb_spi_GET_FILE_INIT AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("@")
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_GET_NEXT_FILE (BYREF bb_spi_FILE_NAME AS STRING, BYREF bb_spi_FILE_EXT AS STRING, bb_spi_FILE_ATTR AS INTEGER, bb_spi_FILE_SIZE AS INTEGER) AS INTEGER 
+
+	DIM C AS INTEGER
+	
+	GOSUB bb_spi_SEND_STRING("N")
+	C = bb_spi_GET_RESULT
+	if C THEN RETURN C
+	
+	FOR C = 0 TO 7
+		bb_spi_FILE_NAME(C)=bb_spi_GET_CHAR
+	NEXT C	
+	
+	IF bb_spi_GET_CHAR <> $2E THEN RETURN ERROR_UNEXPECTED_VALUE	' EXPECT A . TO SEPARATE FILE NAME AND FILE EXT
+		
+	FOR C = 0 TO 2
+		bb_spi_FILE_EXT(C)=bb_spi_GET_CHAR
+	NEXT C	
+
+	IF bb_spi_GET_CHAR <> $20 THEN RETURN ERROR_UNEXPECTED_VALUE
+
+	bb_spi_FILE_ATTR = VAL("$" & bb_spi_GET_CHAR & bb_spi_GET_CHAR)
+
+	IF bb_spi_GET_CHAR <> $20 THEN RETURN ERROR_UNEXPECTED_VALUE
+	
+	bb_spi_FILE_SIZE = VAL("$" & bb_spi_GET_CHAR & bb_spi_GET_CHAR & bb_spi_GET_CHAR & bb_spi_GET_CHAR & bb_spi_GET_CHAR & bb_spi_GET_CHAR & bb_spi_GET_CHAR & bb_spi_GET_CHAR)
+	
+	IF bb_spi_GET_CHAR <> $0D THEN RETURN ERROR_UNEXPECTED_VALUE
+	
+	RETURN bb_spi_GET_RESULT
+	
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_BUILD_FATTIME (YEAR AS INTEGER, MONTH AS INTEGER, DAY AS INTEGER, HOUR AS INTEGER, MINUTE AS INTEGER, SECOND AS INTEGER) AS INTEGER
+
+	RETURN (((YEAR-1980) AND $7F) << 25) OR ((MONTH AND $0F) << 21) OR ((DAY AND $1F) << 16) OR ((HOUR AND $1F) << 11) OR (( MINUTE AND $3F) << 5) OR ((SECONDS/2) AND $1F)
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_GET_TIME AS INTEGER
+
+	DIM C AS INTEGER
+	DIM TEMP(8) AS STRING
+	
+	GOSUB bb_spi_SEND_STRING("G X")
+
+	C = bb_spi_GET_RESULT
+	IF C THEN RETURN C
+	
+	IF bb_spi_GET_CHAR <> "$" THEN RETURN ERROR_UNEXPECTED_VALUE
+
+	FOR C = 0 TO 7
+		TEMP(C)=bb_spi_GET_CHAR
+	NEXT C
+	
+	bb_spi_TIME = VAL("$" & TEMP)
+
+	IF bb_spi_GET_CHAR <> $0D THEN RETURN ERROR_UNEXPECTED_VALUE
+
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_INIT_TIMER (BACKUP AS INTEGER) AS INTEGER
+
+	IF BACKUP THEN
+		GOSUB bb_spi_SEND_STRING("T B")
+	ELSE
+		GOSUB bb_spi_SEND_STRING("T S")
+	ENDIF
+
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_FLUSH_FILE (FILE_HANDLE AS INTEGER) AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("F " & STR(FILEHANDLE))
+
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_SEND_WRITE_CMD (FILE_HANDLE AS INTEGER, REQ_DATA_SIZE AS INTEGER) AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("W " & STR(FILEHANDLE) & ">" & STR(HEX(REQ_DATA_SIZE)))
+
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_DEL_FILE (BYREF bb_spi_FILE_NAME AS STRING) AS INTEGER
+
+	GOSUB bb_spi_SEND_STRING("D " & bb_spi_FILE_NAME)
+
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+
+' ==============================================================================
+
+FUNCTION bb_spi_
+
+
+	RETURN bb_spi_GET_RESULT
+
+ENDFUNCTION
+*/
+
+#endif

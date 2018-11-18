@@ -1,0 +1,57 @@
+Device specific timing test results
+
+'30MHz LPC824 device specific timing samples
+'NullConstruct' 0.0000 uS
+'intvar=timer' 2.1927 uS
+'intvar=intvar' 0.1482 uS
+'intvar=sglvar' 1.5704 uS
+'sglvar=intvar' 1.9260 uS
+'sglvar=sglvar' 0.1482 uS
+'InterruptToggle' 1.8622 uS
+'FNLoop' 2.5186 uS
+'DULoop' 0.2371 uS
+'WLLoop' 0.3260 uS
+'IntVarPeek' 0.2371 uS
+'IntVarPoke' 0.2371 uS
+
+'50MHz LPC1114 stamp device specific timing samples
+'NullConstruct' -0.0370 uS
+'intvar=timer' 0.4259 uS
+'intvar=intvar' 0.0741 uS
+'intvar=sglvar' 1.0000 uS
+'sglvar=intvar' 1.2963 uS
+'sglvar=sglvar' 0.0741 uS
+'InterruptToggle' 2.5926 uS
+'FNLoop' 1.6852 uS
+'DULoop' 0.0926 uS
+'WLLoop' 0.0926 uS
+'IntVarPeek' 0.0926 uS
+'IntVarPoke' 0.1111 uS
+
+'50MHz LPC11U37 device specific timing samples
+'NullConstruct' -0.0370 uS
+'intvar=timer' 1.3889 uS
+'intvar=intvar' 0.0741 uS
+'intvar=sglvar' 1.0000 uS
+'sglvar=intvar' 1.2778 uS
+'sglvar=sglvar' 0.0741 uS
+'InterruptToggle' 1.9385 uS
+'FNLoop' 1.7223 uS
+'DULoop' 0.0926 uS
+'WLLoop' 0.0926 uS
+'IntVarPeek' 0.0926 uS
+'IntVarPoke' 0.1111 uS
+
+'100MHz 54102:M4 device specific timing samples
+'NullConstruct' -0.0033 uS
+'intvar=timer' 0.7050 uS
+'intvar=intvar' 0.0152 uS
+'intvar=sglvar' 0.5430 uS
+'sglvar=intvar' 0.4134 uS
+'sglvar=sglvar' 0.0152 uS
+'InterruptToggle' 0.9319 uS
+'FNLoop' 0.4042 uS
+'DULoop' 0.0523 uS
+'WLLoop' 0.0616 uS
+'IntVarPeek' 0.0430 uS
+'IntVarPoke' 0.0431 uS

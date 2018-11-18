@@ -1,0 +1,31 @@
+#ifndef UHS_defs
+#define UHS_defs
+'==============================================================================
+' @file:		UHS_def.lib
+' @target:		ARMbasic circa 2018 Targets
+' @language:	ARMbasic
+'
+' This lib file provides support routines for making use of a USB Host Shield
+'
+' @author Tod Wulff
+' @version 1.0 - 12Oct18
+'	- original version
+'==============================================================================
+'------------------------ IO Definitions --------------------------------------
+
+#ifdef LPC54102
+	#define _LED_PORT		31			' for external LED
+	#define	_SPK_PORT		29
+	
+	#define	_UHS_MISO		19
+	#define	_UHS_MOSI		46
+	#define	_UHS_SCLK		18
+	#define	_UHS_SSEL		44
+	#define	_UHS_SRST		45
+	#define	_UHS_SINT		15
+	#define _UHS_GPXO		14
+#endif
+
+
+
+#endif

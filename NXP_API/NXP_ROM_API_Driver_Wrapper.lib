@@ -1,0 +1,395 @@
+'=======================================================================================================================================================================================================
+' Library Vitals, and Licensing
+'=======================================================================================================================================================================================================
+' v1 - Sep 2018 Tod Wulff
+'=======================================================================================================================================================================================================
+' Library Preamble, FIXMEs/TODOs, etc.
+'=======================================================================================================================================================================================================
+' It's likely I'll consider offloading the device-specific #defs to a #include.  But, keeping herein until I'm certain that's how I'll do it.
+' given the api is an OEM work, I suspect that the 16 & 8 bit elements are NOT going to be word aligned.  As such, I may need to adapt the
+' variables holding the structures, and then have helper functions do masking/concatenation/expansion as needed when passing parms/etc to
+' or when parsing the returns from the API Function/Sub calls...
+' Also, may go route of having a single API wrapper for all on-chip peripheral drivers, to be selectively included with #defs prior to #inc this lib,
+' or may go route of having multiple #inc libs for each specific peripheral driver.  I suspect the former may be easier from a mx perspective, but
+' may prove to be too big of a monster (overwhelming users)  conversely, having a shite tonne of #inc libs seems to impute more risk of maintaining
+' multiple copies of the conditional compilation #ifdef structures for each device.  BUT, folks will possibly not take well to having a huge lib, nor
+' a huge number of sub lib files.  ugh, wish I had a crystal ball...   ...   I guess I could adopt a heirarchial approach with the #inc libs and #ifdef
+' conditional compilation structures - time will tell........
+' Also, hoping that I can make use of the same lib across multiple devices, at least during initial lib dev.  I'll be sad if the peripherial drivers 
+' across devices don't follow a common model...
+' This Wrapper library relies on BASICtools` #def`g the Target Device ID at compiletime with a preprocessor command line parameter: -DLPCxxxx
+' On compile button actuation by the user, BT queries the device and gets the address table (and other data (target device, runtime version, etc.)), prior to 
+' kicking off the toolchain.  This is how BT identifies the target when pushing user code to the preprocessor..
+'=======================================================================================================================================================================================================
+' High-Level #defs and Variable Declarations
+'=======================================================================================================================================================================================================
+#ifndef NXP_ROM_API_DRIVER_WRAPPER_LIB
+#define NXP_ROM_API_DRIVER_WRAPPER_LIB
+
+' amend the following #def to reflect updates to this library
+
+#define NXP_ROM_API_PERIPHERALS			USART, POWER, INTDIV, I2C, SPI, ADC
+#define NXP_ROM_API_DEVICES				NXP`s LPC-824
+
+#if (defined LPC824)
+	#warning NXP LPC824 defined.
+	
+	#define ROM_DRV_TBL_BASE			$1FFF1FF8
+
+' #elif
+	' #error  The NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór the device
+#else
+	#error  UNDEFINED processor - The NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór the peripherals on the device
+#endif
+'=======================================================================================================================================================================================================
+' Peripherial:Device lib code
+'=======================================================================================================================================================================================================
+#if (defined Use_USART_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' USART - hoping to avoid having to get too granular for each device at this level, beyond the #defs for each peripherial on each device - I hope NXP proves to be kind here...
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC824)
+		#warning "Context: NXP LPC824 USART"
+		#define USART_API_Loaded LPC824
+
+		#define ROM_DRV_USART_BLOCK_CNT		3	'Three USARTs are available on all parts depending on the switch matrix configuration (LPC82x USART0/1/2)
+
+		#define ROM_DRV_TBL_IDX_USART		$24	'Device 9 - USART driver routines function table
+		
+		#define ROM_DRV_FUNC_USART_BASE		(ROM_DRV_TBL_BASE + ROM_DRV_TBL_IDX_USART)
+		
+		#define ROM_DRV_FUNC_USART_get_memory_size				(ROM_DRV_FUNC_USART_BASE + $00)
+		#define ROM_DRV_FUNC_USART_setup						(ROM_DRV_FUNC_USART_BASE + $04)
+		#define ROM_DRV_FUNC_USART_init							(ROM_DRV_FUNC_USART_BASE + $08)
+		#define ROM_DRV_FUNC_USART_get_character				(ROM_DRV_FUNC_USART_BASE + $0C)
+		#define ROM_DRV_FUNC_USART_put_character				(ROM_DRV_FUNC_USART_BASE + $10)
+		#define ROM_DRV_FUNC_USART_get_line						(ROM_DRV_FUNC_USART_BASE + $14)
+		#define ROM_DRV_FUNC_USART_put_line						(ROM_DRV_FUNC_USART_BASE + $18)
+		#define ROM_DRV_FUNC_USART_interrupt_service_routine	(ROM_DRV_FUNC_USART_BASE + $1C)
+
+		' end LPC824:USART specific #def/logic
+		
+	' #elif 
+		'''for each device's #ifdef, include the following 
+		' #warning "Context: NXP <device> USART"
+		' #define USART_API_Loaded <device>
+
+	#else' Device:USART Peripherial pair not accounted for
+		#error  "UNDEFINED processor fór the USART peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device"
+	#endif ' LPC824_USART_OnChip_PeripheralDriver - Device:USART Peripherial pair logic
+
+'=======================================================================================================================================================================================================
+' UART ROM Driver Variables Dialog
+'=======================================================================================================================================================================================================
+
+	' in these variable declarations, I currently presume to attempt to use element 0 as a bit level flag register to denote state of the elements, whether instantiated or not, etc.
+	' not for use by the ROM API, but rather by my wrapper subs/funcs, and the helper subs/funcs herein.  It is noise ATM, but trying to think ahead as I cogitate on the instantiation
+	' of this wrapper lib - a design as i code context - not utopian, but then I've done some wrappers in other enviorns and this sort of approach paid dividends at that time...
+
+'=======================================================================================================================================================================================================
+' UART Driver API Function Table Structure - based on the API docs, I believe that this will prove to be static and need to be referenced at runtime, hence using variable vs. constants/#defs...
+'=======================================================================================================================================================================================================
+	
+	dim uart_driver_api_func_tbl_ptr as integer		' provides a pointer to an array to be used to enumerate the function typedef structure (may be talking out my arse here as this is trail blazing for me...)
+	dim uart_driver_api_func_tbl(8) as integer		' a structure containing the pointers to the functions (return and parameters (both with comments) detailed in parens)
+		' W1B0:3 unused atm							' W1B0:3 is *uart_get_mem_size* function pointer (rets 32b int per api, no parameters)
+													' W2B0:3 is *uart_setup* function pointer (rets (32b int?) handle, passed base_addr and ram_ptr)
+		' in C++ are uint8 & uint16 4B aligned?		' W3B0:3 is *uart_init* function pointer (ret 32b int __??__, passed (32b) handle and (32b) pointer to set(?) (thinking config struct pointer))
+		' if not need to deal w/ same vis helpers	' W4B0:3 is *uart_get_char* function pointer (ret 8b char, passed (32b) handle)
+		' with masks/shifts/etc on calls/rets		' W5B0:3 is *uart_put_char* sub pointer (ret nutin, passed (32b) handle and (8b) char)
+		' and jam smaller stuffs together for		' W6B0:3 is *uart_get_line* function pointer (ret 32b __??__, passed (32b) handle and (32b) parameter pointer)
+		' use b4/after the API code is called...	' W7B0:3 is *uart_put_line* function pointer (ret 32b __??__, passed (32b) handle and (32b) parameter pointer)
+													' W8B0:3 is *uart_isr* sub pointer (ret nutin, passed (32b) handle)
+	
+'=======================================================================================================================================================================================================
+' HANDLE POINTER TABLE
+'=======================================================================================================================================================================================================
+
+	dim uart_handle_tbl_ptr as integer			' provides a pointer to an array to be used to enumerate the handles for the USART instances
+	dim uart_handle_tbl(ROM_DRV_USART_BLOCK_CNT) as integer			' UART driver instance handles 1 to 3 - 
+								'?				' element 0 b0: 0=no handle, 1=element 1 has handle for UART 0 instance
+								'?				' element 0 b1: 0=no handle, 1=element 2 has handle for UART 1 instance
+								'?				' element 0 b2: 0=no handle, 1=element 3 has handle for UART 2 instance
+								'todo			' Instantiated when, Updated when, Cleared state and when???
+								
+'=======================================================================================================================================================================================================
+' CONFIG POINTER TABLE, AND CONFIG STRUCTURE TO BE ENUMERATED - helper functions will likely be needed to maintain/update these - note concern w/ alignment of sub 32b types in API prototypes
+'=======================================================================================================================================================================================================
+
+	dim uart_cfg_struct_tbl_ptr(ROM_DRV_USART_BLOCK_CNT) as integer	' each element 1-3 holds pointers to the config structure for each UART instance
+								'?				' element 0 b0: 0=no config, 1=element 1 has Cfg Struct Pointer for UART 0 instance
+								'?				' element 0 b1: 0=no handle, 1=element 2 has Cfg Struct Pointer for UART 1 instance
+								'?				' element 0 b2: 0=no handle, 1=element 3 has Cfg Struct Pointer for UART 2 instance
+								'todo			' Instantiated when, Updated when, Cleared state and when???
+												
+'	dim uart_cfg_struct_tbl(mult(ROM_DRV_USART_BLOCK_CNT, 5)) as integer		' elements 1-5 are the struct for UART 0 - elements 6-10 for UART 1 - elements 11-15 for UART 2
+	dim uart_cfg_struct_tbl(mul(ROM_DRV_USART_BLOCK_CNT , 5)) as integer		' elements 1-5 are the struct for UART 0 - elements 6-10 for UART 1 - elements 11-15 for UART 2
+												' Wx0B0:3 is SysClkHz (32b int per api)
+												' Wx1B0:3 is BaudRateHz (32b int per api)
+	' in C++ are uint8 & uint16 4B aligned?		' Wx2B0:3 is CommsCFG (8b int per api)
+	' if not need to deal w/ same vis helpers	' Wx3B0:3 is SyncMOD (8b int per api)
+	' with masks/shifts/etc on calls/rets		' Wx4B0:3 ErrEnum (16b Int per api)
+	' and jam smaller stuffs together for		
+	' use b4/after the API code is called...	
+								'todo			' Instantiated when, Updated when, Cleared state and when???
+								
+'=======================================================================================================================================================================================================
+' PARAMETER POINTER TABLE, AND PARAMETER STRUCTURE TO BE ENUMERATED - helper functions will likely be needed to maintain/update these - note concern w/ alignment of sub 32b types in API prototypes
+'=======================================================================================================================================================================================================
+
+	dim uart_prm_struct_tbl_ptr(ROM_DRV_USART_BLOCK_CNT) as integer	' each element 1-3 holds pointers to the parameter structure for each UART instance
+								'?				' element 0 b0: 0=no config, 1=element 1 has Parameter Struct Pointer for UART 0 instance
+								'?				' element 0 b1: 0=no handle, 1=element 2 has Parameter Struct Pointer for UART 1 instance
+								'?				' element 0 b2: 0=no handle, 1=element 3 has Parameter Struct Pointer for UART 2 instance
+								'todo			' Instantiated when, Updated when, Cleared state and when???
+												
+	dim uart_prm_struct_tbl(mul(ROM_DRV_USART_BLOCK_CNT, 5)) as integer		' elements 1-5 are the struct for UART 0 - elements 6-10 for UART 1 - elements 11-15 for UART 2
+												' Wx0B0:3 is BufferPtr (8b int per api - why??)
+												' Wx1B0:3 is PayloadSize (32b int per api)
+	' in C++ are uint8 & uint16 4B aligned?		' Wx2B0:3 is XferMode (16b int per api)
+	' if not need to deal w/ same vis helpers	' Wx3B0:3 is DriverMode (16b int per api)
+	' with masks/shifts/etc on calls/rets		' Wx4B0:3 is CallbackFuncPtr (presumably a 32b int)
+	' and jam smaller stuffs together for		
+	' use b4/after the API code is called...	
+								'todo			' Instantiated when, Updated when, Cleared state and when???
+
+'=======================================================================================================================================================================================================
+' Other USART API Initialization???
+'=======================================================================================================================================================================================================
+
+
+'=======================================================================================================================================================================================================
+' Helper Functions/Subs for USART API Wrapper - internal library code that should not be called by the user
+'=======================================================================================================================================================================================================
+
+Function __USART_set_callback_func(func_ptr as integer) as integer
+	' code to update the callback function in the parameter table structure
+	' this may be a bit moot, if I do a consolidated set parameters function vs. dealing with each parameter individually - stay tuned...
+	return 0 '_status/pointer/??
+	endfunction
+
+Function __USART_get_callback_func() as integer
+	' used to provide to ujser/helper code what is currently stored in the structure as the callback function pointer 
+	return  0 '_pointer
+	endfunction
+	
+Function __Build_UARTD_API_Func_Tbl() as integer
+	
+	uart_driver_api_func_tbl(0) = addressof uart_driver_api_func_tbl + 4	' recursive entry
+	uart_driver_api_func_tbl(1) = ROM_DRV_FUNC_USART_get_memory_size			
+	uart_driver_api_func_tbl(2) = ROM_DRV_FUNC_USART_setup						
+	uart_driver_api_func_tbl(3) = ROM_DRV_FUNC_USART_init							
+	uart_driver_api_func_tbl(4) = ROM_DRV_FUNC_USART_get_character				
+	uart_driver_api_func_tbl(5) = ROM_DRV_FUNC_USART_put_character				
+	uart_driver_api_func_tbl(6) = ROM_DRV_FUNC_USART_get_line						
+	uart_driver_api_func_tbl(7) = ROM_DRV_FUNC_USART_put_line						
+	uart_driver_api_func_tbl(8) = ROM_DRV_FUNC_USART_interrupt_service_routine	
+	
+	uart_driver_api_func_tbl_ptr = addressof uart_driver_api_func_tbl + 4
+	
+	return uart_driver_api_func_tbl_ptr
+	endfunction
+	
+
+'=======================================================================================================================================================================================================
+' USER CALLABLE - USART ROM API Wrapper Functions and Subs intended for the user
+'=======================================================================================================================================================================================================
+
+Function USART_get_memory_size() as integer
+	
+	return  0 'USART_Reqd_Memory_Bytes
+	EndFunction
+
+Function USART_setup()
+	return  0 
+	EndFunction
+
+Function USART_init()
+	return  0 
+	EndFunction
+
+Function USART_get_character()
+	return  0 
+	EndFunction
+
+Function USART_put_character()
+	return  0 
+	EndFunction
+
+Function USART_get_line()
+	return  0 
+	EndFunction
+
+Function USART_put_line()
+	return  0 
+	EndFunction
+
+Function USART_interrupt_service_routine()
+	return  0 
+	EndFunction
+	
+Function USART_initialize_wrapper() as integer
+	' need to populate the pointer & structure table variables, so the ROM API can use them
+	return 0 'init_status
+	endfunction
+
+
+#endif
+#if (defined Use_POWER_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' POWER API LIB
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC824)
+		#error NXP LPC824 POWER Peripherial/Driver use attempted and failed - The ROM Driver API library needs to be updated to support this peripheral on this device
+
+		#define ROM_DRV_TBL_IDX_POWER		$0C	'Device 3 - Power profiles API function table
+
+		' end of LPC824:POWER specific #def/logic
+	' #elif ' Device:POWER Peripherial pair not accounted for
+		'''for each device's #ifdef, include the following 
+		' #warning "Context: NXP <device> POWER"
+		' #define POWER_API_Loaded <device>
+		' #error  NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+
+	#else
+		#error  UNDEFINED processor fór the POWER peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device
+	#endif ' Use_POWER_OnChip_PeripheralDriver - Device:POWER Peripherial pair logic
+
+
+#endif
+#if (defined Use_INTDIV_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' INTDIV API LIB
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC824)
+		#error NXP LPC824 INTDIV Peripherial/Driver use attempted and failed - The ROM Driver API library needs to be updated to support this peripheral on this device
+		#define ROM_DRV_TBL_IDX_INTDIV		$10 'Device 4 - Integer Divide routines function table
+
+		' end of LPC824:INTDIV specific #def/logic
+'	#elif ' Device:INTDIV Peripherial pair not accounted for
+		'''for each device's #ifdef, include the following 
+		' #warning "Context: NXP <device> INTDIV"
+		' #define INTDIV_API_Loaded <device>
+		' #error  NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#else
+		#error  UNDEFINED processor fór the INTDIV peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device
+	#endif ' Use_INTDIV_OnChip_PeripheralDriver - Device:INTDIV Peripherial pair logic
+
+
+#endif
+#if (defined Use_I2C_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' I2C API LIB
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC824)
+		#error NXP LPC824 I2C Peripherial/Driver use attempted and failed - The ROM Driver API library needs to be updated to support this peripheral on this device
+		#define ROM_DRV_TBL_IDX_I2C			$14	'Device 5 - I2C driver routines function table
+
+		' end of LPC824:I2C	 specific #def/logic
+'	#elif ' Device:I2C	 Peripherial pair not accounted for
+		'''for each device's #ifdef, include the following 
+		' #warning "Context: NXP <device> I2C"
+		' #define I2C_API_Loaded <device>
+		' #error  NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#else
+		#error  UNDEFINED processor fór the I2C peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device
+	#endif ' Use_I2C_OnChip_PeripheralDriver - Device:I2C	Peripherial pair logic
+
+
+#endif
+#if (defined Use_SPI_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' SPI API LIB
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC824)
+		#error NXP LPC824 SPI Peripherial/Driver use attempted and failed - The ROM Driver API library needs to be updated to support this peripheral on this device
+		#define ROM_DRV_TBL_IDX_SPI			$1C 'Device 7 - SPI driver routines function table
+
+		' end of LPC824:SPI specific #def/logic
+'	#elif ' Device:SPI Peripherial pair not accounted for
+		'''for each device's #ifdef, include the following 
+		' #warning Context: NXP <device> SPI
+		' #define SPI_API_Loaded <device>
+		' #error  NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device
+	#else
+		#error  UNDEFINED processor fór the SPI peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#endif ' Use_SPI_OnChip_PeripheralDriver - Device:SPI Peripherial pair logic
+
+
+#endif
+#if (defined Use_ADC_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' ADC API LIB
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC824)
+		#error NXP LPC824 ADC Peripherial/Driver use attempted and failed - The ROM Driver API library needs to be updated to support this peripheral on this device
+		#define ROM_DRV_TBL_IDX_ADC			$20 'Device 8 - ADC driver routines function table
+
+		' end of LPC824:ADC	 specific #def/logic
+'	#elif ' Device:ADC	 Peripherial pair not accounted for
+		'''for each device's #ifdef, include the following 
+		' #warning "Context: NXP <device> ADC"
+		' #define ADC_API_Loaded <device>
+		' #error  NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#else
+		#error  UNDEFINED processor fór the ADC peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#endif ' Use_ADC_OnChip_PeripheralDriver - Device:ADC Peripherial pair logic
+
+#endif
+#if (defined Use_USBD_OnChip_PeripheralDriver)
+'=======================================================================================================================================================================================================
+' USBD API LIB
+'=======================================================================================================================================================================================================
+
+	#if (defined LPC11U37)
+		#error NXP LPC11U37 USBD Peripherial/Driver use attempted and failed - The ROM Driver API library needs to be updated to support this peripheral on this device
+'		#define ROM_DRV_TBL_IDX_USBD			$20 'Device 8 - USBD driver routines function table
+
+		' end of LPC11U37:USBD	 specific #def/logic
+'	#elif ' Device:USBD	 Peripherial pair not accounted for
+		'''for each device's #ifdef, include the following 
+		' #warning "Context: NXP <device> USBD"
+		' #define USBD_API_Loaded <device>
+		' #error  NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#else
+		#error  UNDEFINED processor fór the USBD peripherial - NXP_ROM_API_DRIVER_WRAPPER_LIB needs to be modified to include support fór this peripherial on the device	
+	#endif ' Use_USBD_OnChip_PeripheralDriver - Device:USBD Peripherial pair logic
+
+#endif
+#ifndef USART_API_Loaded
+	#ifndef POWER_API_Loaded
+		#ifndef INTDIV_API_Loaded
+			#ifndef I2C_API_Loaded
+				#ifndef SPI_API_Loaded
+					#ifndef ADC_API_Loaded
+						#ifndef USBD_API_Loaded
+							' No APIs were actually loaded
+							#error 
+							#error 
+							#error #def error - missing or incorrect #define prior to #include'g this Wrapper Library."
+							#error Or the NXP_ROM_API_DRIVER_WRAPPER_LIB may need to be modified to support the peripherial/API on the device.
+							#error 
+							#error This Wrapper library relies on BASICtools` #def`g the device ID.
+							#error 
+							#error This Wrapper Library is currently configured for the following peripherials: NXP_ROM_API_PERIPHERALS
+							#error ... on these devices: NXP_ROM_API_DEVICES
+							#error 
+							#error This Wrapper Library is compile-time configured by issuing preprocessor directives in the following format:
+							#error #define Use_<XXXXX>_OnChip_PeripheralDriver
+							#error ... replacing <XXXXX> with one of the peripherial IDs deliniated above.
+							#error 
+							#error 
+						#endif
+					#endif
+				#endif
+			#endif
+		#endif
+	#endif
+#endif
+#endif ' NXP_ROM_API_DRIVER_WRAPPER_LIB

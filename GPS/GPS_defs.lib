@@ -1,0 +1,280 @@
+#ifndef gps_defs_loaded
+#define gps_defs_loaded
+#warning gps_defs_loaded
+
+'FIXME Items
+' Intermessage Delay Vetting w/ Scope... There are some dynamics at work here in that sentences have different lengths based on several factors.
+'	Two (of more?) examples: 	1) if no valid nav solution, the lat/lon fields are nulled out, and 2) the SV fields are really dynamic based on
+'	what satellites are in the FOV and which satellites the receiver is actually getting a signal from.  These two examples drive a lot of delta
+'	in each message length & related parsing of each message & fields therein.  I don't really want to get into the weeds with this (i.e. adding
+'	logic to assess modes and calculate dynamic sentence timing.  ...  HOWEVER, it is a known that each burst occurs at a known interval.  Maybe
+'	I could adopt a posture to capture the start of the 1 sec message block timing iterations,l calculating a delay from the last sentence until
+'	the next expected message block start time.  That might just work.  Going to have to consider it further...
+' Get creative with GPS Module #def
+' Add PPlogic to deal with multiple targets, specifically as it relates to RTC existence, Hardware Specific timing adaptations, etc.
+' Assess if serin timeout needs to be adjusted - could consider setting it to the intermessage delay, once that get's vetted better.?.
+' Create a mode to listen to the serial stream, adjusting bit-width and half-bit width delays to fine-tune the timing to then hard-code herein.
+'	will need starting points (done with the math to calc baseline bit -width and half-bit-width
+
+' Congfig Gouge for EM411 GPS Receiver
+' 1200, 2400, 4800, 9600, 19200, 38400, 57600, and 115200  baud config strings
+' $PSRF100,1,115200,8,1,0*05 <-- 115200bps
+' $PSRF100,1,57600,8,1,0*36							
+' $PSRF100,1,38400,8,1,0*3D							
+' $PSRF100,1,19200,8,1,0*38
+' $PSRF100,1,9600,8,1,0*0D
+' $PSRF100,1,4800,8,1,0*0E
+'
+' ＄PSRF103,<msg>,<mode>,<rate>,<cksumEnable>*CKSUM<CR><LF>
+
+' Table 2-9
+' Query/Rate Control Data Format
+' Name		Example		Unit		Description	
+' Message ID	$PSRF103				PSRF103 protocol header
+' Msg			00						See Table 2-10
+' Mode		01						0=SetRate, 1=Query
+' Rate		00			sec			Output—off=0, max=255
+' CksumEnable	01						0=Disable Checksum, 1=Enable Checksum
+' Checksum	*25
+' <CR> <LF>							End of message termination
+
+' ＄PSRF103,00-08 (no 07/09),01,00,01*
+
+' Table 2-10
+' Messages
+' Value Description
+' 0	GGA
+' 1	GLL
+' 2	GSA
+' 3	GSV
+' 4	RMC
+' 5	VTG
+' 6	MSS (If internal beacon is supported)
+' 7	Not defined
+' 8	ZDA (if 1PPS output is supported)
+' 9	Not defined
+
+' autosend 1x/sec:
+
+' $PSRF103,00,00,01,01*25	<-X GGA 1x/sec prf
+' $PSRF103,01,00,01,01*24	<-X GLL 1x/sec prf
+' $PSRF103,02,00,01,01*27	<-X GSA 1x/sec prf
+' $PSRF103,03,00,01,01*26	<-X GSV 1x/sec prf
+' $PSRF103,04,00,01,01*21	<-X RMC 1x/sec prf
+' $PSRF103,05,00,01,01*20	<-X VTG 1x/sec prf
+' $PSRF103,06,00,01,01*23	<-- MSS 1x/sec prf (IF INTL BEACON SUPPORTED - its not...)
+' msg 7 not defined
+' $PSRF103,08,00,01,01*2D	<-X ZDA 1x/sec prf (IF 1PPS OUTPUT SUPPORTED)
+' msg 9 not defined
+
+' set to poll only:
+
+' $PSRF103,00,00,00,01*24	<-X GGA no prf
+' $PSRF103,01,00,00,01*25	<-X GLL no prf
+' $PSRF103,02,00,00,01*26	<-X GSA no prf
+' $PSRF103,03,00,00,01*27	<-X GSV no prf
+' $PSRF103,04,00,00,01*20	<-X RMC no prf
+' $PSRF103,05,00,00,01*21	<-X VTG no prf
+' $PSRF103,06,00,00,01*22	<-- MSS no prf (IF INTL BEACON SUPPORTED - its not...)
+' msg 7 not defined
+' $PSRF103,08,00,00,01*2C	<-X ZDA 1x/sec prf (IF 1PPS OUTPUT SUPPORTED)
+' msg 9 not defined
+
+' Polling commands
+
+' $PSRF103,00,01,00,01*25	<-X GGA 1x/sec prf
+' $PSRF103,01,01,00,01*24	<-X GLL 1x/sec prf
+' $PSRF103,02,01,00,01*27	<-X GSA 1x/sec prf
+' $PSRF103,03,01,00,01*26	<-X GSV 1x/sec prf
+' $PSRF103,04,01,00,01*21	<-X RMC 1x/sec prf
+' $PSRF103,05,01,00,01*20	<-X VTG 1x/sec prf
+' $PSRF103,06,01,00,01*23	<-- MSS 1x/sec prf (IF INTL BEACON SUPPORTED - its not...)
+' msg 7 not defined
+' $PSRF103,08,01,00,01*2D	<-X ZDA 1x/sec prf (IF 1PPS OUTPUT SUPPORTED)
+' msg 9 not defined
+
+' SAMPLE EM411 NMEA SENTENCES
+/*
+$GPZDA,021511.000,18,09,2018,,*5B
+$GPGGA,021511.000,4429.2984,N,08319.1244,W,1,05,3.5,178.1,M,-35.6,M,,0000*65
+$GPGLL,4429.2984,N,08319.1244,W,021511.000,A*2C
+$GPGSA,A,3,12,25,31,14,32,,,,,,,,5.2,3.5,3.8*3A
+$GPGSV,3,1,12,14,76,009,18,31,72,234,28,32,61,079,23,25,41,073,18*72
+$GPGSV,3,2,12,22,35,305,22,10,25,157,14,01,22,282,12,18,18,253,15*71
+$GPGSV,3,3,12,03,16,316,,26,14,179,,12,14,037,21,11,01,267,*77
+$GPRMC,021511.000,A,4429.2984,N,08319.1244,W,0.25,139.73,180918,,*1A
+$GPVTG,139.73,T,,M,0.25,N,0.5,K*6D
+
+
+$GPRMC,011934.304,V,,,,,,,250918,,*21
+*/
+
+'~~  GPS_Debug Support
+	#if (ENABLE_GPS_DEBUG != 0) + (enable_gps_debug != 0)  ' We're debug'g, so turn production code off and debug code on.
+
+		#define GPS_DEBUG(args...)	args
+		#define gps_debug(args...)	args
+		#define GPS_PRODUCTION(args...)
+		#define gps_production(args...)
+
+		#warning "GPS DEBUG FACILITIES ARE ENABLED"
+
+	#else ' no debug, so turn production code on and debug code off.
+
+		#define GPS_DEBUG(args...)
+		#define gps_debug(args...)
+		#define GPS_PRODUCTION(args...)	args
+		#define gps_production(args...)	args
+
+		#warning "GPS DEBUG FACILITIES ARE DISABLED"
+
+	#endif  	'~ 
+
+'~~  GPS Baud #def Validation
+	#ifndef GPS_SER_RX_PT_BAUD								' should be #def'd before #inc'g this lib.  If not, set a default baud and toss warnings to the dev
+		#define GPS_SER_RX_PT_BAUD				38400				' this is a default baud entry - we really should not have to make use of this...
+		#warning Serial port baud rate of 38400 bps selected
+		#warning #def something specific to correct this, such as:
+		#warning #define 	GPS_SER_RX_PT_BAUD		19200 ', 4800, 57600, 115200, etc...
+	#endif	'~
+		
+'~~	Target Specific Timing Adaptations
+	#ifdef LPC824	'apparantly the 824 is slow enough where additional reductions in dwell and half-bit periods are appropriate as shite runs
+		'slower meaning that idle period waits are not able to be as long before things start to get missed.  As this might be 
+		' different across various devises, putting in a device spedific #inc.
+		' will craft a timing test version to aid in refining the timing programmatically, as manually doing so was/is a bitch.
+
+		#ifndef enabledebug ' -5/-3 work ok as does -6/-3
+		#define TgtSerialBitPeriodAdj -7	' adjust for device specific delays due to w/e reason (i.e. the LPC824 is friggin slow, so the existing offsets hard-coded below (interrupt(x)) are not enuf...
+		#define TgtHalfBitDwellPeriodAdj -5	' adjust for device specific delays due to w/e reason 
+		#else
+		#define TgtSerialBitPeriodAdj -5	' adjust for debug delays due to capturing timer values at milestone events - 3 uS here, plus the 6 uS above
+		#define TgtHalfBitDwellPeriodAdj -3	' adjust for debug delays due to capturing timer values at milestone events  - 1 uS here, plus the 3 uS above
+		#endif
+		
+	#elif defined LPC54102
+	
+		#ifndef enabledebug ' -5/-3 work ok as does -6/-3
+		#define TgtSerialBitPeriodAdj 0	' adjust for device specific delays due to w/e reason (i.e. the LPC824 is friggin slow, so the existing offsets hard-coded below (interrupt(x)) are not enuf...
+		#define TgtHalfBitDwellPeriodAdj 0	' adjust for device specific delays due to w/e reason 
+		#else
+		#define TgtSerialBitPeriodAdj 0	' adjust for debug delays due to capturing timer values at milestone events - 3 uS here, plus the 6 uS above
+		#define TgtHalfBitDwellPeriodAdj 0	' adjust for debug delays due to capturing timer values at milestone events  - 1 uS here, plus the 3 uS above
+		#endif
+		#define HOUR(-1)	1
+		#define MINUTE(-1)	1
+		#define SECOND(-1)	1
+		' #define HOUR=0	
+		' #define MINUTE=0
+		' #define SECOND=0
+		
+		
+	#elif 0	' this is where other devices should be addressed programmatically, if there is a requirement to do so
+		#define TgtSerialBitPeriodAdj 0
+		#define TgtHalfBitDwellPeriodAdj 0
+	#endif	'~
+
+'~~	 Serial Timing #defs
+	' thinking that timeout needs to be dropped substantially
+	' may need to validate the approach with using the timer for storing the last bit receipt time
+	' coupled with the intersentence delay, could yield desirable and predictable results on minimizing serial wait overheads...
+	#define Default_GPS_RXSerInTimeout			1000000									' this should be initialized  -- time in microseconds	
+	#define Default_GPS_RXBitInTimeout   		1000000									' used during autobaud
+	#define Initial_GPS_RXSerialBitPeriod   	(( 2000000 / GPS_SER_RX_PT_BAUD + 1) >>1) 	' round the value up gets within 3% for 115Kb
+	#define Default_GPS_RXHalfBitDwellPeriod	((((Initial_GPS_RXSerialBitPeriod) >> 1)-3)  + (TgtHalfBitDwellPeriodAdj))	' halve the whole bit period, adjusting for inline interrupt(x) function, and then adjust for target-specific dynamics
+	#define Default_GPS_RXSerialBitPeriod   	((Initial_GPS_RXSerialBitPeriod) + (TgtSerialBitPeriodAdj))		'~ adjust for target dynamics
+
+' NMEA Intermessage Delay Gouge - need to vet further with a scope to validate the figures I got via excel...
+' normal sentences from the EM411 are ~520 bytes
+' @ various bauds, we should have the following idle periods
+/*
+Burst Chars	521				
+Xmt Chars	578.8888889	10% conservative			
+bits per char	8				
+stop bits	1				
+total bits	5210				
+BPS serial rate	9600	19200	38400	57600	115200
+idle time in ms	457000	728000	864000	909000	954000
+*/
+
+'~~  NMEA Intermessage Delay Instantation	
+	' This code sets the idle period timeouts between nmea msgs - need to vet with scope
+	#if GPS_SER_RX_PT_BAUD == 9600	
+		#define GPS_NMEA_MSG_IDLE_PERIOD	457000
+		#warning 9600 Baud yields an idle period of 457000 us
+	#elif GPS_SER_RX_PT_BAUD == 19200
+		#define GPS_NMEA_MSG_IDLE_PERIOD	728000
+		#warning 19200 Baud yields an idle period of 728000 us
+	#elif GPS_SER_RX_PT_BAUD == 38400
+		#define GPS_NMEA_MSG_IDLE_PERIOD	864000
+		#warning 38400 Baud yields an idle period of 864000 us
+	#elif GPS_SER_RX_PT_BAUD == 57600
+		#define GPS_NMEA_MSG_IDLE_PERIOD	909000
+		#warning 57600 Baud yields an idle period of 909000 us
+	#elif GPS_SER_RX_PT_BAUD == 115200
+		#define GPS_NMEA_MSG_IDLE_PERIOD	954000
+		#warning 115200 Baud yields an idle period of 954000 us
+	#else	' non-standard baud established - setting to zero ATT, however some maths could be of use (filepp?, other?)
+		#define GPS_NMEA_MSG_IDLE_PERIOD	0
+		#warning non-standard Baud yields an idle period of 0 us...
+	#endif	'~
+
+'~~ Hardware Port Definitions
+	#define GPS_SER_RX_PT_NO				33					' set this to the gpio pt that the gps tx out is connected to
+	#define GPS_SER_TX_PT_NO				13					' set this to the gpio pt that the gps rx in is connected to
+	#define GPS_LOOP_ACTIVITY_LED_PORT		31					'~ led port on ab sbc...
+
+'~~ These #defs are for the NMEA implementation that exists on the EM411 GPS Receiver Block
+	#define GPS_LOCAL_TIME_DELTA			040000				' hhmmss  -    gmt-hhmmss, make negative if local = gmt+hhmmss
+
+	#define GPS_RXAutoBaudBitCount  		256					' for EM-411 - 256 is good, 128 is good, 64 is marginal (65% good, 35% not), 32 sucks (<=10% good, >=90%+ bad)
+																' the shortest sentence sent is 35 chars (33+CR+LF), which is 280 relevant data bits, plus a start bit
+																' so with the insurance that 256 provides ample single bit instances to measure, that is recommended.
+																
+	#define GPS_NUM_NMEA_MSG_TYPES			7					' set this to one less than the # of sent types that could be xmit'd
+	#define GPS_NUM_XMIT_NMEA_MSGS 			9					' set this to the # of nema msgs that the gps rx is programmed to xmit
+
+	#define GPS_MAX_NMEA_MSG_LEN 			255					' set this to the max length of a gps sent being xmit'd
+
+	#define GPS_MAX_NMEA_MSG_FLD_CNT		31					' set this to the max num of flds in a rcvd sentence
+	#define GPS_MAX_NMEA_MSG_FLD_LEN 		16					' set this to the max length of a gps fld in a sent being xmit'd
+
+	#define GPS_NMEA_MSG_PAYLOAD_START		71					' ascii char for begin of sentence payload - "g"
+	#define GPS_NMEA_MSG_PAYLOAD_FINISH		42					' ascii char for end of sentence payload - "*"
+
+	#define GPS_NMEA_GGA_MSG				0
+	#define GPS_NMEA_GSA_MSG				1
+	#define GPS_NMEA_VTG_MSG				2
+	#define GPS_NMEA_ZDA_MSG				3
+	#define GPS_NMEA_GLL_MSG				4
+	#define GPS_NMEA_GSV_MSG				5
+	#define GPS_NMEA_MSS_MSG				6
+	#define GPS_NMEA_RMC_MSG				7
+
+	#define GPS_NMEA_MSG_ID0				"$GPGGA"
+	' $GPGGA,161713.000,4429.3081,N,08319.1194,W,1,05,2.8,187.3,M,-35.6,M,,0000*6D
+
+	#define GPS_NMEA_MSG_ID1				"$GPGSA"
+	' $GPGSA,A,3,17,12,23,09,19,,,,,,,,4.3,2.8,3.3*3A
+
+	#define GPS_NMEA_MSG_ID2				"$GPVTG"
+	' $GPVTG,70.43,T,,M,0.45,N,0.8,K*59
+
+	#define GPS_NMEA_MSG_ID3				"$GPZDA"
+	' $GPZDA,161713.000,06,09,2018,,*51
+
+	#define GPS_NMEA_MSG_ID4				"$GPGLL"
+	' $GPGLL,4429.3081,N,08319.1194,W,161713.000,A*2A
+
+	#define GPS_NMEA_MSG_ID5				"$GPGSV"
+	/* $GPGSV,3,1,11,06,65,044,22,02,57,268,27,19,55,098,16,12,55,277,32*79
+	' $GPGSV,3,2,11,17,30,109,27,25,22,316,,05,18,196,21,09,14,087,23*70
+	' $GPGSV,3,3,11,23,12,059,24,03,01,034,23,24,00,243,*46*/
+
+	#define GPS_NMEA_MSG_ID6				"$GPMSS"
+	' not supported
+
+	#define GPS_NMEA_MSG_ID7				"$GPRMC"
+	'~ $GPRMC,161713.000,A,4429.3081,N,08319.1194,W,0.45,70.43,060918,,*2A 
+
+#endif

@@ -68,7 +68,10 @@ dim tempstr(64) as string
 	' return ((*(ADDR)) AND $FF)
 	' endfunction
 '==============================================================================
+sub initme
 
+
+endsub
 Main:
 init_abe
 
@@ -84,6 +87,8 @@ dim c as integer
 dim d as integer
 dim e as integer
 dim saved_ddr as integer
+
+dim test_single as single
 
 
 print "===================================================================="
@@ -306,7 +311,7 @@ print
 paws
 print 
 print
-*/
+
 print "validating our variables are wurkin:"
 
 a=1431655765	' $55555555	&01010101010101010101010101010101
@@ -315,14 +320,10 @@ c=1431655765	' $55555555	&01010101010101010101010101010101
 d=2863311530	' $aaaaaaaa	&10101010101010101010101010101010
 
 print 
-print "a - ",i2h(a),
-print i2b(a)
-print "b - ",i2h(b),
-print i2b(b)
-print "c - ",i2h(c),
-print i2b(c)
-print "d - ",i2h(d),
-print i2b(d)
+print "a - ",i2h(a), i2b(a)
+print "b - ",i2h(b), i2b(b)
+print "c - ",i2h(c), i2b(c)
+print "d - ",i2h(d), i2b(d)
 print
 print "validating our starting point is all zeros:"
 
@@ -331,65 +332,123 @@ b=0
 c=0
 d=0
 
-print "a - ",i2h(a),
-print i2b(a)
-print "b - ",i2h(b),
-print i2b(b)
-print "c - ",i2h(c),
-print i2b(c)
-print "d - ",i2h(d),
-print i2b(d)
+print "a - ",i2h(a), i2b(a)
+print "b - ",i2h(b), i2b(b)
+print "c - ",i2h(c), i2b(c)
+print "d - ",i2h(d), i2b(d)
 
 paws
 Print "now let's poll for a DDR refresh"
-print "getting current ddr states:"
-getddr(a)
-print i2h(a)
-print i2b(a)
-paws
-
+print 
 
 print 
 print "getting current ddr states:"
-getddr(a)
-print i2h(a),
-print i2b(a)
+d = getddr(a)
+print "returned: ",i2h(d), i2b(d)
+print "byref'd: ",i2h(a), i2b(d)
 paws
-a=0
 
+a=0
 print 
 print "setting all dirs to output with the following:"
-a = $FFFFFFFF
-print i2h(a)
-print i2b(a)
+print i2h(a), i2b(a)
 print
 paws
 a=0
 
+
+b = $FFFFFFFF
 print "Now doing the setting of the target's DDRs"
+print
 setddr(b)
 print "presumably they are set - let's check:"
-print i2h(b)
-print i2b(b)
+print i2h(b), i2b(b)
 print
 print
 paws
 b=0
 
+print
 Print "now let's poll for a DDR refresh"
+print
 print "getting current ddr states:"
 getddr(a)
-print i2h(a)
-print i2b(a)
+print i2h(a), i2b(a)
+paws
+a=0
+
+
+print 
+print "setting all dirs to inputs with the following:"
+a = $00000000
+print i2h(a), i2b(a)
+print
 paws
 
+print "Now doing the setting of the target's DDRs"
+print
+b = setddr(a)
+print "presumably they are set - let's check:"
+print i2h(a), i2b(b)
+print
+print
+paws
+b=0
+
+print 
+print "restoring original pin direction register with the following:"
+print i2h(d), i2b(d)
+print
+paws
+
+print "Now doing the setting of the target's DDRs"
+print
+b = setddr(d)
+print "presumably they are set - let's check:"
+print i2h(d), i2b(b)
+print
+print
+paws
+b=0
+d=0
+*/
+
+'faibh
+
+' f2f
+test_single = 365.250
+print "f2a 365.25: ",f2a(test_single)
+print "f2i 365.25: ",f2i(test_single)
+print "f2b 365.25: ",f2b(test_single)
+print "f2h 365.25: ",f2h(test_single)
+
+TEST_STR16 = "365.25"
+print "a2f 365.25: ",a2f(TEST_STR16)
+' a2a
+print "a2i 365.25: ",a2i(TEST_STR16)
+print "a2b 365.25: ",a2b(TEST_STR16)
+print "a2h 365.25: ",a2h(TEST_STR16)
+
+a=12546
+Print "i2a 17: ",i2a(a)
+print "i2f 15: ",i2f(a)
+' i2i
+print "i2b 14: ",i2b(a)
+print "i2h 14: ",i2h(a)
 
 
+print "b2f &01101010100011101011110001010100: ",b2f("&01101010100011101011110001010100")
+print "b2a &01101010100011101011110001010100: ",b2a("&01101010100011101011110001010100")
+print "b2i &01101010100011101011110001010100: ",b2i("&01101010100011101011110001010100")
+' b2b
+print "b2h &01101010100011101011110001010100: ",b2h("&01101010100011101011110001010100")
 
 
-
-
-
+print "h2f $5a5a5a5a: ",h2f("$5a5a5a5a")
+print "h2a $5a5a5a5a: ",h2a("$5a5a5a5a")
+print "h2i $5a5a5a5a: ",h2i("$5a5a5a5a")
+print "h2b $5a5a5a5a: ",h2b("$5a5a5a5a")
+' h2h
 
 
 
@@ -401,6 +460,7 @@ paws
 ' overtly check a2i, a2f
 ' create and test b2h
 ' creat and test i2f and f2i
+' create all 
 
 
 
