@@ -1,12 +1,14 @@
 #ifndef ARMbasicTargetVitals
 	#define ARMbasicTargetVitals
 
+	#define	_crlf_	chr($0D) & CHR($0A)
+	
 	#if defined LPC2103		' ARMmite | ARMexpress Lite | ARMpro | 
 		#define LPC2103 LPC2103
 		#warning TARGET: LPC2103
 		#define _tgtid	"LPC2103"
 		#define _tgtnm	"NXP LPC2103"
-		#define _tgtspecs "70MHz 32K * 8K"
+		#define _tgtspecs "ARM7TDMI-S (r4p3) @ 70MHz w/ 32K & 8K"
 		#define _tgtmem	32
 		
 	#elif defined LPC2106	' ARMexpress
@@ -14,7 +16,7 @@
 		#warning TARGET: LPC2106
 		#define _tgtid	"LPC2106"
 		#define _tgtnm	"NXP LPC2106"
-		#define _tgtspecs "60MHz 128K * 64K"
+		#define _tgtspecs "ARM7TDMI-S (r4p3) @ 60MHz w/ 128K & 64K"
 		#define _tgtmem	128
 		
 	#elif defined LPC2138	' ARMweb/ARMconnect | DINbase
@@ -22,7 +24,7 @@
 		#warning TARGET: LPC2138
 		#define _tgtid	"LPC2138"
 		#define _tgtnm	"NXP LPC2138"
-		#define _tgtspecs "60MHz 512K * 32K"
+		#define _tgtspecs "ARM7TDMI-S (r4p3) @ 60MHz w/ 512K & 32K"
 		#define _tgtmem	512
 
 	#elif defined LPC1114	' BASICchip | PROstart
@@ -30,7 +32,7 @@
 		#warning TARGET: LPC1114
 		#define _tgtid	"LPC1114"
 		#define _tgtnm	"NXP LPC1114"
-		#define _tgtspecs "50MHz 32K * 8K"
+		#define _tgtspecs "Cortex M0 (r0p0) @ 50MHz w/ 32K & 8K"
 		#define _tgtmem	32
 
 	#elif defined LPC1751 || defined LPC1756 || defined LPC1758 || defined LPC4078  ' Super8 | Super Pro | ...
@@ -74,7 +76,7 @@
 		#warning TARGET: LPC824
 		#define _tgtid	"LPC824"
 		#define _tgtnm	"NXP LPC824"
-		#define _tgtspecs "30MHz 32K * 8K"
+		#define _tgtspecs "Cortex M0+ (r0p1) @ 30MHz w/ 32K & 8K " & _crlf_ & "Thumb/NVIC/AMBA/SWD"
 		#define _tgtmem 32
 		
 	#elif defined LPC11U37 || defined LPC1137 ' ARMstamp
@@ -82,7 +84,7 @@
 		#define LPC1137 LPC1137
 		#define _tgtid	"LPC11U37/LPC1137"
 		#define _tgtnm	"NXP LPC11U37/LPC1137"
-		#define _tgtspecs "50MHz 128K * 8K+2K (w/ 4K EPROM)"
+		#define _tgtspecs "Cortex M0 (r0p0) @ 50MHz w/ 128K & 8K+2K (w/ 4K EPROM) " & _crlf_ & "Thumb/Thumb-2/NVIC/AMBA/SWD"
 		#define _tgtmem 128
 
 	#elif defined LPC54102	' ARMdrino | ARMniobe
@@ -90,7 +92,7 @@
 		#warning TARGET: LPC54102
 		#define _tgtid	"LPC54102"
 		#define _tgtnm	"NXP LPC54102"
-		#define _tgtspecs "100MHz 512K x 104K | Cortex M4 (r0p1) w/ IEEE754 FPU & Thumb|Thumb-2/NVIC/AMBA/MPU/SWD | Cortex M0+ (r0p1) w/ Thumb|Thumb-2/NVIC/AMBA/SWD"
+		#define _tgtspecs "Cortex M4 w/ IEEE754 FPU (r0p1) & Cortex M0+ (r0p1) @ 100MHz w/ 512K & 104K " & _crlf_ & "M4: Thumb/Thumb-2/NVIC/AMBA/MPU/SWD | M0+: Thumb/Thumb-2/NVIC/AMBA/SWD"
 		#define _tgtmem 512
 
 	#endif ' done with verbosity stuffs

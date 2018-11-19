@@ -5,7 +5,9 @@
 '
 '
 '	'  Revision History
-'
+'v 1.02		15Nov18 Maintenance/UI Tweaks
+'	•	added #include to enable verbosity of target vitals	
+'	•	tweaked the runtime UI a bit and added descriptive/narrative output
 'v 1.01		02Oct18	Maintenance/Bug Fix Update
 '	•	typos fixed, comments added, defaults manipulated a bit, refactored again, etc.
 '	•	Had a pretty big issue with how I was handling resolution limiting - resolved by 
@@ -13,6 +15,12 @@
 '
 'v 1.00		02Oct18	Initial Release
 '	•	ample comments/diatribe and code are descriptive of initial implementation
+'
+' TODO/FIXME: 	
+'	1)	See value of best way to implement a means to an end for extreemly long testing
+'		as the 2^31 uS timer rolls over every 35.791394133333333333333333333333 minutes
+'	2)	See if there is a means to use NVRam to trigger a 'first run' context, and delay
+'		the code on the first run after flashing only
 '
 '========================================================================================
 #define _Construct_Timing_Tester_Version "1.02"
@@ -27,12 +35,30 @@
 // Also note that I make use of // in addition to ' to impute comments
 // considering my ARMbasic language definition in NPP allows for toggling single line comments, 
 // which I use to quickly enable/disable code blocks.  By making use of // comments,
-// same isn't accidently uncommented when I select a larger code block for uncommenting...
+// same isn't/aren't accidently uncommented when I select a larger code block for uncommenting...
 
 '~~ // #DEFS/#INCLUDES FOR THE TEST CONSTRUCTS HERE <----== IF NEEDED, HERE IS WHERE TO DO IT
 // do any #defines/#includes here as needed for the test constructs, or setup thereof
 '#define something_used_by_#included libs
 '#include "x:\somefolder\somefile.lib"
+'~
+
+'~~ // THESE ARE THE TESTING TOOL CONFIGS - EDIT AS NEEDED, MAKING NOTE OF COMMENTS HERE
+#define _test_density 10000		// the quantity of loop test per iteration
+								// recommend 10K to 1M to allow settling, unless test construct is dense/lengthy
+								
+#define _test_iterations 10		// used to determine how many iterations of _test_density loops are used in 
+								// developing averages - Min 2, suggest 4 to 10, unless test construct is dense/lengthy
+ '~
+
+'~~ //	test variables - leave these be
+#define _net 0
+#define _null_loop 1
+#define _testConstruct_loop 2
+#define  _spf_format_start Test_Construct_Name & " %1.9f "
+#define  _spf_format_end " on " & _tgtid
+dim _looptime(2), _times(_test_iterations), _time_sum, _net_time as single
+dim _start, _fin, _i, _x, _itime, _presolution, first_run as integer
 '~
 
 '~~ // testing constructs initialization (#defs) here   - leave these be & redefine below
@@ -132,18 +158,22 @@ _do_test_setup:
 '~~ // leave the rest of this code block & _pre_process sub be (used for test)
 	return
 sub _pre_process
-	print chr(0xC)
-	print "ARMbasic Construct Timing Test Tool v";_Construct_Timing_Tester_Version;" on ";_tgtnm & " (" & _tgtspecs & ")"
-	print "=============================================================================="
+	print "Press Enter to continue"
+	debugin _itime
+	print chr(0xC)	' clears the BT TCLTerm Console
+	print "ARMbasic Construct Timing Test Tool v";_Construct_Timing_Tester_Version;" on ";_tgtnm
+	print _tgtspecs
+	print "================================================================================"
 	' print
 	' print "Resetting Timer - BT' ";chr(34);"... Finished in xxx ms";chr(34);" will be violated - ignore it..."
 	print
-	timer = 0	// elected to reset the timer given liklihood that user test constructs could run a log time here
+	_itime=timer		// grab timer for restoration at the end, as this tool violates it pretty effin hard...
+	timer = 0	// elected to reset the timer given liklihood that user test constructs could run a long time here
 				// and having a timer rollover could be counterproductive/error inducing/bad
 				// a FIXME, maybe?  (dealing with a rollover programatically, or checking and tossing an error if likely.?.) 
 				// I dunno.  Muh gray matter hurts.
 	goto _do_test_setup
-endsub	'~	
+	endsub	'~	
 
 '~~ // CODE THE TEST CONSTRUCTS HERE  <-----== THIS SECTION IS WHERE THE USER TEST CONSTRUCTS ARE INSTANTIATED 
 	// Some samples follow.  If you comment everything out, the tool will still work (default null constructs above...).
@@ -160,10 +190,13 @@ endsub	'~
 	#define Test_Construct_Code0		' null
 	#define Test_Construct_Code1		' null
 
-// the rest of these are samples (actual constructs I used to generate sample device-specific timings in the forum post)
+ // the rest of these are samples (actual constructs I used to generate sample device-specific timings in the forum post)
 
 	' #define Test_Construct_Name 	   "'intvar=timer'"
 	' #define Test_Construct_Code0		j = timer
+
+	#define Test_Construct_Name 	   "'intvar=int'"
+	#define Test_Construct_Code0		j=$55555555
 
 	' #define Test_Construct_Name 	   "'intvar=intvar'"
 	' #define Test_Construct_Code0		j=k
@@ -181,11 +214,11 @@ endsub	'~
 	' #define Test_Construct_Code0		interrupt(0)
 	' #define Test_Construct_Code1		interrupt(1)
 
-	' #define Test_Construct_Name 	   "'FNLoop - 1000'"
+	' #define Test_Construct_Name 	   "'FNLoop - 1000 loops'"
 	' #define Test_Construct_Code0		For x=0 to 1000
 	' #define Test_Construct_Code1		next x
 
-	' #define Test_Construct_Name 	   "'FNLoop - 100'"
+	' #define Test_Construct_Name 	   "'FNLoop - 100 loops'"
 	' #define Test_Construct_Code0		For x=0 to 100
 	' #define Test_Construct_Code1		next x
 
@@ -227,24 +260,6 @@ sub _post_process
 	until SortEndIdx >= SortArrayElements
  */
 endsub	'~
-
-'~~ // these are the testing tool configs - edit as needed, making note of comments here
-#define _test_density 10000		// the quantity of loop test per iteration
-								// recommend 10K to 1M to allow settling, unless test construct is dense/lengthy
-								
-#define _test_iterations 10		// used to determine how many iterations of _test_density loops are used in 
-								// developing averages - Min 2, suggest 4 to 10, unless test construct is dense
- '~
-
-'~~ //	test variables - leave these be
-#define _net 0
-#define _null_loop 1
-#define _testConstruct_loop 2
-#define  _spf_format_start Test_Construct_Name & " %1.9f "
-#define  _spf_format_end " on " & _tgtid
-dim _looptime(2), _times(_test_iterations), _time_sum, _net_time as single
-dim _start, _fin, _i, _x, _itime, _presolution as integer
-'~
 
 sub _get_test_loop_overhead		// uses globals - using DU loops for test loops, as they are fastest - shouldn't need to mess with this...
 	_x=1
@@ -317,10 +332,15 @@ sub _test_code_constructs	// uses globals - using DU loops for test loops, as th
 
 endsub
 
-main:							// the main test app code - using DU loops for test loops, as they are fastest - shouldn't need to mess with this...
+main:					// the main test app code - using DU loops for test loops, as they are fastest - shouldn't need to mess with this...
 
-	_itime=timer		// grab timer for restoration at the end, as this violates it pretty hard...
+'	_itime=timer		// grab timer for restoration at the end, as this tool violates it pretty effin hard...
 	_pre_process
+	print "Performing "&_test_iterations&" iterations of "&_test_density&" loops of test construct to develop averages."
+	print "First pass data are omitted from results due to consistent runtime overhead,"
+	print "which is perceived to be AB firmware related (i.e. user AB app startup)..."
+	print "--------------------------------------------------------------------------------"
+	print
 	print "Testing ";Test_Construct_Name;": ";
 	_get_test_loop_overhead
 	print " | ";
@@ -347,6 +367,6 @@ main:							// the main test app code - using DU loops for test loops, as they a
 	endif
 
 	// restore timer - pretty closely.?.
-	timer = _itime + (_looptime(_testConstruct_loop)*_test_density*_test_iterations) + (_looptime(_null_loop)*_test_density*_test_iterations) + 141000  ' for processing o/h (effin close enough)
+	timer = _itime + timer  ' restored
 	
 end

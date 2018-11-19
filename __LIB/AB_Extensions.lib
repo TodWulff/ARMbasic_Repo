@@ -381,7 +381,7 @@
 	'==============================================================================
 	' Random Goodness
 	'==============================================================================
-	FUNCTION RAND_BIT_WIDTH(SEED AS INTEGER, BIT_WIDTH AS INTEGER) AS INTEGER '~11US
+	function rand_bit_width(seed as integer, bit_width as integer) as integer '~11us
 	' SEED 0 TO 65535, BITWIDTH = 0 TO 31...
 	dim _ABE_i as integer
 	if BIT_WIDTH <=16
@@ -392,7 +392,7 @@
 	endif
 	ENDFUNCTION
 	'==============================================================================
-	FUNCTION RAND_MIN_MAX(SEED AS INTEGER, MIN AS INTEGER, MAX AS INTEGER) AS INTEGER '~25 - 150US
+	function rand_min_max(seed as integer, min as integer, max as integer) as integer '~25 - 150us
 	' SEED 0 TO 65535, MIN/MAX = 0 TO 65535 - RETURNS MIN TO MAX, INCLUSINVE...
 		DIM X AS INTEGER
 		DIM SHFT AS INTEGER
