@@ -4,11 +4,12 @@
 #pragma filepp SetBlankSupp 0
 #pragma filepp SetWordBoundaries 0
 
+#define ABmt_TasksLoaded 1
 #include "ABmt_Tasks\54102Blinky.bas"
+#define ABmt_TasksLoaded add(ABmt_TasksLoaded,1)
 #include "ABmt_Tasks\54102Printy.bas"
 
 #pragma filepp SetWordBoundaries 1
-
 
 #undef main:	
 #undef end		
