@@ -1,0 +1,14 @@
+#ifdef ABmt_SchedulerCompile
+	#warning ===================================================================
+	#warning BUILDING TASK
+	#warning ===================================================================
+	
+	// This depends on use of FilePP with word boundaries being turned off.!.
+	#define main:	sub ABmt_Task_ABmt_TaskID
+	#define end		endsub
+
+#else
+	#warning ===================================================================
+	#warning BUILDING APP
+	#warning ===================================================================
+#endif
