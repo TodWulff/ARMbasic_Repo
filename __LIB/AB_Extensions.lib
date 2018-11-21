@@ -14,7 +14,9 @@
 '
 '========================================================================================
 
-#include "__lib\ARMbasicTargetVitals.lib"
+' #pragma filepp SetWordBoundaries 1
+
+#include "..\__lib\ARMbasicTargetVitals.lib"
 
 #ifndef ARMbasic_Extensions
 '-----------------------------------------------------------------------------------------------------------------------------

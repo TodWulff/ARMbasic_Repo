@@ -1,3 +1,4 @@
+#define ABmt_NewTask
 #define ABmt_TaskID 1
 #define ABmt_TaskName 54102_Blinky
 #include "..\ABmt_Lib\ABmt_TaskWrapper.lib"
@@ -14,7 +15,9 @@ main:
 
 	while i>0
 		out(_54102_Blinky_led_port) = i and 1
-		wait(_54102_Blinky_LEDDwell)
+		print chr(if(i mod 2 = 0,"#","-"));
+		wait(_54102_Blinky_LEDDwell) ' so ti can be seen
 		i -= 1
 		loop
+		print
 end
