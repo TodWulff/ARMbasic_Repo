@@ -1,7 +1,11 @@
+'the lack of a 'single-load' #ifndef construct here is intentional.
+'this #include is a wrapper for each task and is meant to be reloaded for each task
+'so that the non-boundary (intra-token) expansion of ABMt_TaskID can be customized for each task...
+
 #ifdef ABmt_SchedulerCompile
-	#warning ===================================================================
-	#warning BUILDING TASK  __FILE__
-	#warning ===================================================================
+	#warning ==================='================================================
+	#warning BUILDING TASK ' __FILE__
+	#warning ==================='================================================
 	
 	// This depends on use of FilePP with word boundaries being turned off.!.
 	#define main:	sub ABmt_Task_ABmt_TaskID
@@ -17,7 +21,7 @@
 	' #define ABmt_TasksLoaded ABmt_TasksCount
 
 #else
-	#warning ===================================================================
-	#warning BUILDING APP  __FILE__
-	#warning ===================================================================
+	#warning ==================='================================================
+	#warning BUILDING APP ' __FILE__
+	#warning ==================='================================================
 #endif

@@ -16,7 +16,7 @@ main:
 	while i>0
 		out(_54102_Blinky_led_port) = i and 1
 		print chr(if(i mod 2 = 0,"#","-"));
-		wait(_54102_Blinky_LEDDwell) ' so ti can be seen
+		wait(_54102_Blinky_LEDDwell) ' so it can be seen
 		i -= 1
 		loop
 		print

@@ -14,9 +14,11 @@
 '
 '========================================================================================
 
-' #pragma filepp SetWordBoundaries 1
-
-#include "..\__lib\ARMbasicTargetVitals.lib"
+#ifdef __CORIDIUM__		' we're using BT's BPP and as such this relative path works
+	#include "ARMbasicTargetVitals.lib"
+#else	' with FilePP, path resolution behavior is different than BT's BPP
+	#include "..\__lib\ARMbasicTargetVitals.lib"
+#endif
 
 #ifndef ARMbasic_Extensions
 '-----------------------------------------------------------------------------------------------------------------------------
