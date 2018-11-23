@@ -1,6 +1,3 @@
-' initial run last for ~6-10 seconds, MRT will starve, firing the isr & then the handler w/ a console emission 
-' second and subsequent periods should be ~3-5s between interrupts/console emissions
-
 #define CORE_M4						' needed for this dual core device, & given we're working with the NVIC on the M4
 #include "LPC54102.bas"				' needed for the header #defs 
 
