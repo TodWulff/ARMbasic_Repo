@@ -29,9 +29,9 @@ main:
 	SYSCON_SYSAHBCLKCTRL or= (1<<10)	' set the MRT bit to enable the clock to the register interface.
 	SYSCON_PRESETCTRL or= (1<<7) 		' Clear reset to the MRT.
 	
-	MRT_Channel0_INTVAL = 0x1D4C0				' immediately load the MRT IntVal
-	'54102	= 100hz = 0xEA600	250Hz=0x5DC00	500Hz=0x2EE00	1000Hz=0x17700
+	MRT_Channel0_INTVAL = 0x493E0				' immediately load the MRT IntVal
 	'824	= 100hz = 0x493E0	250Hz=0x1D4C0	500Hz=0xEA60	1000Hz=0x7530
+	'max is 0x7FFFFFFF  which is 71.6 Seconds
 
 	
 	
