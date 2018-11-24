@@ -1,6 +1,7 @@
 #include "LPC8xx.bas"				' needed for the header #defs 
 
-#define MRT_IRQ_GFLAG 	   *0x400040F8
+#define MRT_IRQ_GFLAG 	   *0x400040F8			'mia from LPC8xx lib
+#define MRT_Channel0_TIMER       *&H40004004		'fix an error in LPC8xx lib
 
 
 _MRT_InitGlobals:
@@ -29,9 +30,9 @@ main:
 	SYSCON_SYSAHBCLKCTRL or= (1<<10)	' set the MRT bit to enable the clock to the register interface.
 	SYSCON_PRESETCTRL or= (1<<7) 		' Clear reset to the MRT.
 	
-	MRT_Channel0_INTVAL = 0x493E0				' immediately load the MRT IntVal
+	MRT_Channel0_INTVAL = 0x81C9C380				' immediately load the MRT IntVal
 	'824	= 100hz = 0x493E0	250Hz=0x1D4C0	500Hz=0xEA60	1000Hz=0x7530
-	'max is 0x7FFFFFFF  which is 71.6 Seconds
+	'max is 0x7FFFFFFF  which is 71.6 Seconds  -  set b31 too, to force immediate load, per UM.
 
 	
 	
@@ -45,7 +46,7 @@ main:
 
 	do
 		if MRT_INT_Flag then _MRT_INT_Handler
-'		print MRT_TIMER(0)
+		print MRT_Channel0_TIMER
 	loop
 	
 end
