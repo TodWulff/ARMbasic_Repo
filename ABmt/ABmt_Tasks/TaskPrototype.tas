@@ -1,6 +1,6 @@
 ' ========================================================================================
 '
-'	ABmt (Multi-Threaded ARMbasic): 54102_Blinky Task File
+'	ABmt (Multi-Threaded ARMbasic): Prototype Task File
 '
 '
 '	'  Revision History
@@ -14,13 +14,13 @@
 '
 ' ========================================================================================
 
-#ifndef ABmt_54102_Blinky_TaskVersion			' 'single Load' construct
-#define ABmt_54102_Blinky_TaskVersion	"0.02"
+#ifndef ABmt_TASKNAMEHERE_TaskVersion			' 'single Load' construct
+#define ABmt_TASKNAMEHERE_TaskVersion	"0.02"
 
 #define ABmt_NewTask
-#define ABmt_TaskID 1
-#define ABmt_TaskPriority 1
-#define ABmt_TaskName "54102_Blinky"
+#define ABmt_TaskID TASKNUMHERE			' This is a manually assigned (future automagic assigned) literal int #
+#define ABmt_TaskPriority TASKPRIHERE	' This is a manually assigned literal int #
+#define ABmt_TaskName "TASKNUMHERE"		' This is a manually assigned literal string
 #include "..\ABmt_Lib\ABmt_TaskWrapper.lib"
 
 #define _54102_Blinky_LEDDwell	50

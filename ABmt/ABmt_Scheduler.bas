@@ -19,7 +19,7 @@
 '		- ID, Priority, State
 '			- TaskID is a 12-bit construct (1-4095)  (too big?)
 '			- TaskPriority is an 8 bit construct 0 to 255 - 0 is lowest (IDLE) and 255 is the highest (scheduler task)
-'			- TaskState is a 3 bit construct - Ready|Running|Waiting|Blocked|Suspended|Dormant|Killed
+'			- TaskState is a 4 bit construct - Ready|Running|Waiting|Blocked|Suspended|Dormant|Killed
 '				https://www.tron.org/wp-content/themes/dp-magjam/pdf/t-kernel_2.0/html_en/task_states_and_scheduling_rules.html
 '		- name, etc.
 '		- consider adding structure elements to deliniate task type (functionality) indicator (peripheral use, int use, ISR, 
@@ -57,6 +57,7 @@
 
 	#include "ABmt_Config\ABmt_AppConfig.cfg"
 	#include "ABmt_Config\ABmt_TaskConfig.cfg"
+	#include "ABmt_Config\ABmt_Tasks.cfg"
 
 	// ABE #Include Prototype
 	' #define ABE_Generic				' Generic #defs to ease programming
