@@ -1,3 +1,22 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): 54102_Blinky Task File
+'
+'
+'	'  Revision History
+'
+'v 0.01		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+' 	-	add checks here to ensure version compatibility between this and the Scheduler
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+#ifndef ABmt_54102_Blinky_TaskVersion			' 'single Load' construct
+#define ABmt_54102_Blinky_TaskVersion	"0.01"
+
 #define ABmt_NewTask
 #define ABmt_TaskID 1
 #define ABmt_TaskPriority 1
@@ -16,9 +35,12 @@ main:
 
 	while i>0
 		out(_54102_Blinky_led_port) = i and 1
-		print chr(if(i mod 2 = 0,"#","-"));
+		print chr(if(i mod 2 = 0,"#","-"));	'~
 		wait(_54102_Blinky_LEDDwell) ' so it can be seen
 		i -= 1
 		loop
 		print
 end
+
+#endif
+

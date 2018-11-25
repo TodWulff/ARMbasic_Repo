@@ -1,3 +1,21 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): Ticker - Task Time Slice Interrupt Driver
+'
+'
+'	'  Revision History
+'
+'v 0.01		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+#ifndef ABmt_TickerLibVersion			' 'single Load' construct 
+#define ABmt_TickerLibVersion	"0.01"
+
 #define CORE_M4						' needed for this dual core device, & given we're working with the NVIC on the M4
 #include "LPC54102.bas"				' needed for the header #defs
 
@@ -47,10 +65,10 @@ sub ABmt_Ticker_INT_Config(ABmt_TaskSwitch_FreqHz as integer)
 	SCB_PRESETCTRL(1) and= 0xFFFFFFFE 		' Clear reset to the MRT.
 	
 	MRT_INTVAL(0) = ABmt_MRT_TimerConstant or $80000000				' b31 = 1 for immediately load the MRT IntVal
-	'100hz = 0x800EA600	250Hz=0x8005DC00	500Hz=0x8002EE00  1000Hz=0x80017700 -  b31 set too per UM.
+/* 	'100hz = 0x800EA600	250Hz=0x8005DC00	500Hz=0x8002EE00  1000Hz=0x80017700 -  b31 set too per UM.
 	'max is 0x80FFFFFF  which is ~175mS - I don't get why the time range is so different from the 824 design
 	'but it is what it is - per the UM:  24-bit interrupt timer clocked from CPU clock
-	
+ */	
 	MRT_CTRL(0) = 0x00000001				' enable TIMERn Interrupt in repeat interrupt mode
 
 	' default MRT int priority is fine - so noeffwidit
@@ -67,3 +85,4 @@ sub ABmt_Ticker_INT_Enable
 
 	endsub
 
+#endif

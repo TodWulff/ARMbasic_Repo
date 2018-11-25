@@ -1,6 +1,6 @@
 ' ========================================================================================
 '
-'	ABmt - Multi-Threaded ARMbasic Context Switch Support Lib File
+'	ABmt (Multi-Threaded ARMbasic): Context Switch Support Lib File
 '
 '
 '	'  Revision History
@@ -13,6 +13,12 @@
 '	-	lots of other stuff... :)
 '
 ' ========================================================================================
+
+#ifndef ABmt_ContextLibVersion			' 'single Load' construct 
 #define ABmt_ContextLibVersion	"0.01"
 
+
+
+
+#endif
 

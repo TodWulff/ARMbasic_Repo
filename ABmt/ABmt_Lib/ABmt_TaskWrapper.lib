@@ -1,3 +1,22 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): Task Wrapper Lib File
+'
+'
+'	'  Revision History
+'
+'v 0.01		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+' 	-	add checks here to ensure version compatibility between this and the Scheduler
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+'~~ // /* #ifndef ABmt_TaskWrapperLibVersion			' 'single Load' construct intentionally disabled...*/ 
+#define ABmt_TaskWrapperLibVersion	"0.01"
+
 'the lack of a 'single-load' #ifndef construct here is intentional.
 'this #include is a wrapper for each task and is meant to be reloaded for each task
 'so that the non-boundary (intra-token) expansion of ABMt_TaskID can be customized for each task...
@@ -25,3 +44,6 @@
 	#warning BUILDING APP ' __FILE__
 	#warning ==================='================================================
 #endif
+
+'~ // /* #endif	*/
+

@@ -1,3 +1,21 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): WDT - Watchdog Timer Interrupt Driver
+'
+'
+'	'  Revision History
+'
+'v 0.01		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+#ifndef ABmt_WDTLibVersion			' 'single Load' construct 
+#define ABmt_WDTLibVersion	"0.01"
+
 #define CORE_M4
 #include "LPC54102.bas"
 
@@ -36,3 +54,7 @@ sub ABmt_WDT_Init(wd_TOPeriod_Secs as single)
 	// the wdt is initialized, just need to feed it to start it.
 	
 	endsub
+
+	
+#endif
+	

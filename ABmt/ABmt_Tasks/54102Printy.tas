@@ -1,3 +1,22 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): 54102_Printy Task File
+'
+'
+'	'  Revision History
+'
+'v 0.01		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+' 	-	add checks here to ensure version compatibility between this and the Scheduler
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+#ifndef ABmt_54102_Printy_TaskVersion			' 'single Load' construct
+#define ABmt_54102_Printy_TaskVersion	"0.01"
+
 #define ABmt_NewTask
 #define ABmt_TaskID 2
 #define ABmt_TaskPriority 1
@@ -12,9 +31,11 @@ main:
 	i = _54102_Printy_Cycles
 
 	while i>0
-		print chr(if(i mod 2 = 0,"+","*"));
+		print chr(if(i mod 2 = 0,"+","*"));	'~
 		' wait(_54102_Printy_Dwell)
 		i -= 1
 		loop
 		print
 end
+
+#endif

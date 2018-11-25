@@ -1,6 +1,6 @@
 ' ========================================================================================
 '
-'	ABmt - Multi-Threaded ARMbasic Scheduler
+'	ABmt (Multi-Threaded ARMbasic): Scheduler
 '
 '
 '	'  Revision History
@@ -14,6 +14,7 @@
 '
 ' ========================================================================================
 #define ABmt_SchedulerVersion	"0.01"
+
 #define ABmt_SchedulerCompile
 
 #include "ABmt_Config\ABmt_AppConfig.cfg"
