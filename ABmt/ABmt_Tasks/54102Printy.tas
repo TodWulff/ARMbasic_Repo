@@ -1,5 +1,6 @@
 #define ABmt_NewTask
 #define ABmt_TaskID 2
+#define ABmt_TaskPriority 1
 #define ABmt_TaskName 54102_Printy
 #include "..\ABmt_Lib\ABmt_TaskWrapper.lib"
 

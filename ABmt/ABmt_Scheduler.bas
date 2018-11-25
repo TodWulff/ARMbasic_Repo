@@ -1,6 +1,6 @@
 ' ========================================================================================
 '
-'	ABmt Multi-Threaded ARMbasic Scheduler
+'	ABmt - Multi-Threaded ARMbasic Scheduler
 '
 '
 '	'  Revision History
@@ -9,30 +9,15 @@
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
 ' TODO/FIXME: 	
-' 	-	have a ABmt_SchedulerConfig #include and move stuff to there to ease app use
-' 	-	have a ABmt_TaskConfig #inc to ease use/user config
-'		have #incs therein for the actual task code
-'		have task timing stuffs therein
-'		eventually have other task related stuffs therein (heap size, priorities, etc.)
-'	-	need to count included tasks automagically - might need filepp's math to do so.?. 
-'		for now, it is declared
+' 	-	incorporate task context switching
 '	-	lots of other stuff... :)
 '
 ' ========================================================================================
 #define ABmt_SchedulerVersion	"0.01"
 #define ABmt_SchedulerCompile
 
-#pragma filepp SetWordBoundaries 1
-' #define ABmt_TasksLoaded 0
-#pragma filepp SetBlankSupp 0
-#pragma filepp SetWordBoundaries 0
-' #define ABmt_TasksLoaded 0
-#undef ABmt_NewTask
-#include "ABmt_Tasks\54102Blinky.bas"
-#include "ABmt_Tasks\54102Printy.bas"
-#pragma filepp SetWordBoundaries 1
-#undef main:
-#undef end
+#include "ABmt_Config\ABmt_AppConfig.cfg"
+#include "ABmt_Config\ABmt_TaskConfig.cfg"
 
 // ABE #Include Prototype
 ' #define ABE_Generic				' Generic #defs to ease programming
@@ -56,22 +41,24 @@
 	#include "..\__lib\AB_Extensions.lib"
 #endif
 
-
 #include "ABmt_Lib\ABmt_WDT.lib"
-#define ABmt_WDT_TOPeriod_Seconds 5.0
-
-' move these to a ABmt_SchedulerConfig #include
-' for now, just declare
-#define _ABmt_MaxTasks	16
-#define _ABmt_TaskSwitch_FreqHz	10
-
 #include "ABmt_Lib\ABmt_Ticker.lib"
+#include "ABmt_Lib\ABmt_ContextSwitch.lib"
 
 
-' need to count included tasks automagically
-' might need filepp's math to do so.?.
-' for now, it is declared
-#define _ABmt_TaskCount 2
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 '=============================================
@@ -83,7 +70,6 @@ ABmt_Task_0:		'~~ // This is so that the scheduler's entry point is known
 
 ABmt_TaskRestart:	'~~ // This is task restart token
 	goto main1		'~
-	
 sub ABmt_ResetTimer()	
 	timer = 0
 	endsub
@@ -131,9 +117,9 @@ sub ABmt_TaskInit
 	
 	print "User Tasks Indexed: "; ABmt_TaskCount," T: ";timer
 	
-	ABmt_WDT_Init(ABmt_WDT_TOPeriod_Seconds)
+	ABmt_WDT_Init(_ABmt_WDT_TOPeriod_Seconds)
 	ABmt_WDT_Start
-	print "Configured WDT for timeout in "; ABmt_WDT_TOPeriod_Seconds;" Seconds and fed/started it."," T: ";timer
+	print "Configured WDT for timeout in "; _ABmt_WDT_TOPeriod_Seconds;" Seconds and fed/started it."," T: ";timer
 
 	ABmt_Ticker_INT_Config(_ABmt_TaskSwitch_FreqHz)
 	ABmt_Ticker_INT_Enable
@@ -147,29 +133,29 @@ main:		' ABmt_Task_0
 '	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct
  	dim task_idx, i as integer
 	ABmt_TaskInit
-main1:
-/*	print "--------------------------"
-	i = 1
-	while i<=3
-		task_idx = 1
-		while task_idx <= ABmt_TaskCount
-			print "Task ";task_idx," @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
-			call (ABmt_TaskEntryAddress(task_idx))
-			task_idx += 1
-			wait(250)
-		loop
-		i += 1
-		print "--------------------------"
-	loop
+main1: '~~
+	' print "--------------------------"
+	' i = 1
+	' while i<=3
+		' task_idx = 1
+		' while task_idx <= ABmt_TaskCount
+			' print "Task ";task_idx," @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
+			' call (ABmt_TaskEntryAddress(task_idx))
+			' task_idx += 1
+			' wait(250)
+		' loop
+		' i += 1
+		' print "--------------------------"
+	' loop
 	
-	// commented this out to preserve initial run console emissions
-	' print "Restarting Task Scheduler @: 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
-	' call (ABmt_TaskEntryAddress(0))
+	' // commented this out to preserve initial run console emissions
+	//print "Restarting Task Scheduler @: 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
+	//call (ABmt_TaskEntryAddress(0))
 	
-	' the dbl parens is a bug/feature workaround - forces the expression resolution during compilation...
-	print "Restarting Tasks @: 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
-	goto ABmt_TaskRestart */
-	
+	//the dbl parens is a perceived bug/feature workaround - forces the expression resolution during compilation...
+	' print "Restarting Tasks @: 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
+	' goto ABmt_TaskRestart
+	'~
 	do
 		if ABmt_Ticker_INT_Flag then ABmt_Ticker_INT_Handler
 		' print MRT_TIMER(0)

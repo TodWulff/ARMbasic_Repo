@@ -1,0 +1,18 @@
+' ========================================================================================
+'
+'	ABmt - Multi-Threaded ARMbasic Context Switch Support Lib File
+'
+'
+'	'  Revision History
+'
+'v 0.01		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+' 	-	add checks here to ensure version compatibility between this and the Scheduler
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+#define ABmt_ContextLibVersion	"0.01"
+
+
