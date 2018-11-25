@@ -1,4 +1,3 @@
-' 
 ' ========================================================================================
 '
 '	ABmt Multi-Threaded ARMbasic Scheduler
@@ -57,15 +56,25 @@
 	#include "..\__lib\AB_Extensions.lib"
 #endif
 
+
+#include "ABmt_Lib\ABmt_WDT.lib"
+#define ABmt_WDT_TOPeriod_Seconds 5.0
+
+' move these to a ABmt_SchedulerConfig #include
+' for now, just declare
+#define _ABmt_MaxTasks	16
+#define _ABmt_TaskSwitch_FreqHz	10
+
+#include "ABmt_Lib\ABmt_Ticker.lib"
+
+
 ' need to count included tasks automagically
 ' might need filepp's math to do so.?.
 ' for now, it is declared
 #define _ABmt_TaskCount 2
 
-' move these to a ABmt_SchedulerConfig #include
-' for now, just declare
-#define _ABmt_MaxTasks	16
 
+'=============================================
 #define _ABmt_TaskID 0
 #define _ABmt_TaskName ABmt_Scheduler
 
@@ -84,7 +93,7 @@ ABmt_TaskInit_Globals:	'~~
 	dim ABmt_TaskEntryAddress(_ABmt_MaxTasks) as integer
 return	'~
 
-sub ABmt_TaskInit()
+sub ABmt_TaskInit
 	dim task_idx as integer
 	print chr(0xC);	' clears the BT TCLTerm Console
 	print "ABmt: Multi-Threaded ARMbasic Scheduler v";ABmt_SchedulerVersion;" on ";_tgtnm
@@ -115,39 +124,31 @@ sub ABmt_TaskInit()
 				ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
 			case 2
 				ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_2
-			' case 3
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_3
-			' case 4
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_4
-			' case 5
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_5
-			' case 1
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
-			' case 1
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
-			' case 1
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
-			' case 1
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
-			' case 1
-				' ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
 		endselect
 		print "Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
 		task_idx += 1
 	loop
 	
 	print "User Tasks Indexed: "; ABmt_TaskCount," T: ";timer
+	
+	ABmt_WDT_Init(ABmt_WDT_TOPeriod_Seconds)
+	ABmt_WDT_Start
+	print "Configured WDT for timeout in "; ABmt_WDT_TOPeriod_Seconds;" Seconds and fed/started it."," T: ";timer
+
+	ABmt_Ticker_INT_Config(_ABmt_TaskSwitch_FreqHz)
+	ABmt_Ticker_INT_Enable
+'	print "Configured Task Ticker for "; _ABmt_TaskSwitch_FreqHz;" Hz and started it."," T: ";timer
 
 endsub
 
 main:		' ABmt_Task_0
-	print _uinput("Paused - press enter to continue> ") ' so the programmer can look at BT compile emissions...
+	print _uinput("Startup:  Paused - press enter to continue> ") ' so the programmer can look at BT compile emissions...
 	timer = 0		// this was causing a code hang, dunno why, did't chase it & it is now working...
 '	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct
-	dim task_idx, i as integer
+ 	dim task_idx, i as integer
 	ABmt_TaskInit
 main1:
-	print "--------------------------"
+/*	print "--------------------------"
 	i = 1
 	while i<=3
 		task_idx = 1
@@ -167,6 +168,11 @@ main1:
 	
 	' the dbl parens is a bug/feature workaround - forces the expression resolution during compilation...
 	print "Restarting Tasks @: 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
-	goto ABmt_TaskRestart
+	goto ABmt_TaskRestart */
+	
+	do
+		if ABmt_Ticker_INT_Flag then ABmt_Ticker_INT_Handler
+		' print MRT_TIMER(0)
+	loop
 	
 end

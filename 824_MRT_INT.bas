@@ -30,10 +30,10 @@ main:
 	SYSCON_SYSAHBCLKCTRL or= (1<<10)	' set the MRT bit to enable the clock to the register interface.
 	SYSCON_PRESETCTRL or= (1<<7) 		' Clear reset to the MRT.
 	
-	MRT_Channel0_INTVAL = 0x81C9C380				' immediately load the MRT IntVal
+	MRT_Channel0_INTVAL = 0x80E4E1C0				' immediately load the MRT IntVal
 	'824	= 100hz = 0x493E0	250Hz=0x1D4C0	500Hz=0xEA60	1000Hz=0x7530
 	'max is 0x7FFFFFFF  which is 71.6 Seconds  -  set b31 too, to force immediate load, per UM.
-
+	' 1hz=0x81C9C380  2hz=0x80E4E1C0
 	
 	
 	MRT_Channel0_CTRL = 0x00000001			' enable TIMERn Interrupt in repeat interrupt mode

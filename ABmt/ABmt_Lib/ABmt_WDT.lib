@@ -1,0 +1,38 @@
+#define CORE_M4
+#include "LPC54102.bas"
+
+Sub ABmt_WDT_Start
+	WD_WDFEED = 0xAA
+	WD_WDFEED = 0x55
+	endsub
+
+sub ABmt_WDT_Feed
+	ABmt_WDT_Start
+	endsub
+
+sub ABmt_WDT_Init(wd_TOPeriod_Secs as single)
+	
+	dim wd_clk_period_s as single
+	wd_clk_period_s = 0.000002
+	
+	dim wd_clk_period_cycles as single
+	wd_clk_period_cycles = (wd_TOPeriod_Secs/wd_clk_period_s)/4	' /4 as there is a clk divider of 4
+		
+	// The Watchdog clock (WDCLK) source is the fixed 500 kHz clock (+/- 40%) provided by the low-power watchdog oscillator.
+	SCB_PDRUNCFGCLR or= (1<<20) ' power up the WDT Osc - b20 PDEN_WDT_OSC Watchdog oscillator. 0 = Powered; 1 = Powered down. resets to 1
+	SCB_AHBCLKCTRL(0) or= SYSCON_CLOCK_WWDT ' set the wwdt bit to enable the clock to the register interface.
+	WD_WDTC = wd_clk_period_cycles	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (I think... :)
+	WD_WDMOD or= 0x00000003	' enables WDT (once fed) and config to force a reset if it starves (b0 & b1) 
+	// • Set a value for the watchdog window time in the WINDOW register if windowed operation is desired.
+	' n/a
+	// • Set a value for the watchdog warning interrupt in the WARNINT register if a warning interrupt is desired.
+	' n/a
+	// • Enable the Watchdog by writing 0xAA followed by 0x55 to the FEED register.
+	// • The Watchdog must be fed again before the Watchdog counter reaches zero in order to prevent a watchdog event.
+	// • If a window value is programmed, the feed must also occur after the watchdog counter passes that value.
+	
+	// default wdt int priority is fine - so noeffwidit, for now...
+	
+	// the wdt is initialized, just need to feed it to start it.
+	
+	endsub
