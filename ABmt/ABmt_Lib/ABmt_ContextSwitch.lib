@@ -5,7 +5,7 @@
 '
 '	'  Revision History
 '
-'v 0.01		24Nov18	Initial Release
+'v 0.02		24Nov18	Initial Release
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
 ' TODO/FIXME: 	
@@ -16,7 +16,7 @@
 ' ========================================================================================
 
 #ifndef ABmt_ContextLibVersion			' 'single Load' construct 
-#define ABmt_ContextLibVersion	"0.01"
+#define ABmt_ContextLibVersion	"0.02"
 
 
 

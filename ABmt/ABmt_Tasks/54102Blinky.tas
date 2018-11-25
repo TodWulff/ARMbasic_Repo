@@ -5,7 +5,7 @@
 '
 '	'  Revision History
 '
-'v 0.01		24Nov18	Initial Release
+'v 0.02		24Nov18	Initial Release
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
 ' TODO/FIXME: 	
@@ -15,7 +15,7 @@
 ' ========================================================================================
 
 #ifndef ABmt_54102_Blinky_TaskVersion			' 'single Load' construct
-#define ABmt_54102_Blinky_TaskVersion	"0.01"
+#define ABmt_54102_Blinky_TaskVersion	"0.02"
 
 #define ABmt_NewTask
 #define ABmt_TaskID 1

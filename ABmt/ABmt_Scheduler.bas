@@ -5,6 +5,8 @@
 '
 '	'  Revision History
 '
+'v 0.02		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
 'v 0.01		21Nov18	Initial Release
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
@@ -20,7 +22,8 @@
 '			- TaskState is a 3 bit construct - Ready|Running|Waiting|Blocked|Suspended|Dormant|Killed
 '				https://www.tron.org/wp-content/themes/dp-magjam/pdf/t-kernel_2.0/html_en/task_states_and_scheduling_rules.html
 '		- name, etc.
-'		- consider adding structure elements to deliniate task type (functionality) indicator (peripheral use, int use, ISR, atomicity, helper, etc.)
+'		- consider adding structure elements to deliniate task type (functionality) indicator (peripheral use, int use, ISR, 
+'			atomicity vs. multiple instances, root vs. helper/callable, INT masking, peripheral blocking (mutex/sema use), etc.)
 '		- consider adding structure elements to deliniate task int callback - might not have any ROI.?.
 '			- no INT callback
 '			- 'pre' INT callback - grab current VIC Addy, store it, replace it with the task pointer, then call the 
@@ -30,22 +33,23 @@
 '				the stored context and then pop it, to return to pre-ISR code execution
 '	-	revisit my required use of filepp as it is not portable for other users
 '		- see if BPP can do math somehow
-'		- see if BPP can be foreced to expand macros w/o word-boundaries
-'		- right now, taskname is automagically altered in a .tas source during preprocessing to become a sequenced sub
+'		- see if BPP can be forced to expand macros w/o word-boundaries
+'		- right now, main: is automagically altered in a .tas source during preprocessing to become a sequenced sub
 '			name, by way of the TaskWrapper and FilePP
 '			- 'main:' is changed via [#define main:	sub ABmt_Task_ABmt_TaskID]
-'			- and the ABmt_TaskID is then macro-expanded to the TaskID literal value
+'			- and then, the ABmt_TaskID portion is then macro-expanded to the TaskID literal value
 '			- 'end' is changed via [#define end		endsub]
 '			- BPP can't replace main:, only main - the colon effs with BPP
 '			- BPP can't do non-word boundary mancro expansions - i.e. foo macro bar  vs. foo_macro_bar - BPP expands 
-'				the former, but cant do so on the latter, I believe
+'				the former, but cant do so on the latter, I perceive (based on testing)
 '			- Automation of these items is the primary reason for using FilePP vs. BPP
-'			- Being lazy might not be justification enough to keep folks from using this or changing their setup...
+'			- Being lazy (tool chain automation/work-flow improvers) might not be justification enough to keep folks from using this,
+'				or forcing them to changing their setup.  This may have major implications for non windows types...
 '	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 only, currently), and other devices eventually...
 '	-	lots of other stuff... :)
 '
 ' ========================================================================================
-#define ABmt_SchedulerVersion	"0.01"
+#define ABmt_SchedulerVersion	"0.02"
 
 #define ABmt_SchedulerCompile
 
