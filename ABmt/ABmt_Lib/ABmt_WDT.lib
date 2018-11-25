@@ -8,7 +8,10 @@
 'v 0.01		24Nov18	Initial Release
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
-' TODO/FIXME: 	
+' TODO/FIXME: 
+'	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 currently)
+'	-	add check at instantiation to see if the WDT is recovering from a hunger reset
+'		and if so, take appropriate actions (logs, debug dumps, etc.).?.
 '	-	lots of other stuff... :)
 '
 ' ========================================================================================

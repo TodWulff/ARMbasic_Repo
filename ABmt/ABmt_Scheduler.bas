@@ -8,8 +8,40 @@
 'v 0.01		21Nov18	Initial Release
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
-' TODO/FIXME: 	
-' 	-	incorporate task context switching
+' TODO/FIXME: 
+' 	-	incorporate task context switching  <-- highest priorityh
+'	-	Consider creating a default task prototype that can be used to code up new tasks easily
+'	-	Consider an idle 'helper' task to set a wakeup timer and then sleep/low power/...
+'	-	Continue to mull on priority inheritence - might be useful for interatively ran 'helper' tasks that are activated by other tasks
+'	-	Consider creating a task structure with stuffs in RAM as an array for each instantiated task
+'		- ID, Priority, State
+'			- TaskID is a 12-bit construct (1-4095)  (too big?)
+'			- TaskPriority is an 8 bit construct 0 to 255 - 0 is lowest (IDLE) and 255 is the highest (scheduler task)
+'			- TaskState is a 3 bit construct - Ready|Running|Waiting|Blocked|Suspended|Dormant|Killed
+'				https://www.tron.org/wp-content/themes/dp-magjam/pdf/t-kernel_2.0/html_en/task_states_and_scheduling_rules.html
+'		- name, etc.
+'		- consider adding structure elements to deliniate task type (functionality) indicator (peripheral use, int use, ISR, atomicity, helper, etc.)
+'		- consider adding structure elements to deliniate task int callback - might not have any ROI.?.
+'			- no INT callback
+'			- 'pre' INT callback - grab current VIC Addy, store it, replace it with the task pointer, then call the 
+'				orig ISR after the task ISR runs - the ISR exit should restore to pre-ISR code execution.
+'			- 'post' INT callback - grab current pop state from the stack, store it, replace it with the task pointer,
+'				then when the orig ISR pops, execution should go to the 'post' task ISR code, execute and then replace
+'				the stored context and then pop it, to return to pre-ISR code execution
+'	-	revisit my required use of filepp as it is not portable for other users
+'		- see if BPP can do math somehow
+'		- see if BPP can be foreced to expand macros w/o word-boundaries
+'		- right now, taskname is automagically altered in a .tas source during preprocessing to become a sequenced sub
+'			name, by way of the TaskWrapper and FilePP
+'			- 'main:' is changed via [#define main:	sub ABmt_Task_ABmt_TaskID]
+'			- and the ABmt_TaskID is then macro-expanded to the TaskID literal value
+'			- 'end' is changed via [#define end		endsub]
+'			- BPP can't replace main:, only main - the colon effs with BPP
+'			- BPP can't do non-word boundary mancro expansions - i.e. foo macro bar  vs. foo_macro_bar - BPP expands 
+'				the former, but cant do so on the latter, I believe
+'			- Automation of these items is the primary reason for using FilePP vs. BPP
+'			- Being lazy might not be justification enough to keep folks from using this or changing their setup...
+'	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 only, currently), and other devices eventually...
 '	-	lots of other stuff... :)
 '
 ' ========================================================================================
@@ -17,49 +49,36 @@
 
 #define ABmt_SchedulerCompile
 
-#include "ABmt_Config\ABmt_AppConfig.cfg"
-#include "ABmt_Config\ABmt_TaskConfig.cfg"
+'~~ the order of these #incs and #defs are important... 
 
-// ABE #Include Prototype
-' #define ABE_Generic				' Generic #defs to ease programming
-' #define ABE_Bitwise				' Bitwise Operations
-' #define ABE_FloatHelpers			' Floating Point Helping routines - to include NAN testing and such
-' #define ABE_RNG					' Random Number Generator - xbit integer, floating point 0-1, bounded (min/max), etc.
-' #define ABE_SortHelpers			' helper code to facilitate sorting
-' #define ABE_ASCStuffs				' Silly code with several instances of ASC therein
-' #define ABE_DDR					' Data Direction Port save-restore - deprecated until built up for multiple targets, esp w/ > 32 GPIO pins...
-' #define ABE_Suspend				' Subs/Functions for halting program execution
-' #define enabledebug 1				' This is needed for the ABE_Debug stuffs - 0 disables debug() wrapped code & enables production() wrapped code - vice versa
-' #define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
-' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
-' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
-#define ABE_Conversion			' A robust lib of helpers for converting across different formats (i2b, i2h, a2i, etc.)
-#define ABE_UserInput				' Subs/Functions for facilitating user input into the BT console
+	#include "ABmt_Config\ABmt_AppConfig.cfg"
+	#include "ABmt_Config\ABmt_TaskConfig.cfg"
 
-#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
-	#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
-#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
-	#include "..\__lib\AB_Extensions.lib"
-#endif
+	// ABE #Include Prototype
+	' #define ABE_Generic				' Generic #defs to ease programming
+	' #define ABE_Bitwise				' Bitwise Operations
+	' #define ABE_FloatHelpers			' Floating Point Helping routines - to include NAN testing and such
+	' #define ABE_RNG					' Random Number Generator - xbit integer, floating point 0-1, bounded (min/max), etc.
+	' #define ABE_SortHelpers			' helper code to facilitate sorting
+	' #define ABE_ASCStuffs				' Silly code with several instances of ASC therein
+	' #define ABE_DDR					' Data Direction Port save-restore - deprecated until built up for multiple targets, esp w/ > 32 GPIO pins...
+	' #define ABE_Suspend				' Subs/Functions for halting program execution
+	' #define enabledebug 1				' This is needed for the ABE_Debug stuffs - 0 disables debug() wrapped code & enables production() wrapped code - vice versa
+	' #define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
+	' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
+	' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
+	#define ABE_Conversion			' A robust lib of helpers for converting across different formats (i2b, i2h, a2i, etc.)
+	#define ABE_UserInput				' Subs/Functions for facilitating user input into the BT console
 
-#include "ABmt_Lib\ABmt_WDT.lib"
-#include "ABmt_Lib\ABmt_Ticker.lib"
-#include "ABmt_Lib\ABmt_ContextSwitch.lib"
+	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
+		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
+	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
+		#include "..\__lib\AB_Extensions.lib"
+	#endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	#include "ABmt_Lib\ABmt_WDT.lib"
+	#include "ABmt_Lib\ABmt_Ticker.lib"
+	#include "ABmt_Lib\ABmt_ContextSwitch.lib"		'~
 
 
 '=============================================
