@@ -11,7 +11,19 @@
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
 ' TODO/FIXME: 
-' 	-	incorporate task context switching  <-- highest priorityh
+' 	-	incorporate task context switching  <-- highest priority, I perceive
+'	-	at startup, poll to see if this start is due to a WDT reset
+'		 -	if so, decide whether to continue running, switch to a fail-safe state, and/or display an
+'			error message. At the very least,  count such events, so that a persistently errant
+'			application won`t be restarted indefinitely. A reasonable approach might be to shut the 
+'			system down if x watchdog resets occur in given period.
+'	-	Consider some runtime sanity checking prior to feeding the dog.  Stack depth, number of buffers
+'		allocated, or the status of some peripheral or component may be checked before deciding 
+'		to feed the dog. Doing so will increase the family of errors that the watchdog will detect.	
+'	-	Consider an approach is to clear a set of flags (i.e. int bits) before each loop is started.
+'		for example - use x flags to check that certain points within the main loop have been visited
+'		Each flag is set at a certain point in the loop. At the bottom of the loop the dog is fed, but
+'		first the flags are checked to see that all of the important points in the loop have been visited.
 '	-	Consider creating a default task prototype that can be used to code up new tasks easily
 '	-	Consider an idle 'helper' task to set a wakeup timer and then sleep/low power/...
 '	-	Continue to mull on priority inheritence - might be useful for interatively ran 'helper' tasks that are activated by other tasks
