@@ -183,7 +183,10 @@ main1: '~~
 	'~
 	do
 		if ABmt_Ticker_INT_Flag then ABmt_Ticker_INT_Handler
+		if ABmt_WDT_INT_Flag then ABmt_WDT_INT_Handler
+		
 		' print MRT_TIMER(0)
+		' print "WDT: ";WD_WDTC,WD_WDTV,WWDT_IRQn
 	loop
 	
 end
