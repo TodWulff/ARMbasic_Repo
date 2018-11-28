@@ -29,6 +29,9 @@
 ' #define scope_trigger 		13
 #define scope_trigger 		33
 #define led_port			31
+' 29 is the speaker
+
+#define dbugout				40
 
 MAIN:
 
