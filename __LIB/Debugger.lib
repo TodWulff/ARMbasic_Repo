@@ -1,6 +1,8 @@
 #ifndef ARMbasic_Debug_Tools
 #define ARMbasic_Debug_Tools
 
+#define _core_break_	__ASM__($BE00)					' BKPT 
+
 'DIM DEBUG$(255)
 
 
