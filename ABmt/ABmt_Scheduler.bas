@@ -80,8 +80,8 @@
 	' #define ABE_ASCStuffs				' Silly code with several instances of ASC therein
 	' #define ABE_DDR					' Data Direction Port save-restore - deprecated until built up for multiple targets, esp w/ > 32 GPIO pins...
 	' #define ABE_Suspend				' Subs/Functions for halting program execution
-	' #define enabledebug 1				' This is needed for the ABE_Debug stuffs - 0 disables debug() wrapped code & enables production() wrapped code - vice versa
-	' #define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
+	#define enabledebug 1				' This is needed for the ABE_Debug stuffs - 0 disables debug() wrapped code & enables production() wrapped code - vice versa
+	#define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
 	' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
 	' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
 	#define ABE_Conversion			' A robust lib of helpers for converting across different formats (i2b, i2h, a2i, etc.)
@@ -160,7 +160,7 @@ sub ABmt_TaskInit
 
 	ABmt_Ticker_INT_Config(_ABmt_TaskSwitch_FreqHz)
 	ABmt_Ticker_INT_Enable
-'	print "Configured Task Ticker for "; _ABmt_TaskSwitch_FreqHz;" Hz and started it."," T: ";timer
+	print "Configured Task Ticker for "; _ABmt_TaskSwitch_FreqHz;" Hz and started it."," T: ";timer
 
 endsub
 
@@ -170,6 +170,9 @@ main:		' ABmt_Task_0
 '	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct
  	dim task_idx, i as integer
 	ABmt_TaskInit
+	
+	dim test_ptr as integer
+	
 main1: '~~
 	' print "--------------------------"
 	' i = 1
@@ -197,8 +200,10 @@ main1: '~~
 		if ABmt_Ticker_INT_Flag then ABmt_Ticker_INT_Handler
 		if ABmt_WDT_INT_Flag then ABmt_WDT_INT_Handler
 		
-		' print MRT_TIMER(0)
-		' print "WDT: ";WD_WDTC,WD_WDTV,WWDT_IRQn
+		' // print MRT_TIMER(0)
+		' //print "WDT: ";WD_WDTC,WD_WDTV,WWDT_IRQn
+	' loop
+ 	
 	loop
 	
 end

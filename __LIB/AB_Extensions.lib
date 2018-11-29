@@ -25,7 +25,7 @@
 	#define ARMbasic_Extensions
 	#define ABE_Version 1.0
 	
-	
+	#define asm(args...)	__ASM__(args)
 '---- Aug'18 comments - ripped out filepp maths stuff, bitbanged & shared spi stuff, and other random stuff, -----------------
 	' Sep18: Now have #ifdef conditional to load segments of this extension vs. the whole damn thing:
 		' ABE_Generic
@@ -1130,7 +1130,15 @@
 	
 	#if enabledebug != 0		' need to be #def'd prior to including this lib... - may expand to have different levels of debug
 	' #if defined enabledebug		' need to be #def'd prior to including this lib...
-		#include "__lib/debugger.lib"
+
+
+	//	#include "__lib/debugger.lib"
+		#ifdef __CORIDIUM__		' we're using BT's BPP and as such this relative path works
+			#include "debugger.lib"
+		#else	' with FilePP, path resolution behavior is different than BT's BPP
+			#include "..\__lib\debugger.lib"
+		#endif
+
 		#define DEBUG(args...)	args
 		#define PRODUCTION(args...)
 		#warning 

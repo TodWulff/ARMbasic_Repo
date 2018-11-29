@@ -14,7 +14,7 @@
 ' TODO/FIXME: 
 '	-	There is some wonkiness wrt the wdt mod register
 '		-	either the UM is wrong, I am stoopid, or I am missing something with clearing
-'			and interrupt condition.
+'			an interrupt condition.
 '		-	update from the UM: Once the WDEN, WDPROTECT, or WDRESET bits are set they can not be cleared by
 '			software. Both flags are cleared by an external reset or a Watchdog timer reset.
 '	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 currently)
@@ -69,7 +69,7 @@ sub ABmt_WDT_Init(wd_TOPeriod_Secs as single)
 	
 	dim wd_timeout_cycles as single
 	dim wwdt_TimeOutCycles_Int as integer
-	wd_timeout_cycles = (wd_TOPeriod_Secs / wd_clk_period_s)/4	' /4 as there is a clk divider of 4
+	wd_timeout_cycles = (wd_TOPeriod_Secs*1.31117 / wd_clk_period_s)/4	' /4 as there is a clk divider of 4
 	wwdt_TimeOutCycles_Int = wd_timeout_cycles
 	// The Watchdog clock (WDCLK) source is the fixed 500 kHz clock (+/- 40%) provided by the low-power watchdog oscillator.
 	SCB_PDRUNCFGCLR or= (1<<20) ' power up the WDT Osc - b20 PDEN_WDT_OSC Watchdog oscillator. 0 = Powered; 1 = Powered down. resets to 1
