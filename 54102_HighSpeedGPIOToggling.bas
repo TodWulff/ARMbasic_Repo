@@ -18,49 +18,40 @@
 ' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
 #include "__lib\AB_Extensions.lib"	' also loads "__lib\ARMbasicTargetVitals.lib"
 
-
-
-#define dbugout				32
-' #define GPIO_BASE_ADDR		&H1C000000
-
-'#define GPIO1NOT        *(GPIO_BASE_ADDR + &H2304)
-
+'#define GPIO_BASE_ADDR		&H1C000000
 '#define break		' __ASM__($BE00)					' BKPT 
-
-#define MLM output(dbugout) __NEWLINE__ dim i as integer
 
 MAIN:
 
-' DIM J(2) AS INTEGER
-' J(0) = GPIO1NOT
+#define dbugout				32
 
-MLM
-
-
-do
+output(dbugout)
 
 ' // this results in a 2.296MHz, 435nS period square wave - https://i.imgur.com/qxZ6xJD.png
-' out(dbugout)=0
-' out(dbugout)=1
+'	do
+'	out(dbugout)=0
+'	out(dbugout)=1
+'	loop
 
 ' // this results in a 6.889MHz, 145nS period square wave - https://i.imgur.com/Rb855LJ.png
-' GPIO1NOT = 0x00000001
+'	do
+'	GPIO1NOT = 0x00000001
+'	loop
 
-' // need to try ASM to see just how fast the hardware can go...
+' // Tried ASM just to see just how fast the hardware can go...
+' // this results in a ~16MHz, ~62.5nS period square wave - https://i.imgur.com/LY2qv49.png
 
-i = GPIO1NOT  'puts it in r7
-
-@ Directives
-.force_thumb
-.align 4
-
-@ Constants
-.one 1
-.GPIO1NOT 0x1C002304
-
-
-loop
-
+	dim i as integer
+'	#define GPIO1NOT        *(GPIO_BASE_ADDR + &H2304)	// this define is mia from the coridium chip library
+	#define GPIO1NOT        (GPIO_BASE_ADDR + &H2304)	// this define is mia from the coridium chip library
+	
+	i = GPIO1NOT			//  puts GPIO1NOT in R7  (equiv to __ASM__(0x4F02)	'	LDR	R7, =0X1C002304)
+	__ASM__(0x683A)			//	LDR	R2, [R7]  reads in the GPIO1NOT register value for knotting purposes
+	__ASM__(0x0201F042)		//	ORR	R2, #0X00000001	@ SET B0 // makes R2 a 1 (as GPIO1NOT reads as all 0s)
+	do
+	__ASM__(0x603A)			//	STR	R2, [R7] // Trigger a GPIO1 NOT'g
+	loop
+	// __ASM__(0x1C002304)		'	.end
 
 end
 
