@@ -1,30 +1,35 @@
-' ========================================================================================
-'
-'	ABmt (Multi-Threaded ARMbasic): 54102_Printy Task File
-'
-'
-'	'  Revision History
-'
-'v 0.02		24Nov18	Initial Release
-'	•	ample comments/diatribe and code will eventually be descriptive of implementation
-'
-' TODO/FIXME: 	
-' 	-	add checks here to ensure version compatibility between this and the Scheduler
-'	-	lots of other stuff... :)
-'
-' ========================================================================================
-
-#ifndef ABmt_54102_Printy_TaskVersion			' 'single Load' construct
-#define ABmt_54102_Printy_TaskVersion	"0.02"
-
-#define ABmt_NewTask
-#define ABmt_TaskID 2
-#define ABmt_TaskPriority 1
-#define ABmt_TaskName "54102_Printy"
-#include "..\ABmt_Lib\ABmt_TaskWrapper.lib"
-
 #define _54102_Printy_Cycles 20
 #define _54102_Printy_Dwell	500
+
+function	a_task_helper_function
+
+	return 0
+	endfunction
+
+function	another_task_helper_function
+
+	return 0
+	endfunction
+
+function	last_task_helper_function
+
+	return 0
+	endfunction
+
+sub a_task_helper_sub
+
+
+	endsub
+
+sub another_task_helper_sub
+
+
+	endsub
+
+sub last_task_helper_sub
+
+
+	endsub
 
 main:
 	dim i as integer
@@ -37,5 +42,3 @@ main:
 		loop
 		print
 end
-
-#endif

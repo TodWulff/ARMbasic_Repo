@@ -1,0 +1,39 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): ABmt_TaskInclusionBegin Lib File
+'
+'
+'	'  Revision History
+'
+'v 0.02		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+'	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 currently)
+' 	-	add checks here to ensure version compatibility between this and the Scheduler
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+#ifndef ABmt_TaskInclusionBegin			' 'single Load' construct 
+#define ABmt_TaskInclusionBegin
+
+	#ifdef ABmt_SchedulerCompile
+		#warning ========================'================================================
+		#warning STARTING TASK INCLUSIONS
+		#warning ========================'================================================
+		
+		#define _ABmt_TaskCount_buildup add(0
+		
+		// This depends on use of FilePP with word boundaries being turned off.!.
+		#pragma filepp SetWordBoundaries 0
+	
+		#regexp /^\s*(?i)(main:).*/sub MainLoop/
+		#regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
+		#regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+		#regexp /^\s*(?i)(end)\s\B/endsub/
+
+	#endif
+
+#endif
+

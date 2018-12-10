@@ -12,6 +12,9 @@
 '		a device reset will be implemented by way of setting WDT reset with a period of 1 clock cycle
 '
 ' TODO/FIXME: 
+'	-	Consider having variables to define the event count and pass it as an init option
+'		EDIT:  Nope, won't work, as variable space is done at compiletime not runtime
+'		EDIT2: Unless we create a set of memory pools with huge array definitions at compile
 '	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 currently)
 '	-	lots of other stuff... :)
 '

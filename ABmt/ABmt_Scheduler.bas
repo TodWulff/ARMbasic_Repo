@@ -65,6 +65,9 @@
 
 #define ABmt_SchedulerCompile
 
+#pragma filepp SetWordBoundaries 1
+
+ 
 '~~ the order of these #incs and #defs are important... 
 
 	#include "ABmt_Config\ABmt_AppConfig.cfg"
@@ -103,10 +106,12 @@
 #define _ABmt_TaskName ABmt_Scheduler
 
 ABmt_Task_0:		'~~ // This is so that the scheduler's entry point is known
+
 	goto main		'~
 
 ABmt_TaskRestart:	'~~ // This is task restart token
-	goto main1		'~
+	goto main1		'~z
+	
 sub ABmt_ResetTimer()	
 	timer = 0
 	endsub
@@ -124,15 +129,18 @@ sub ABmt_TaskInit
 	print "================================================================================"
 	print
 	gosub ABmt_TaskInit_Globals
-'	print "Loading Tasks: "; ABmt_LoadedTasks
 	ABmt_TaskCount = _ABmt_TaskCount
+	print "Loaded "; ABmt_TaskCount;" Tasks.!."
+	
 	task_idx = 0
 	ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_0
 	print "ABmt_SchedulerReset, Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
 	print "ABmt_TaskRestart Indexed @ 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
 	' print "Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
-	print "Index'g User Tasks: "; _ABmt_TaskCount," T: ";timer
+	print "Index'g User Tasks: "; ABmt_TaskCount," starting @ T: ";timer
+	' print "Index'g User Tasks: "; taskcounts," starting @ T: ";timer
 	task_idx = 1
+	
 	while task_idx <= ABmt_TaskCount
 	
 	' using case is needed as getting addressof from a string variable is not supported in AB.
@@ -144,9 +152,17 @@ sub ABmt_TaskInit
 			case 0
 				' already indexed above
 			case 1
-				ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_1
+				ABmt_TaskEntryAddress(task_idx) = addressof ABT_1_MainLoop
 			case 2
-				ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_2
+				ABmt_TaskEntryAddress(task_idx) = addressof ABT_2_MainLoop
+			case 3
+				ABmt_TaskEntryAddress(task_idx) = addressof ABT_3_MainLoop
+			case 4
+				ABmt_TaskEntryAddress(task_idx) = addressof ABT_4_MainLoop
+			case 5
+				ABmt_TaskEntryAddress(task_idx) = addressof ABT_5_MainLoop
+			case 6
+				ABmt_TaskEntryAddress(task_idx) = addressof ABT_6_MainLoop
 		endselect
 		print "Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
 		task_idx += 1
@@ -202,8 +218,11 @@ main1: '~~
 		
 		' // print MRT_TIMER(0)
 		' //print "WDT: ";WD_WDTC,WD_WDTV,WWDT_IRQn
-	' loop
  	
+
+ 
 	loop
 	
 end
+
+

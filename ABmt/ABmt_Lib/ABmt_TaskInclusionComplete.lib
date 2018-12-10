@@ -1,0 +1,39 @@
+' ========================================================================================
+'
+'	ABmt (Multi-Threaded ARMbasic): ABmt_TaskInclusionComplete Lib File
+'
+'
+'	'  Revision History
+'
+'v 0.02		24Nov18	Initial Release
+'	•	ample comments/diatribe and code will eventually be descriptive of implementation
+'
+' TODO/FIXME: 	
+'	-	Use preprocessor directives to expand this to handle both the 824 and 54102 (54102 currently)
+' 	-	add checks here to ensure version compatibility between this and the Scheduler
+'	-	lots of other stuff... :)
+'
+' ========================================================================================
+
+#ifndef ABmt_TaskInclusionComplete			' 'single Load' construct 
+#define ABmt_TaskInclusionComplete
+
+	#ifdef ABmt_SchedulerCompile
+
+		#rmregexp /^\s*(?i)(main:).*/sub MainLoop/
+		#rmregexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
+		#rmregexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+		#rmregexp /^\s*(?i)(end)\s\B/endsub/
+		
+		#defplus _ABmt_TaskCount_buildup )
+		#define _ABmt_TaskCount _ABmt_TaskCount_buildup
+		
+		#pragma filepp SetWordBoundaries 1
+
+		#warning ========================'================================================
+		#warning TASK INCLUSIONS COMPLETE
+		#warning ========================'================================================
+
+	#endif
+
+#endif
