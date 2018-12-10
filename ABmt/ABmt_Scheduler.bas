@@ -71,8 +71,8 @@
 '~~ the order of these #incs and #defs are important... 
 
 	#include "ABmt_Config\ABmt_AppConfig.cfg"
-	#include "ABmt_Config\ABmt_TaskConfig.cfg"
-	#include "ABmt_Config\ABmt_Tasks.cfg"
+	#include "ABmt_Config\ABmt_SchedulerConfig.cfg"
+	#include "ABmt_Config\ABmt_TasksConfig.cfg"
 
 	// ABE #Include Prototype
 	' #define ABE_Generic				' Generic #defs to ease programming

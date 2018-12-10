@@ -2,11 +2,12 @@
 #define _54102_Blinky_led_port	31
 #define _54102_Blinky_Cycles	20
 
+label1:
 function	a_task_helper_function
 
 	return 0
 	endfunction
-
+another_label:
 function	another_task_helper_function
 
 	return 0
@@ -16,7 +17,8 @@ function	last_task_helper_function
 
 	return 0
 	endfunction
-
+	
+thirdlabel:
 sub a_task_helper_sub
 
 
