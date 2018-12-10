@@ -1,12 +1,11 @@
 #define _54102_Printy_Cycles 20
 #define _54102_Printy_Dwell	500
 
-label1:
 function	a_task_helper_function
 
 	return 0
 	endfunction
-another_label:
+
 function	another_task_helper_function
 
 	return 0
@@ -16,13 +15,12 @@ function	last_task_helper_function
 
 	return 0
 	endfunction
-	
-thirdlabel:
+
 sub a_task_helper_sub
 
 
 	endsub
-	
+
 sub another_task_helper_sub
 
 
