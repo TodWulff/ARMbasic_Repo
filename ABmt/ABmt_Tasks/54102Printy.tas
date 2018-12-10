@@ -1,44 +1,51 @@
+'ABT
+
+
 #define _54102_Printy_Cycles 20
 #define _54102_Printy_Dwell	500
 
-function	a_task_helper_function
+function	ABT_FunctionA
 
 	return 0
 	endfunction
 
-function	another_task_helper_function
+function	ABT_FunctionB
 
 	return 0
 	endfunction
 
-function	last_task_helper_function
+function	ABT_FunctionC
 
 	return 0
 	endfunction
+	
 
-sub a_task_helper_sub
+sub ABT_SubA
 
 
 	endsub
 
-sub another_task_helper_sub
+
+sub ABT_SubB
 
 
 	endsub
 
-sub last_task_helper_sub
+sub ABT_SubC
 
 
 	endsub
 
 main:
-	dim i as integer
-	i = _54102_Printy_Cycles
+ABT_MainRestart:
+	dim ABT_i as integer
+	ABT_i = _54102_Printy_Cycles
 
-	while i>0
-		print chr(if(i mod 2 = 0,"+","*"));	'~
+	while ABT_i>0
+		print chr(if(ABT_i mod 2 = 0,"+","*"));	'~
 		' wait(_54102_Printy_Dwell)
-		i -= 1
+		ABT_i -= 1
 		loop
 		print
+		goto ABT_MainRestart
 end

@@ -28,10 +28,12 @@
 		// This depends on use of FilePP with word boundaries being turned off.!.
 		#pragma filepp SetWordBoundaries 0
 	
-		#regexp /^\s*(?i)(main:).*/sub MainLoop/
-		#regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
-		#regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+		#regexp /(\s*ABT)_/$1_ABmt_TaskID_/
+		#regexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
+		' #regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
+		' #regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
 		#regexp /^\s*(?i)(end)\s\B/endsub/
+		' #regexp /(\s*main) */ ABT_ABmt_TaskID_MainLoop /
 
 	#endif
 

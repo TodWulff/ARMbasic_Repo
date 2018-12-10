@@ -105,7 +105,7 @@
 #define _ABmt_TaskID 0
 #define _ABmt_TaskName ABmt_Scheduler
 
-ABmt_Task_0:		'~~ // This is so that the scheduler's entry point is known
+ABT_0_MainLoop:		'~~ // This is so that the scheduler's entry point is known
 
 	goto main		'~
 
@@ -130,44 +130,23 @@ sub ABmt_TaskInit
 	print
 	gosub ABmt_TaskInit_Globals
 	ABmt_TaskCount = _ABmt_TaskCount
-	print "Loaded "; ABmt_TaskCount;" Tasks.!."
+	print "Loaded "; ABmt_TaskCount;" Tasks."
 	
 	task_idx = 0
-	ABmt_TaskEntryAddress(task_idx) = addressof ABmt_Task_0
+	ABmt_TaskEntryAddress(task_idx) = addressof ABT_0_MainLoop
 	print "ABmt_SchedulerReset, Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
 	print "ABmt_TaskRestart Indexed @ 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
-	' print "Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
 	print "Index'g User Tasks: "; ABmt_TaskCount," starting @ T: ";timer
-	' print "Index'g User Tasks: "; taskcounts," starting @ T: ";timer
-	task_idx = 1
 	
-	while task_idx <= ABmt_TaskCount
-	
-	' using case is needed as getting addressof from a string variable is not supported in AB.
-	' if it were, one could simply instantiate an array via looped lookups at runtime
-	' there may be means to an end, but focusing elsewhere atm...
-	' add #ifDef logic here to scale the case to actual tasks loaded...
-	
-		select task_idx
-			case 0
-				' already indexed above
-			case 1
-				ABmt_TaskEntryAddress(task_idx) = addressof ABT_1_MainLoop
-			case 2
-				ABmt_TaskEntryAddress(task_idx) = addressof ABT_2_MainLoop
-			case 3
-				ABmt_TaskEntryAddress(task_idx) = addressof ABT_3_MainLoop
-			case 4
-				ABmt_TaskEntryAddress(task_idx) = addressof ABT_4_MainLoop
-			case 5
-				ABmt_TaskEntryAddress(task_idx) = addressof ABT_5_MainLoop
-			case 6
-				ABmt_TaskEntryAddress(task_idx) = addressof ABT_6_MainLoop
-		endselect
-		print "Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
-		task_idx += 1
-	loop
-	
+	#undef Lo
+	#pragma filepp SetWordBoundaries 0
+	#for idxt 1 <= _ABmt_TaskCount 1
+		ABmt_TaskEntryAddress(idxt) = addressof ABT_idxt_MainLoop
+		print "Task ";idxt," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(idxt))," T: ";timer
+	#endfor
+	#pragma filepp SetWordBoundaries 1
+	#define Lo 0
+
 	print "User Tasks Indexed: "; ABmt_TaskCount," T: ";timer
 	
 	ABmt_WDT_Init(_ABmt_WDT_TOPeriod_Seconds)
@@ -180,7 +159,7 @@ sub ABmt_TaskInit
 
 endsub
 
-main:		' ABmt_Task_0
+main:		' ABT_0_MainLoop
 	print _uinput("Startup:  Paused - press enter to continue> ") ' so the programmer can look at BT compile emissions...
 	timer = 0		// this was causing a code hang, dunno why, did't chase it & it is now working...
 '	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct

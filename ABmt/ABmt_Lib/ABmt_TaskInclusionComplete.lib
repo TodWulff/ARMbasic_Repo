@@ -20,10 +20,12 @@
 
 	#ifdef ABmt_SchedulerCompile
 
-		#rmregexp /^\s*(?i)(main:).*/sub MainLoop/
-		#rmregexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
-		#rmregexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+		#rmregexp /(\s*ABT)_/$1_ABmt_TaskID_/
+		#rmregexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
+		' #rmregexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
+		' #rmregexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
 		#rmregexp /^\s*(?i)(end)\s\B/endsub/
+		' #rmregexp /(\s*main) */ ABT_ABmt_TaskID_MainLoop /
 		
 		#defplus _ABmt_TaskCount_buildup )
 		#define _ABmt_TaskCount _ABmt_TaskCount_buildup
