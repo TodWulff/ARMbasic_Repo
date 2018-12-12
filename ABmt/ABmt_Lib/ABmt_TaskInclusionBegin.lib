@@ -16,24 +16,32 @@
 ' ========================================================================================
 
 #ifndef ABmt_TaskInclusionBegin			' 'single Load' construct 
-#define ABmt_TaskInclusionBegin
+	#define ABmt_TaskInclusionBegin
 
-	#ifdef ABmt_SchedulerCompile
-		#warning ========================'================================================
-		#warning STARTING TASK INCLUSIONS
-		#warning ========================'================================================
+	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
+		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
+	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
+
+
+
+		#ifdef ABmt_SchedulerCompile
+			#warning ========================'================================================
+			#warning STARTING TASK INCLUSIONS
+			#warning ========================'================================================
+			
+			#define _ABmt_TaskCount_buildup add(0
+			
+			// This depends on use of FilePP with word boundaries being turned off.!.
+			#pragma filepp SetWordBoundaries 0
 		
-		#define _ABmt_TaskCount_buildup add(0
-		
-		// This depends on use of FilePP with word boundaries being turned off.!.
-		#pragma filepp SetWordBoundaries 0
-	
-		#regexp /(\s*ABT)_/$1_ABmt_TaskID_/
-		#regexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
-		' #regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
-		' #regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
-		#regexp /^\s*(?i)(end)\s\B/endsub/
-		' #regexp /(\s*main) */ ABT_ABmt_TaskID_MainLoop /
+			#regexp /(\s*ABT)_/$1_ABmt_TaskID_/
+			#regexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
+			' #regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
+			' #regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+			#regexp /^\s*(?i)(end)\s\B/endsub/
+			' #regexp /(\s*main) */ ABT_ABmt_TaskID_MainLoop /
+
+		#endif
 
 	#endif
 

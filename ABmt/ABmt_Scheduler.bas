@@ -1,3 +1,4 @@
+
 ' ========================================================================================
 '
 '	ABmt (Multi-Threaded ARMbasic): Scheduler
@@ -63,145 +64,149 @@
 ' ========================================================================================
 #define ABmt_SchedulerVersion	"0.02"
 
-#define ABmt_SchedulerCompile
+#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
+	#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
+#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
 
-#pragma filepp SetWordBoundaries 1
+	#pragma filepp SetBlankSupp 1
+	#define ABmt_SchedulerCompile
 
- 
-'~~ the order of these #incs and #defs are important... 
+	#pragma filepp SetWordBoundaries 1
 
-	#include "ABmt_Config\ABmt_AppConfig.cfg"
-	#include "ABmt_Config\ABmt_SchedulerConfig.cfg"
-	#include "ABmt_Config\ABmt_TasksConfig.cfg"
+	 
+	' the order of these #incs and #defs are important... 
 
-	// ABE #Include Prototype
-	' #define ABE_Generic				' Generic #defs to ease programming
-	' #define ABE_Bitwise				' Bitwise Operations
-	' #define ABE_FloatHelpers			' Floating Point Helping routines - to include NAN testing and such
-	' #define ABE_RNG					' Random Number Generator - xbit integer, floating point 0-1, bounded (min/max), etc.
-	' #define ABE_SortHelpers			' helper code to facilitate sorting
-	' #define ABE_ASCStuffs				' Silly code with several instances of ASC therein
-	' #define ABE_DDR					' Data Direction Port save-restore - deprecated until built up for multiple targets, esp w/ > 32 GPIO pins...
-	' #define ABE_Suspend				' Subs/Functions for halting program execution
-	#define enabledebug 1				' This is needed for the ABE_Debug stuffs - 0 disables debug() wrapped code & enables production() wrapped code - vice versa
-	#define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
-	' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
-	' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
-	#define ABE_Conversion			' A robust lib of helpers for converting across different formats (i2b, i2h, a2i, etc.)
-	#define ABE_UserInput				' Subs/Functions for facilitating user input into the BT console
+		#include "ABmt_Config\ABmt_AppConfig.cfg"
+		#include "ABmt_Config\ABmt_SchedulerConfig.cfg"
+		#include "ABmt_Config\ABmt_TasksConfig.cfg"
 
-	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
-		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
-	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
+		// ABE #Include Prototype
+		' #define ABE_Generic				' Generic #defs to ease programming
+		' #define ABE_Bitwise				' Bitwise Operations
+		' #define ABE_FloatHelpers			' Floating Point Helping routines - to include NAN testing and such
+		' #define ABE_RNG					' Random Number Generator - xbit integer, floating point 0-1, bounded (min/max), etc.
+		' #define ABE_SortHelpers			' helper code to facilitate sorting
+		' #define ABE_ASCStuffs				' Silly code with several instances of ASC therein
+		' #define ABE_DDR					' Data Direction Port save-restore - deprecated until built up for multiple targets, esp w/ > 32 GPIO pins...
+		' #define ABE_Suspend				' Subs/Functions for halting program execution
+		#define enabledebug 1				' This is needed for the ABE_Debug stuffs - 0 disables debug() wrapped code & enables production() wrapped code - vice versa
+		#define ABE_Debug					' to enable programmatic debug support - need to expand for proper debugger use and multiple devices - #define enabledebug 1 to use
+		' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
+		' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
+		#define ABE_Conversion			' A robust lib of helpers for converting across different formats (i2b, i2h, a2i, etc.)
+		#define ABE_UserInput				' Subs/Functions for facilitating user input into the BT console
+
 		#include "..\__lib\AB_Extensions.lib"
-	#endif
 
-	#include "ABmt_Lib\ABmt_WDT.lib"
-	#include "ABmt_Lib\ABmt_Ticker.lib"
-	#include "ABmt_Lib\ABmt_ContextSwitch.lib"		'~
+		#include "ABmt_Lib\ABmt_WDT.lib"
+		#include "ABmt_Lib\ABmt_Ticker.lib"
+		#include "ABmt_Lib\ABmt_ContextSwitch.lib"
 
 
-'=============================================
-#define _ABmt_TaskID 0
-#define _ABmt_TaskName ABmt_Scheduler
+	'=============================================
+	#define _ABmt_TaskID 0
+	#define _ABmt_TaskName ABmt_Scheduler
 
-ABT_0_MainLoop:		'~~ // This is so that the scheduler's entry point is known
+	ABT_0_MainLoop:		'~~ // This is so that the scheduler's entry point is known
 
-	goto main		'~
+		goto main		'~
 
-ABmt_TaskRestart:	'~~ // This is task restart token
-	goto main1		'~z
-	
-sub ABmt_ResetTimer()	
-	timer = 0
+	ABmt_TaskRestart:	'~~ // This is task restart token
+		goto main1		'~
+		
+	sub ABmt_ResetTimer()	
+		timer = 0
+		endsub
+
+	ABmt_TaskInit_Globals:	'~~
+		dim ABmt_TaskCount as integer
+		dim ABmt_TaskEntryAddress(_ABmt_MaxTasks) as integer
+	return	'~
+
+	sub ABmt_TaskInit
+		dim task_idx as integer
+		print chr(0xC);	' clears the BT TCLTerm Console
+		print "ABmt: Multi-Threaded ARMbasic Scheduler v";ABmt_SchedulerVersion;" on ";_tgtnm
+		print _tgtspecs
+		print "================================================================================"
+		print
+		gosub ABmt_TaskInit_Globals
+		ABmt_TaskCount = _ABmt_TaskCount
+		print "Loaded "; ABmt_TaskCount;" Tasks."
+		
+		task_idx = 0
+		ABmt_TaskEntryAddress(task_idx) = addressof ABT_0_MainLoop
+		print "ABmt_SchedulerReset, Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
+		print "ABmt_TaskRestart Indexed @ 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
+		print "Index'g User Tasks: "; ABmt_TaskCount," starting @ T: ";timer
+		
+		#undef Lo
+		#pragma filepp SetWordBoundaries 0
+		#for idxt 1 <= _ABmt_TaskCount 1
+			ABmt_TaskEntryAddress(idxt) = addressof ABT_idxt_MainLoop
+			print "Task ";idxt," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(idxt))," T: ";timer
+		#endfor
+		#pragma filepp SetWordBoundaries 1
+		#define Lo 0
+
+		print "User Tasks Indexed: "; ABmt_TaskCount," T: ";timer
+		
+		ABmt_WDT_Init(_ABmt_WDT_TOPeriod_Seconds)
+		ABmt_WDT_Start
+		print "Configured WDT for timeout in "; _ABmt_WDT_TOPeriod_Seconds;" Seconds and fed/started it."," T: ";timer
+
+		ABmt_Ticker_INT_Config(_ABmt_TaskSwitch_FreqHz)
+		ABmt_Ticker_INT_Enable
+		print "Configured Task Ticker for "; _ABmt_TaskSwitch_FreqHz;" Hz and started it."," T: ";timer
+
 	endsub
 
-ABmt_TaskInit_Globals:	'~~
-	dim ABmt_TaskCount as integer
-	dim ABmt_TaskEntryAddress(_ABmt_MaxTasks) as integer
-return	'~
-
-sub ABmt_TaskInit
-	dim task_idx as integer
-	print chr(0xC);	' clears the BT TCLTerm Console
-	print "ABmt: Multi-Threaded ARMbasic Scheduler v";ABmt_SchedulerVersion;" on ";_tgtnm
-	print _tgtspecs
-	print "================================================================================"
-	print
-	gosub ABmt_TaskInit_Globals
-	ABmt_TaskCount = _ABmt_TaskCount
-	print "Loaded "; ABmt_TaskCount;" Tasks."
-	
-	task_idx = 0
-	ABmt_TaskEntryAddress(task_idx) = addressof ABT_0_MainLoop
-	print "ABmt_SchedulerReset, Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
-	print "ABmt_TaskRestart Indexed @ 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
-	print "Index'g User Tasks: "; ABmt_TaskCount," starting @ T: ";timer
-	
-	#undef Lo
-	#pragma filepp SetWordBoundaries 0
-	#for idxt 1 <= _ABmt_TaskCount 1
-		ABmt_TaskEntryAddress(idxt) = addressof ABT_idxt_MainLoop
-		print "Task ";idxt," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(idxt))," T: ";timer
-	#endfor
-	#pragma filepp SetWordBoundaries 1
-	#define Lo 0
-
-	print "User Tasks Indexed: "; ABmt_TaskCount," T: ";timer
-	
-	ABmt_WDT_Init(_ABmt_WDT_TOPeriod_Seconds)
-	ABmt_WDT_Start
-	print "Configured WDT for timeout in "; _ABmt_WDT_TOPeriod_Seconds;" Seconds and fed/started it."," T: ";timer
-
-	ABmt_Ticker_INT_Config(_ABmt_TaskSwitch_FreqHz)
-	ABmt_Ticker_INT_Enable
-	print "Configured Task Ticker for "; _ABmt_TaskSwitch_FreqHz;" Hz and started it."," T: ";timer
-
-endsub
-
-main:		' ABT_0_MainLoop
-	print _uinput("Startup:  Paused - press enter to continue> ") ' so the programmer can look at BT compile emissions...
-	timer = 0		// this was causing a code hang, dunno why, did't chase it & it is now working...
-'	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct
- 	dim task_idx, i as integer
-	ABmt_TaskInit
-	
-	dim test_ptr as integer
-	
-main1: '~~
-	' print "--------------------------"
-	' i = 1
-	' while i<=3
-		' task_idx = 1
-		' while task_idx <= ABmt_TaskCount
-			' print "Task ";task_idx," @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
-			' call (ABmt_TaskEntryAddress(task_idx))
-			' task_idx += 1
-			' wait(250)
-		' loop
-		' i += 1
-		' print "--------------------------"
-	' loop
-	
-	' // commented this out to preserve initial run console emissions
-	//print "Restarting Task Scheduler @: 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
-	//call (ABmt_TaskEntryAddress(0))
-	
-	//the dbl parens is a perceived bug/feature workaround - forces the expression resolution during compilation...
-	' print "Restarting Tasks @: 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
-	' goto ABmt_TaskRestart
-	'~
-	do
-		if ABmt_Ticker_INT_Flag then ABmt_Ticker_INT_Handler
-		if ABmt_WDT_INT_Flag then ABmt_WDT_INT_Handler
+	main:		' ABT_0_MainLoop
+		print _uinput("Startup:  Paused - press enter to continue> ") ' so the programmer can look at BT compile emissions...
+		timer = 0		// this was causing a code hang, dunno why, did't chase it & it is now working...
+	'	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct
+		dim task_idx, i as integer
+		ABmt_TaskInit
 		
-		' // print MRT_TIMER(0)
-		' //print "WDT: ";WD_WDTC,WD_WDTV,WWDT_IRQn
- 	
+		dim test_ptr as integer
+		
+	main1:
+		' print "--------------------------"
+		' i = 1
+		' while i<=3
+			' task_idx = 1
+			' while task_idx <= ABmt_TaskCount
+				' print "Task ";task_idx," @ 0x";i2h(ABmt_TaskEntryAddress(task_idx))," T: ";timer
+				' call (ABmt_TaskEntryAddress(task_idx))
+				' task_idx += 1
+				' wait(250)
+			' loop
+			' i += 1
+			' print "--------------------------"
+		' loop
+		
+		' // commented this out to preserve initial run console emissions
+		//print "Restarting Task Scheduler @: 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
+		//call (ABmt_TaskEntryAddress(0))
+		
+		//the dbl parens is a perceived bug/feature workaround - forces the expression resolution during compilation...
+		' print "Restarting Tasks @: 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
+		' goto ABmt_TaskRestart
+		
+		do
+			if ABmt_Ticker_INT_Flag then ABmt_Ticker_INT_Handler
+			if ABmt_WDT_INT_Flag then ABmt_WDT_INT_Handler
+			
+			' // print MRT_TIMER(0)
+			' //print "WDT: ";WD_WDTC,WD_WDTV,WWDT_IRQn
+		
 
- 
-	loop
-	
-end
+	 
+		loop
+		
+	end
 
+
+
+#endif
 

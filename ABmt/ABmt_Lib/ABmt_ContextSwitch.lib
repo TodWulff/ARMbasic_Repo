@@ -18,8 +18,13 @@
 #ifndef ABmt_ContextLibVersion			' 'single Load' construct 
 #define ABmt_ContextLibVersion	"0.02"
 
+#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
+	#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
+#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
+
 
 
 
 #endif
 
+#endif

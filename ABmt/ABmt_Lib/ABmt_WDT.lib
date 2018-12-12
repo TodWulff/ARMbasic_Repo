@@ -27,79 +27,84 @@
 #ifndef ABmt_WDTLibVersion			' 'single Load' construct 
 #define ABmt_WDTLibVersion	"0.02"
 
-#define CORE_M4
-#include "LPC54102.bas"
+	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
+		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
+	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
 
-Sub ABmt_WDT_Start
-ABmt_WDT_Feed:
-	WD_WDFEED = 0xAA
-	WD_WDFEED = 0x55
-	endsub
+		#define CORE_M4
+		#include "LPC54102.bas"				' needed for the header #defs
 
-ABmt_WDT_InitGlobals:
-	dim ABmt_WDT_INT_Flag as integer		' this is a wwdt user flag
-	return
+		Sub ABmt_WDT_Start
+		ABmt_WDT_Feed:
+			WD_WDFEED = 0xAA
+			WD_WDFEED = 0x55
+			endsub
 
-interrupt sub ABmt_WDT_INT_ISR			' this isr only sets a flag, clears the interrupt and exits - a handler will perform outside of an interrupt context
-	ABmt_WDT_INT_Flag = 1				' assert the user flag during the ISR
-	WD_WDMOD and= 0xFFFFFFFf		' clear the wwdt interrupt in the wwdt mode register ("software cleared...")
-	endsub
+		ABmt_WDT_InitGlobals:
+			dim ABmt_WDT_INT_Flag as integer		' this is a wwdt user flag
+			return
 
-sub ABmt_WDT_INT_Handler				' this is the handler to do more stuff at time of interrupt, outside the isr
-	ABmt_WDT_INT_Flag = 0				' clear the user flag
-	print "WDT expired:", timer
-	wait (10)
-	
-	' print "Reconfig'g WDT for reset @ Timer:", timer ' wdt should then reset the device now.
-	' WD_WDTC = 0x00000001			' '1 clock cycle
+		interrupt sub ABmt_WDT_INT_ISR			' this isr only sets a flag, clears the interrupt and exits - a handler will perform outside of an interrupt context
+			ABmt_WDT_INT_Flag = 1				' assert the user flag during the ISR
+			WD_WDMOD and= 0xFFFFFFFf		' clear the wwdt interrupt in the wwdt mode register ("software cleared...")
+			endsub
 
-	WD_WDMOD = 0x00000003			' reset, but should not do so immediately.  ugh...
-	
-	' WD_WDFEED = 0xAA				' feed the wdt
-	' WD_WDFEED = 0x55
-	endsub
-	
-sub ABmt_WDT_Init(wd_TOPeriod_Secs as single)
-	
-	print "Started WDT Init @ Timer:", timer
-	call ABmt_WDT_InitGlobals
-	ABmt_WDT_INT_Flag = 0				' deassert the wwdt user flag
+		sub ABmt_WDT_INT_Handler				' this is the handler to do more stuff at time of interrupt, outside the isr
+			ABmt_WDT_INT_Flag = 0				' clear the user flag
+			print "WDT expired:", timer
+			wait (10)
+			
+			' print "Reconfig'g WDT for reset @ Timer:", timer ' wdt should then reset the device now.
+			' WD_WDTC = 0x00000001			' '1 clock cycle
 
-	#define	wd_clk_period_s 0.000002
-	
-	dim wd_timeout_cycles as single
-	dim wwdt_TimeOutCycles_Int as integer
-	wd_timeout_cycles = (wd_TOPeriod_Secs*1.31117 / wd_clk_period_s)/4	' /4 as there is a clk divider of 4
-	wwdt_TimeOutCycles_Int = wd_timeout_cycles
-	// The Watchdog clock (WDCLK) source is the fixed 500 kHz clock (+/- 40%) provided by the low-power watchdog oscillator.
-	SCB_PDRUNCFGCLR or= (1<<20) ' power up the WDT Osc - b20 PDEN_WDT_OSC Watchdog oscillator. 0 = Powered; 1 = Powered down. resets to 1
-	SCB_AHBCLKCTRL(0) or= SYSCON_CLOCK_WWDT ' set the wwdt bit to enable the clock to the register interface.
-'	WD_WDTC = wd_timeout_cycles	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (I think... :)
-	WD_WDTC = wwdt_TimeOutCycles_Int	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (I think... :)
+			WD_WDMOD = 0x00000003			' reset, but should not do so immediately.  ugh...
+			
+			' WD_WDFEED = 0xAA				' feed the wdt
+			' WD_WDFEED = 0x55
+			endsub
+			
+		sub ABmt_WDT_Init(wd_TOPeriod_Secs as single)
+			
+			print "Started WDT Init @ Timer:", timer
+			call ABmt_WDT_InitGlobals
+			ABmt_WDT_INT_Flag = 0				' deassert the wwdt user flag
 
-	// set wdt for reset
-'	WD_WDMOD or= 0x00000003	' enables WDT (once fed) and config to force a reset if it starves (set both b0 & b1) 
+			#define	wd_clk_period_s 0.000002
+			
+			dim wd_timeout_cycles as single
+			dim wwdt_TimeOutCycles_Int as integer
+			wd_timeout_cycles = (wd_TOPeriod_Secs*1.31117 / wd_clk_period_s)/4	' /4 as there is a clk divider of 4
+			wwdt_TimeOutCycles_Int = wd_timeout_cycles
+			// The Watchdog clock (WDCLK) source is the fixed 500 kHz clock (+/- 40%) provided by the low-power watchdog oscillator.
+			SCB_PDRUNCFGCLR or= (1<<20) ' power up the WDT Osc - b20 PDEN_WDT_OSC Watchdog oscillator. 0 = Powered; 1 = Powered down. resets to 1
+			SCB_AHBCLKCTRL(0) or= SYSCON_CLOCK_WWDT ' set the wwdt bit to enable the clock to the register interface.
+		'	WD_WDTC = wd_timeout_cycles	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (I think... :)
+			WD_WDTC = wwdt_TimeOutCycles_Int	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (I think... :)
 
-	// set wdt for int - for trapping purposes
-	WD_WDMOD = 0x00000001	' enables WDT (once fed) and config to trigger an INT if it starves (b0=1 & b1=0) 
-	WWDT_IRQn = (addressof ABmt_WDT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for wwdt_irq  (the 'or 1' is for thumb code purposes)
-	VICIntEnable0 or= 0x00000001				' enable the wwdt interrupt
+			// set wdt for reset
+		'	WD_WDMOD or= 0x00000003	' enables WDT (once fed) and config to force a reset if it starves (set both b0 & b1) 
+
+			// set wdt for int - for trapping purposes
+			WD_WDMOD = 0x00000001	' enables WDT (once fed) and config to trigger an INT if it starves (b0=1 & b1=0) 
+			WWDT_IRQn = (addressof ABmt_WDT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for wwdt_irq  (the 'or 1' is for thumb code purposes)
+			VICIntEnable0 or= 0x00000001				' enable the wwdt interrupt
 
 
-	// • Set a value for the watchdog window time in the WINDOW register if windowed operation is desired.
-	' n/a
-	// • Set a value for the watchdog warning interrupt in the WARNINT register if a warning interrupt is desired.
-	' n/a
-	// • Enable the Watchdog by writing 0xAA followed by 0x55 to the FEED register.
-	// • The Watchdog must be fed again before the Watchdog counter reaches zero in order to prevent a watchdog event.
-	// • If a window value is programmed, the feed must also occur after the watchdog counter passes that value.
-	
-	// default wdt int priority is fine - so noeffwidit, for now...
-	
-	// the wdt is initialized, just need to feed it to start it.
+			// • Set a value for the watchdog window time in the WINDOW register if windowed operation is desired.
+			' n/a
+			// • Set a value for the watchdog warning interrupt in the WARNINT register if a warning interrupt is desired.
+			' n/a
+			// • Enable the Watchdog by writing 0xAA followed by 0x55 to the FEED register.
+			// • The Watchdog must be fed again before the Watchdog counter reaches zero in order to prevent a watchdog event.
+			// • If a window value is programmed, the feed must also occur after the watchdog counter passes that value.
+			
+			// default wdt int priority is fine - so noeffwidit, for now...
+			
+			// the wdt is initialized, just need to feed it to start it.
 
-	print "Finished WDT Init @ Timer:", timer
-	endsub
+			print "Finished WDT Init @ Timer:", timer
+			endsub
 
-	
+			
+	#endif
 #endif

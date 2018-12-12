@@ -15,75 +15,80 @@
 ' ========================================================================================
 
 #ifndef ABmt_TickerLibVersion			' 'single Load' construct 
-#define ABmt_TickerLibVersion	"0.02"
+	#define ABmt_TickerLibVersion	"0.02"
 
-#define CORE_M4						' needed for this dual core device, & given we're working with the NVIC on the M4
-#include "LPC54102.bas"				' needed for the header #defs
+	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
+		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
+	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
 
-#define LPC54102_Freq 96000000		'MRT scaler is 24 bits wide on the 54102 - @ 100MHz, that boils down to 5.7hz (174.633 mS per cycle)
-#define LPC54102_MinMRTFreqHz 6
-#define LPC54102_MaxMRTFreqHz 97656	' 1024 clocks minimum ($ff * 4 @ 100MHz)
+		#define CORE_M4						' needed for this dual core device, & given we're working with the NVIC on the M4
+		#include "LPC54102.bas"				' needed for the header #defs
 
-#define LPC824_Freq 30000000		'MRT scaler is 31 bits wide on the 824 - @ 30MHz, that boils down to 1 cycle per 71.582788 seconds, or 0.013969839 Hz
-#define LPC824_MinMRTFreqHz 1		' set to 1 as the lowest practical
-#define LPC824_MaxMRTFreqHz 29296	' 1024 clocks minimum ($ff * 4 @ 30MHz)
+		#define LPC54102_Freq 96000000		'MRT scaler is 24 bits wide on the 54102 - @ 100MHz, that boils down to 5.7hz (174.633 mS per cycle)
+		#define LPC54102_MinMRTFreqHz 6
+		#define LPC54102_MaxMRTFreqHz 97656	' 1024 clocks minimum ($ff * 4 @ 100MHz)
+
+		#define LPC824_Freq 30000000		'MRT scaler is 31 bits wide on the 824 - @ 30MHz, that boils down to 1 cycle per 71.582788 seconds, or 0.013969839 Hz
+		#define LPC824_MinMRTFreqHz 1		' set to 1 as the lowest practical
+		#define LPC824_MaxMRTFreqHz 29296	' 1024 clocks minimum ($ff * 4 @ 30MHz)
 
 
-ABmt_Ticker_InitGlobals:	'~~
-	dim ABmt_Ticker_INT_Flag,ABmt_Ticker_INT_Time as integer		' this is a MRT user flag
-	return	'~
-	
-interrupt sub ABmt_Ticker_INT_ISR			' this isr only sets a flag, clears the interrupt and exits - a handler will perform outside of an interrupt context
-	ABmt_Ticker_INT_Flag = MRT_IRQ_FLAG		' assert the user flag during the ISR, saving the GFLAG0-4
-	MRT_IRQ_FLAG = MRT_IRQ_FLAG				' clear the MRT interrupt 
-	ABmt_Ticker_INT_Time = timer
-	endsub
-	
-sub ABmt_Ticker_INT_Handler					' this is the handler to do more stuff at time of interrupt, outside the isr
-	print "Task Ticker Fired @ "; ABmt_Ticker_INT_Time
-	'do stuff here
-	ABmt_Ticker_INT_Flag = 0				' clear the user flag
-	endsub
-	
-sub ABmt_Ticker_INT_Config(ABmt_TaskSwitch_FreqHz as integer)
+		ABmt_Ticker_InitGlobals:	'~~
+			dim ABmt_Ticker_INT_Flag,ABmt_Ticker_INT_Time as integer		' this is a MRT user flag
+			return	'~
+			
+		interrupt sub ABmt_Ticker_INT_ISR			' this isr only sets a flag, clears the interrupt and exits - a handler will perform outside of an interrupt context
+			ABmt_Ticker_INT_Flag = MRT_IRQ_FLAG		' assert the user flag during the ISR, saving the GFLAG0-4
+			MRT_IRQ_FLAG = MRT_IRQ_FLAG				' clear the MRT interrupt 
+			ABmt_Ticker_INT_Time = timer
+			endsub
+			
+		sub ABmt_Ticker_INT_Handler					' this is the handler to do more stuff at time of interrupt, outside the isr
+			print "Task Ticker Fired @ "; ABmt_Ticker_INT_Time
+			'do stuff here
+			ABmt_Ticker_INT_Flag = 0				' clear the user flag
+			endsub
+			
+		sub ABmt_Ticker_INT_Config(ABmt_TaskSwitch_FreqHz as integer)
 
-	dim ABmt_MRT_TimerConstant as integer
+			dim ABmt_MRT_TimerConstant as integer
 
-	' enforce bounds on the passed parameter
-	if ABmt_TaskSwitch_FreqHz < LPC54102_MinMRTFreqHz then ABmt_TaskSwitch_FreqHz = LPC54102_MinMRTFreqHz
-	if ABmt_TaskSwitch_FreqHz > LPC54102_MaxMRTFreqHz then ABmt_TaskSwitch_FreqHz = LPC54102_MaxMRTFreqHz
+			' enforce bounds on the passed parameter
+			if ABmt_TaskSwitch_FreqHz < LPC54102_MinMRTFreqHz then ABmt_TaskSwitch_FreqHz = LPC54102_MinMRTFreqHz
+			if ABmt_TaskSwitch_FreqHz > LPC54102_MaxMRTFreqHz then ABmt_TaskSwitch_FreqHz = LPC54102_MaxMRTFreqHz
 
-	ABmt_MRT_TimerConstant = LPC54102_Freq / ABmt_TaskSwitch_FreqHz
+			ABmt_MRT_TimerConstant = LPC54102_Freq / ABmt_TaskSwitch_FreqHz
 
-	Print "ABmt_TaskSwitch_FreqHz: ";ABmt_TaskSwitch_FreqHz;" Hz"," T: ";timer
-	Print "ABmt_Task_Ticker_Constant: 0x";i2h(ABmt_MRT_TimerConstant)," T: ";timer
-	
-	call ABmt_Ticker_InitGlobals
-	ABmt_Ticker_INT_Flag = 0				' deassert the MRT user flag
+			Print "ABmt_TaskSwitch_FreqHz: ";ABmt_TaskSwitch_FreqHz;" Hz"," T: ";timer
+			Print "ABmt_Task_Ticker_Constant: 0x";i2h(ABmt_MRT_TimerConstant)," T: ";timer
+			
+			call ABmt_Ticker_InitGlobals
+			ABmt_Ticker_INT_Flag = 0				' deassert the MRT user flag
 
-	'set up the MRT timer here
-	SCB_AHBCLKCTRL(1) or= SYSCON_CLOCK_MRT	' set the MRT bit to enable the clock to the register interface.
-	SCB_PRESETCTRL(1) and= 0xFFFFFFFE 		' Clear reset to the MRT.
-	
-	MRT_INTVAL(0) = ABmt_MRT_TimerConstant or $80000000				' b31 = 1 for immediately load the MRT IntVal
-/* 	'100hz = 0x800EA600	250Hz=0x8005DC00	500Hz=0x8002EE00  1000Hz=0x80017700 -  b31 set too per UM.
-	'max is 0x80FFFFFF  which is ~175mS - I don't get why the time range is so different from the 824 design
-	'but it is what it is - per the UM:  24-bit interrupt timer clocked from CPU clock
- */	
-	MRT_CTRL(0) = 0x00000001				' enable TIMERn Interrupt in repeat interrupt mode
+			'set up the MRT timer here
+			SCB_AHBCLKCTRL(1) or= SYSCON_CLOCK_MRT	' set the MRT bit to enable the clock to the register interface.
+			SCB_PRESETCTRL(1) and= 0xFFFFFFFE 		' Clear reset to the MRT.
+			
+			MRT_INTVAL(0) = ABmt_MRT_TimerConstant or $80000000				' b31 = 1 for immediately load the MRT IntVal
+		/* 	'100hz = 0x800EA600	250Hz=0x8005DC00	500Hz=0x8002EE00  1000Hz=0x80017700 -  b31 set too per UM.
+			'max is 0x80FFFFFF  which is ~175mS - I don't get why the time range is so different from the 824 design
+			'but it is what it is - per the UM:  24-bit interrupt timer clocked from CPU clock
+		 */	
+			MRT_CTRL(0) = 0x00000001				' enable TIMERn Interrupt in repeat interrupt mode
 
-	' default MRT int priority is fine - so noeffwidit
-	
-	' set up the MRT Interrupt here
-	MRT_IRQn = (addressof ABmt_Ticker_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
-	endsub
+			' default MRT int priority is fine - so noeffwidit
+			
+			' set up the MRT Interrupt here
+			MRT_IRQn = (addressof ABmt_Ticker_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
+			endsub
 
-sub ABmt_Ticker_INT_Enable	
-	dim intstart as integer
-	intstart = timer
-	VICIntEnable0 or= (1<<10)				' enable the MRT interrupt
-	Print "Task Ticker CFG'd @ ",intstart
+		sub ABmt_Ticker_INT_Enable	
+			dim intstart as integer
+			intstart = timer
+			VICIntEnable0 or= (1<<10)				' enable the MRT interrupt
+			Print "Task Ticker CFG'd @ ",intstart
 
-	endsub
+			endsub
 
+	#endif
 #endif
