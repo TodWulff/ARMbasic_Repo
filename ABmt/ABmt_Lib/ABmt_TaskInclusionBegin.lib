@@ -21,25 +21,34 @@
 	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
 		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
 	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
-
-
+		// #warning ********** ABmt_TaskInclusionBegin
 
 		#ifdef ABmt_SchedulerCompile
 			#warning ========================'================================================
 			#warning STARTING TASK INCLUSIONS
 			#warning ========================'================================================
 			
+			// this starts the math construct that is used the the wrapper to do the math for each task that is being processed for inclusion
 			#define _ABmt_TaskCount_buildup add(0
 			
 			// This depends on use of FilePP with word boundaries being turned off.!.
 			#pragma filepp SetWordBoundaries 0
 		
+			// this are regex constructs that drives name unicity for each task by replacing any ABT_blah tokens with ABT_XX- where XX is a preprocessor derived counting index for each task included
+			// And, as info, to turn off regex, each must be done individually and succinctly with a #rmregexp blah construct - see ABmt_TaskInclusionComplete.lib
+			// this works in concert with the preprocessor math construct to enable counting which is updated by the TaskWrapper each time a task's sourcce is included
+			// ABmt_TaskID will be expanded on each iteration of the taskwrapper #inc as ABmt_TaskID is defined in the wrapper
+				// this macro expands and replaces ABT_ to ABT_ABmt_TaskID_ - to do so on each function, sub, label, and variable that is in the included task source
 			#regexp /(\s*ABT)_/$1_ABmt_TaskID_/
+				// this macro expands and replaces main to ABT_ABmt_TaskID_MainLoop
 			#regexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
-			' #regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
-			' #regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+				// this and the next macro were processing function and sub for macro expansion only, but needed to be more robust for labels and variables
+			// #regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
+			// #regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
+				// this macro expands and replaces end with endsub, for concluding the each task's MainLoop
 			#regexp /^\s*(?i)(end)\s\B/endsub/
-			' #regexp /(\s*main) */ ABT_ABmt_TaskID_MainLoop /
+		#else
+			#error This lib is for use with ABmt and is intended to be included by the Scheduler 
 
 		#endif
 

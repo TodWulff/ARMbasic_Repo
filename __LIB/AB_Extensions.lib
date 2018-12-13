@@ -1142,7 +1142,7 @@
 		#define DEBUG(args...)	args
 		#define PRODUCTION(args...)
 		#warning 
-		#warning enabledebug is present and properly defined for debugging	'~
+//		#warning enabledebug defined for debug enablement	'~
 		#warning DEBUG FACILITIES ARE ENABLED
 		#warning 
 		

@@ -1,5 +1,7 @@
 'ABT
 
+#warning ********** This is ABT Blinky **********
+
 #define ABT_54102_Blinky_LEDDwell	50
 #define ABT_54102_Blinky_led_port	31
 #define ABT_54102_Blinky_Cycles	20

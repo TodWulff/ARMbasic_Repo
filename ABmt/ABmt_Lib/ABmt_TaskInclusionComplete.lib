@@ -21,16 +21,14 @@
 	#ifdef __CORIDIUM__	' danger will robinson, BT's BPP doesn't support non-boundary (intra-token) macro expansion
 		#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
 	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
-
+		// #warning ********** ABmt_TaskInclusionComplete
 
 		#ifdef ABmt_SchedulerCompile
 
+			// this removes prior defined regex preprocessor construsts - see ABmt_TaskInclusionBegin.lib
 			#rmregexp /(\s*ABT)_/$1_ABmt_TaskID_/
 			#rmregexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
-			' #rmregexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
-			' #rmregexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
 			#rmregexp /^\s*(?i)(end)\s\B/endsub/
-			' #rmregexp /(\s*main) */ ABT_ABmt_TaskID_MainLoop /
 			
 			#defplus _ABmt_TaskCount_buildup )
 			#define _ABmt_TaskCount _ABmt_TaskCount_buildup
@@ -40,6 +38,8 @@
 			#warning ========================'================================================
 			#warning TASK INCLUSIONS COMPLETE
 			#warning ========================'================================================
+		#else
+			#error This lib is for use with ABmt and is intended to be included by the Scheduler 
 
 		#endif
 

@@ -1,4 +1,3 @@
-
 ' ========================================================================================
 '
 '	ABmt (Multi-Threaded ARMbasic): Scheduler
@@ -12,6 +11,16 @@
 '	•	ample comments/diatribe and code will eventually be descriptive of implementation
 '
 ' TODO/FIXME: 
+'	-	add logic on startup to poll the registers to see if this is a fresh start, or if the WDT reset the device
+'		this will enable and eventual contraction of the wdt's reset timing:
+'		First run to be gracious to allow for setup and whatnot by the tasks/scheduler/etc.
+'		then, once the scheduler task starts, contract the wdt reset value
+'		and, if wdt reset occurs x number of time, consider taking an approach to either kickoff debug shites that 
+'		would otherrwise be dormant, and, if warranted, halting the system in it's entirety after x more wdt resets
+'		this approach might drive a requirement to do some isp on a small block of flash, to enable state recording
+'		that will survive power reset, brownouts, wdt resets, and possibly core-death.  multi-core stuffs might 
+'		be a friend here too, if the app is running on such silicon
+'		to protect something that might be at fault (i.e. keep hardware powered down, etc.)
 ' 	-	incorporate task context switching  <-- highest priority, I perceive
 '	-	at startup, poll to see if this start is due to a WDT reset
 '		 -	if so, decide whether to continue running, switch to a fail-safe state, and/or display an
@@ -68,9 +77,9 @@
 	#error ABmt is written to be used with the FilePP Preprocessor, to facilitate more robust compile-time functionality than what BT`s BPP can offer
 #else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
 
-	#pragma filepp SetBlankSupp 1
+//	#pragma filepp SetBlankSupp 1
 	#define ABmt_SchedulerCompile
-
+	// #warning ********** ABmt_SchedulerCompile
 	#pragma filepp SetWordBoundaries 1
 
 	 
