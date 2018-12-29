@@ -19,6 +19,6 @@
 #ifdef LPC824
 	#define		_SPK_IO_PORT			6
 #elif defined LPC54102	' ARMdrino | ARMniobe
-	#define		_SPK_IO_PORT			29
+	#define		_SPK_IO_PORT			30
 #endif
 #endif

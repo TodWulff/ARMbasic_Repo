@@ -38,15 +38,20 @@
 			// And, as info, to turn off regex, each must be done individually and succinctly with a #rmregexp blah construct - see ABmt_TaskInclusionComplete.lib
 			// this works in concert with the preprocessor math construct to enable counting which is updated by the TaskWrapper each time a task's sourcce is included
 			// ABmt_TaskID will be expanded on each iteration of the taskwrapper #inc as ABmt_TaskID is defined in the wrapper
-				// this macro expands and replaces ABT_ to ABT_ABmt_TaskID_ - to do so on each function, sub, label, and variable that is in the included task source
+				
+			// this macro expands and replaces ABT_ to ABT_ABmt_TaskID_ - to do so on each function, sub, label, and variable that is in the included task source
 			#regexp /(\s*ABT)_/$1_ABmt_TaskID_/
-				// this macro expands and replaces main to ABT_ABmt_TaskID_MainLoop
+				
+			// this macro expands and replaces main to ABT_ABmt_TaskID_MainLoop
 			#regexp /^\s*(?i)(main:).*/sub ABT_ABmt_TaskID_MainLoop/
-				// this and the next macro were processing function and sub for macro expansion only, but needed to be more robust for labels and variables
+				
+			// this and the next macro were processing function and sub for macro expansion only, but needed to be more robust for labels and variables
 			// #regexp /^\s*(?i)(function)\s*\b/function ABT_ABmt_TaskID_/
 			// #regexp /^\s*(?i)(sub)\s*\b/sub ABT_ABmt_TaskID_/
-				// this macro expands and replaces end with endsub, for concluding the each task's MainLoop
+				
+			// this macro expands and replaces end with endsub, for concluding the each task's MainLoop
 			#regexp /^\s*(?i)(end)\s\B/endsub/
+			
 		#else
 			#error This lib is for use with ABmt and is intended to be included by the Scheduler 
 

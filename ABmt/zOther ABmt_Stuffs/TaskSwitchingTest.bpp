@@ -1,0 +1,61 @@
+
+dim ToggleFlag as integer
+dim S1_ptr as integer
+dim S2_ptr as integer
+
+interrupt sub Ticker_INT_ISR
+ *(0xE000ED04) or= (1<<28)
+ print "t";
+ *(&H40074000 + &HF8) = *(&H40074000 + &HF8)
+ endsub
+
+interrupt sub PendSV_INT_ISR
+ print "p";
+ *(0xE000ED04) or= (1<<27)
+ endsub
+
+sub Ticker_INT_Config(SwitchFreqHz as integer)
+ dim MRT_TimerConstant as integer
+ if SwitchFreqHz < 6 then SwitchFreqHz = 6
+ if SwitchFreqHz > 97656 then SwitchFreqHz = 97656
+ MRT_TimerConstant = 96000000 / SwitchFreqHz
+ Print "SwitchFreqHz: ";SwitchFreqHz;" Hz"," T: ";timer
+ *(&H40000000 + &HC0 +(1<<2)) or= (1<<0)
+ *(&H40000000 + &H44 +(1<<2)) and= 0xFFFFFFFE
+ *(&H40074000 + &H00 + (0 << 4)) = (MRT_TimerConstant or $80000000) and 0x80FFFFFF
+ *(&H40074000 + &H08 + (0 << 4)) = 0x00000001
+ *(&H02000000 + &H68) = (addressof Ticker_INT_ISR) or 1
+ endsub
+
+sub PendSV_Int_Config
+ *(0xE000ED20) or= (0x00FF0000 and $FF<<16)
+ *(&H02000000 + &H38) = (addressof PendSV_INT_ISR) or 1
+ endsub
+
+sub Ticker_INT_Enable
+ Print "Task Ticker CFG'd @ ",timer;
+ wait(10)
+ *(&HE000E000 + &H100) or= (1<<10)
+ endsub
+
+sub Sub1
+ print chr(10);0;
+ endsub
+
+sub Sub2
+ print chr(10);1;
+ endsub
+
+main:
+ print "Starting"
+ Ticker_INT_Config(10)
+ ToggleFlag = 0
+ S1_ptr = addressof Sub1
+ S2_ptr = addressof Sub2
+ wait(10)
+ Ticker_INT_Enable
+ do
+  print ".";
+  waitmicro(100)
+ loop
+end

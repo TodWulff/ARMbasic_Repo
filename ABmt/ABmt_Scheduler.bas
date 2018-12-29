@@ -149,14 +149,17 @@
 		print "ABmt_TaskRestart Indexed @ 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
 		print "Index'g User Tasks: "; ABmt_TaskCount," starting @ T: ";timer
 		
+		// ABE provides some default defines, which fracks with boundary-less preprocessor macro expansion - so disable the troublesome one...
+		#define stored_define Lo		
 		#undef Lo
-		#pragma filepp SetWordBoundaries 0
+		#pragma filepp SetWordBoundaries 0		// enable boundary-less macro expansion - needed for namespace manipulation in the following loop
 		#for idxt 1 <= _ABmt_TaskCount 1
 			ABmt_TaskEntryAddress(idxt) = addressof ABT_idxt_MainLoop
 			print "Task ";idxt," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(idxt))," T: ";timer
 		#endfor
 		#pragma filepp SetWordBoundaries 1
-		#define Lo 0
+		#define Lo stored_define
+		#undef stored_define
 
 		print "User Tasks Indexed: "; ABmt_TaskCount," T: ";timer
 		

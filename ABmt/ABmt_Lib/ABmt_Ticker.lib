@@ -22,6 +22,7 @@
 	#else	' with FilePP, intra-token macro expansion works, but path resolution behavior is different than BT's BPP
 		// #warning ********** ABmt_Ticker
 
+		'~~ // Init/#defs
 		#define CORE_M4						' needed for this dual core device, & given we're working with the NVIC on the M4
 		#include "LPC54102.bas"				' needed for the header #defs
 
@@ -32,7 +33,7 @@
 		#define LPC824_Freq 30000000		'MRT scaler is 31 bits wide on the 824 - @ 30MHz, that boils down to 1 cycle per 71.582788 seconds, or 0.013969839 Hz
 		#define LPC824_MinMRTFreqHz 1		' set to 1 as the lowest practical
 		#define LPC824_MaxMRTFreqHz 29296	' 1024 clocks minimum ($ff * 4 @ 30MHz)
-
+											'~
 
 		ABmt_Ticker_InitGlobals:	'~~
 			dim ABmt_Ticker_INT_Flag,ABmt_Ticker_INT_Time as integer		' this is a MRT user flag
@@ -70,10 +71,10 @@
 			SCB_AHBCLKCTRL(1) or= SYSCON_CLOCK_MRT	' set the MRT bit to enable the clock to the register interface.
 			SCB_PRESETCTRL(1) and= 0xFFFFFFFE 		' Clear reset to the MRT.
 			
-			MRT_INTVAL(0) = ABmt_MRT_TimerConstant or $80000000				' b31 = 1 for immediately load the MRT IntVal
+			MRT_INTVAL(0) = ABmt_MRT_TimerConstant or $80000000				'~~ b31 = 1 for immediately load the MRT IntVal
 		 	'//'100hz = 0x800EA600	250Hz=0x8005DC00	500Hz=0x8002EE00  1000Hz=0x80017700 -  b31 set too per UM.
 			'//'max is 0x80FFFFFF  which is ~175mS - I don't get why the time range is so different from the 824 design
-			'//'but it is what it is - per the UM:  24-bit interrupt timer clocked from CPU clock
+			'~ //'but it is what it is - per the UM:  24-bit interrupt timer clocked from CPU clock
 
 			MRT_CTRL(0) = 0x00000001				' enable TIMERn Interrupt in repeat interrupt mode
 

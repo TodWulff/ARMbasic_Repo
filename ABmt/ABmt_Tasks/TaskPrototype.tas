@@ -1,0 +1,8 @@
+/*
+Have ABT_ Precede any and all variable, function, sub and label names.  #defs are replace at compile time, so no need to worry about them att.
+main: must be main:
+ - there may be a restriction on having main in the label name
+all end blah constructs must take the form endblah  The only end should be the end for main.  (endsub, endfunction, endif, endselect)
+design all tasks as endless loops
+*/
+
