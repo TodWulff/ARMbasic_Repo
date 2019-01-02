@@ -3,7 +3,7 @@
 #warning ********** This is ABT Printy **********
 
 #define _54102_Printy_Cycles 20
-#define _54102_Printy_Dwell	500
+#define _54102_Printy_Dwell	500 
 
 function	ABT_FunctionA
 
@@ -23,7 +23,6 @@ function	ABT_FunctionC
 
 sub ABT_SubA
 
-
 	endsub
 
 
@@ -41,12 +40,11 @@ main:
 ABT_MainRestart:
 	dim ABT_i as integer
 	ABT_i = _54102_Printy_Cycles
-
 	while ABT_i>0
-		print chr(if(ABT_i mod 2 = 0,"+","*"));	'~
-		' wait(_54102_Printy_Dwell)
+		print chr(if(ABT_i mod 2 = 0,"+","*"));
+		wait(_54102_Printy_Dwell)
 		ABT_i -= 1
-		loop
-		print
-		goto ABT_MainRestart
+	loop
+	print
+	goto ABT_MainRestart
 end

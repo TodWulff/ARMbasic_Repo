@@ -6,7 +6,6 @@
 #define ABT_54102_Blinky_led_port	31
 #define ABT_54102_Blinky_Cycles	20
 
-
 function	ABT_FunctionA
 
 	return 0
