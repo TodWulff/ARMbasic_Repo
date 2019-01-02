@@ -1,5 +1,6 @@
 .syntax unified
-isrStart:	mrs r0, psp					
+isrStart:	
+saveCTContext: mrs r0, psp					
 	isb							
 	ldr	r3, pxCurrentTCBConst	
 	ldr	r2, [r3]				
@@ -10,8 +11,10 @@ isrStart:	mrs r0, psp
 	str r0, [r2]				
 	stmdb sp!, {r3}				
 	mov r0, #0 					
-	msr basepri, r0				
-	bl vTaskSwitchContext		
+	msr basepri, r0		
+selNextTask:	
+	bl vTaskSwitchContext	
+assertNTContext	
 	mov r0, #0 					
 	msr basepri, r0				
 	ldmia sp!, {r3}				
