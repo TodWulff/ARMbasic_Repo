@@ -1,4 +1,33 @@
-// ABE #Include Prototype
+// here is the ASM source used in the following:
+' .syntax unified
+' isrStart:	mrs r0, psp					
+	' isb							
+	' ldr	r3, pxCurrentTCBConst	
+	' ldr	r2, [r3]				
+	' tst r14, #0x10				
+	' it eq						
+	' vstmdbeq r0!, {s16-s31}		
+	' stmdb r0!, {r4-r11, r14}	
+	' str r0, [r2]				
+	' stmdb sp!, {r3}				
+	' mov r0, #0 					
+	' msr basepri, r0				
+	' bl vTaskSwitchContext		
+	' mov r0, #0 					
+	' msr basepri, r0				
+	' ldmia sp!, {r3}				
+	' ldr r1, [r3]				
+	' ldr r0, [r1]				
+	' ldmia r0!, {r4-r11, r14}	
+	' tst r14, #0x10				
+	' it eq						
+	' vldmiaeq r0!, {s16-s31}		
+	' msr psp, r0					
+	' isb							
+	' bx r14							
+' pxCurrentTCBConst: .word pxCurrentTCB	
+
+'~~ // ABE #Include Prototype
 ' #define ABE_Generic				' Generic #defs to ease programming
 ' #define ABE_Bitwise				' Bitwise Operations
 ' #define ABE_FloatHelpers			' Floating Point Helping routines - to include NAN testing and such
@@ -14,6 +43,7 @@
 ' #define ABE_TargetRegHelpers		' helper code to facilitate register exploration and manipulation - need to add masks and nibble/word/etc. support
 ' #define ABE_StringStuffs			' helper code to facilitate enhanced string functionality
 #include "__lib\AB_Extensions.lib"	' also loads "__lib\ARMbasicTargetVitals.lib"
+'~
 
 ' // /* ---- START ASM CODE BLOCK ---- */ // '
 //									    1              	.syntax unified
@@ -70,6 +100,7 @@ __ASM__(0x0000)
 #define _isrStart 					(addressof(isrStart_asm) + 4)
 #define _pxCurrentTCBConst 			(addressof(pxCurrentTCBConst_asm) + 4)
 ' // /* ---- END ASM #DEF BLOCK ---- */ // '
+
 
 main:
 	wait(100)
