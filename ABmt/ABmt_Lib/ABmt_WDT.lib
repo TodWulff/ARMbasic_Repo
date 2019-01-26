@@ -89,8 +89,8 @@
 
 			// set wdt for int - for trapping purposes
 			WD_WDMOD = 0x00000001	' enables WDT (once fed) and config to trigger an INT if it starves (b0=1 & b1=0) 
-			WWDT_IRQn = (addressof ABmt_WDT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for wwdt_irq  (the 'or 1' is for thumb code purposes)
-			VICIntEnable0 or= 0x00000001				' enable the wwdt interrupt
+			WWDT_ISR = (addressof ABmt_WDT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for wwdt_irq  (the 'or 1' is for thumb code purposes)
+			VICIntEnSet0 or= (1<<WWDT_IRQn)				' enable the wwdt interrupt
 
 
 			// • Set a value for the watchdog window time in the WINDOW register if windowed operation is desired.

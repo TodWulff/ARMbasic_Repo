@@ -1,5 +1,8 @@
 'ABT
 
+' using as a 54102/M0 test - had to nix the prints
+' else got a hard fault
+
 #warning ********** This is ABT Blinky **********
 
 #define ABT_54102_Blinky_LEDDwell	50
@@ -24,17 +27,14 @@ function	ABT_FunctionC
 
 sub ABT_SubA
 
-
 	endsub
 
 
 sub ABT_SubB
 
-
 	endsub
 
 sub ABT_SubC
-
 
 	endsub
 
@@ -44,7 +44,7 @@ main:
 	
 	' Func, Sub, Sub
 	
-	Print ABT_FunctionA
+	' print ABT_FunctionA
 	gosub ABT_SubB
 	ABT_SubC
 	
@@ -69,11 +69,11 @@ ABT_RestartTask:
 	
 	while ABT_i>0
 		out(ABT_54102_Blinky_led_port) = ABT_i and 1
-		print chr(if(ABT_i mod 2 = 0,"#","-"));	'~
+'		print chr(if(ABT_i mod 2 = 0,"#","-"));	'~
 		wait(ABT_54102_Blinky_LEDDwell) ' so it can be seen
 		ABT_i -= 1
 		loop
-	print "Restarting Blinky"
+	' print "Restarting Blinky"
 	goto ABT_RestartTask
 	
 	end

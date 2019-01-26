@@ -158,7 +158,7 @@ sub _post_process
 endsub	'~
 
 '~~ // these are the testing tool configs - edit as needed, making note of comments here
-#define _test_density 10000	// the quantity of loop test per iteration
+#define _test_density 100000	// the quantity of loop test per iteration
 								// recommend 10K to 1M to allow settling, unless test construct is dense/lengthy
 								
 #define _test_iterations 10		// used to determine how many iterations of _test_density loops are used in 

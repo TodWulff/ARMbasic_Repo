@@ -87,6 +87,8 @@
 
 		#include "ABmt_Config\ABmt_AppConfig.cfg"
 		#include "ABmt_Config\ABmt_SchedulerConfig.cfg"
+		
+		// #define tod_is_god_with_a_t	// this triggers a loading of 500 tasks vs. just two - 250 instances of each of the two sample tasks...
 		#include "ABmt_Config\ABmt_TasksConfig.cfg"
 
 		// ABE #Include Prototype
@@ -144,7 +146,7 @@
 		print "Loaded "; ABmt_TaskCount;" Tasks."
 		
 		task_idx = 0
-		ABmt_TaskEntryAddress(task_idx) = addressof ABT_0_MainLoop
+		ABmt_TaskEntryAddress(task_idx) = addressof(ABT_0_MainLoop)
 		print "ABmt_SchedulerReset, Task ";task_idx," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(0))," T: ";timer
 		print "ABmt_TaskRestart Indexed @ 0x";i2h((addressof ABmt_TaskRestart))," T: ";timer
 		print "Index'g User Tasks: "; ABmt_TaskCount," starting @ T: ";timer
@@ -152,9 +154,13 @@
 		// ABE provides some default defines, which fracks with boundary-less preprocessor macro expansion - so disable the troublesome one...
 		#define stored_define Lo		
 		#undef Lo
-		#pragma filepp SetWordBoundaries 0		// enable boundary-less macro expansion - needed for namespace manipulation in the following loop
+		// enable boundary-less macro expansion - needed for namespace manipulation in the following loop
+		#pragma filepp SetWordBoundaries 0
 		#for idxt 1 <= _ABmt_TaskCount 1
-			ABmt_TaskEntryAddress(idxt) = addressof ABT_idxt_MainLoop
+			#if idxt eq 250
+				wait(500)
+			#endif
+			ABmt_TaskEntryAddress(idxt) = addressof(ABT_idxt_MainLoop)
 			print "Task ";idxt," Indexed @ 0x";i2h(ABmt_TaskEntryAddress(idxt))," T: ";timer
 		#endfor
 		#pragma filepp SetWordBoundaries 1
@@ -174,6 +180,7 @@
 	endsub
 
 	main:		' ABT_0_MainLoop
+		wait(100)	' wait for the M0 to do its thing...
 		print _uinput("Startup:  Paused - press enter to continue> ") ' so the programmer can look at BT compile emissions...
 		timer = 0		// this was causing a code hang, dunno why, did't chase it & it is now working...
 	'	ABmt_ResetTimer	// this was a workaround for the code hang that was being caused by the timer = 0 construct
@@ -215,7 +222,7 @@
 
 	 
 		loop
-		
+ENDOFCODE:		
 	end
 
 

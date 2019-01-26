@@ -81,13 +81,13 @@
 			' default MRT int priority is fine - so noeffwidit
 			
 			' set up the MRT Interrupt here
-			MRT_IRQn = (addressof ABmt_Ticker_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
+			MRT_ISR = (addressof ABmt_Ticker_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
 			endsub
 
 		sub ABmt_Ticker_INT_Enable	
 			dim intstart as integer
 			intstart = timer
-			VICIntEnable0 or= (1<<10)				' enable the MRT interrupt
+			VICIntEnSet0 or= (1<<MRT_IRQn)				' enable the MRT interrupt
 			Print "Task Ticker CFG'd @ ",intstart
 
 			endsub

@@ -1,0 +1,366 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.eabi_attribute 28, 1
+   5              		.fpu fpv4-sp-d16
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 4
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"string.c"
+  16              		.text
+  17              		.align	1
+  18              		.global	strcat
+  19              		.thumb
+  20              		.thumb_func
+  22              	strcat:
+  23              		@ args = 0, pretend = 0, frame = 0
+  24              		@ frame_needed = 0, uses_anonymous_args = 0
+  25 0000 10B5     		push	{r4, lr}
+  26 0002 0246     		mov	r2, r0
+  27              	.L2:
+  28 0004 1346     		mov	r3, r2
+  29 0006 0132     		adds	r2, r2, #1
+  30 0008 1C78     		ldrb	r4, [r3, #0]	@ zero_extendqisi2
+  31 000a 002C     		cmp	r4, #0
+  32 000c FAD1     		bne	.L2
+  33              	.L3:
+  34 000e 11F8012B 		ldrb	r2, [r1], #1	@ zero_extendqisi2
+  35 0012 03F8012B 		strb	r2, [r3], #1
+  36 0016 002A     		cmp	r2, #0
+  37 0018 F9D1     		bne	.L3
+  38 001a 10BD     		pop	{r4, pc}
+  40              		.align	1
+  41              		.global	strchr
+  42              		.thumb
+  43              		.thumb_func
+  45              	strchr:
+  46              		@ args = 0, pretend = 0, frame = 0
+  47              		@ frame_needed = 0, uses_anonymous_args = 0
+  48              		@ link register save eliminated.
+  49 001c C9B2     		uxtb	r1, r1
+  50 001e 0246     		mov	r2, r0
+  51 0020 01E0     		b	.L7
+  52              	.L9:
+  53 0022 8B42     		cmp	r3, r1
+  54 0024 05D0     		beq	.L8
+  55              	.L7:
+  56 0026 1378     		ldrb	r3, [r2, #0]	@ zero_extendqisi2
+  57 0028 1046     		mov	r0, r2
+  58 002a 0132     		adds	r2, r2, #1
+  59 002c 002B     		cmp	r3, #0
+  60 002e F8D1     		bne	.L9
+  61 0030 1846     		mov	r0, r3
+  62              	.L8:
+  63 0032 7047     		bx	lr
+  65              		.align	1
+  66              		.global	strcmp
+  67              		.thumb
+  68              		.thumb_func
+  70              	strcmp:
+  71              		@ args = 0, pretend = 0, frame = 0
+  72              		@ frame_needed = 0, uses_anonymous_args = 0
+  73 0034 10B5     		push	{r4, lr}
+  74              	.L12:
+  75 0036 10F8013B 		ldrb	r3, [r0], #1	@ zero_extendqisi2
+  76 003a 0A46     		mov	r2, r1
+  77 003c 1BB1     		cbz	r3, .L11
+  78 003e 1478     		ldrb	r4, [r2, #0]	@ zero_extendqisi2
+  79 0040 0131     		adds	r1, r1, #1
+  80 0042 9C42     		cmp	r4, r3
+  81 0044 F7D0     		beq	.L12
+  82              	.L11:
+  83 0046 1078     		ldrb	r0, [r2, #0]	@ zero_extendqisi2
+  84 0048 181A     		subs	r0, r3, r0
+  85 004a 10BD     		pop	{r4, pc}
+  87              		.align	1
+  88              		.global	strcpy
+  89              		.thumb
+  90              		.thumb_func
+  92              	strcpy:
+  93              		@ args = 0, pretend = 0, frame = 0
+  94              		@ frame_needed = 0, uses_anonymous_args = 0
+  95              		@ link register save eliminated.
+  96 004c 0346     		mov	r3, r0
+  97              	.L15:
+  98 004e 11F8012B 		ldrb	r2, [r1], #1	@ zero_extendqisi2
+  99 0052 03F8012B 		strb	r2, [r3], #1
+ 100 0056 002A     		cmp	r2, #0
+ 101 0058 F9D1     		bne	.L15
+ 102 005a 7047     		bx	lr
+ 104              		.align	1
+ 105              		.global	strcspn
+ 106              		.thumb
+ 107              		.thumb_func
+ 109              	strcspn:
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112 005c 70B5     		push	{r4, r5, r6, lr}
+ 113 005e 0346     		mov	r3, r0
+ 114 0060 05E0     		b	.L18
+ 115              	.L20:
+ 116 0062 AC42     		cmp	r4, r5
+ 117 0064 09D0     		beq	.L19
+ 118              	.L21:
+ 119 0066 12F8015B 		ldrb	r5, [r2], #1	@ zero_extendqisi2
+ 120 006a 002D     		cmp	r5, #0
+ 121 006c F9D1     		bne	.L20
+ 122              	.L18:
+ 123 006e 1E46     		mov	r6, r3
+ 124 0070 13F8014B 		ldrb	r4, [r3], #1	@ zero_extendqisi2
+ 125 0074 0CB1     		cbz	r4, .L19
+ 126 0076 0A46     		mov	r2, r1
+ 127 0078 F5E7     		b	.L21
+ 128              	.L19:
+ 129 007a 301A     		subs	r0, r6, r0
+ 130 007c 70BD     		pop	{r4, r5, r6, pc}
+ 132              		.align	1
+ 133              		.global	strlen
+ 134              		.thumb
+ 135              		.thumb_func
+ 137              	strlen:
+ 138              		@ args = 0, pretend = 0, frame = 0
+ 139              		@ frame_needed = 0, uses_anonymous_args = 0
+ 140              		@ link register save eliminated.
+ 141 007e 0346     		mov	r3, r0
+ 142              	.L23:
+ 143 0080 1A46     		mov	r2, r3
+ 144 0082 0133     		adds	r3, r3, #1
+ 145 0084 1178     		ldrb	r1, [r2, #0]	@ zero_extendqisi2
+ 146 0086 0029     		cmp	r1, #0
+ 147 0088 FAD1     		bne	.L23
+ 148 008a 101A     		subs	r0, r2, r0
+ 149 008c 7047     		bx	lr
+ 151              		.align	1
+ 152              		.global	strncat
+ 153              		.thumb
+ 154              		.thumb_func
+ 156              	strncat:
+ 157              		@ args = 0, pretend = 0, frame = 0
+ 158              		@ frame_needed = 0, uses_anonymous_args = 0
+ 159 008e 30B5     		push	{r4, r5, lr}
+ 160 0090 0446     		mov	r4, r0
+ 161              	.L26:
+ 162 0092 2346     		mov	r3, r4
+ 163 0094 0134     		adds	r4, r4, #1
+ 164 0096 1D78     		ldrb	r5, [r3, #0]	@ zero_extendqisi2
+ 165 0098 002D     		cmp	r5, #0
+ 166 009a FAD1     		bne	.L26
+ 167 009c 05E0     		b	.L27
+ 168              	.L30:
+ 169 009e 013A     		subs	r2, r2, #1
+ 170 00a0 14BF     		ite	ne
+ 171 00a2 5C78     		ldrbne	r4, [r3, #1]	@ zero_extendqisi2
+ 172 00a4 1446     		moveq	r4, r2
+ 173 00a6 03F8014F 		strb	r4, [r3, #1]!
+ 174              	.L27:
+ 175 00aa 22B1     		cbz	r2, .L29
+ 176 00ac 11F8014B 		ldrb	r4, [r1], #1	@ zero_extendqisi2
+ 177 00b0 1C70     		strb	r4, [r3, #0]
+ 178 00b2 002C     		cmp	r4, #0
+ 179 00b4 F3D1     		bne	.L30
+ 180              	.L29:
+ 181 00b6 30BD     		pop	{r4, r5, pc}
+ 183              		.align	1
+ 184              		.global	strncmp
+ 185              		.thumb
+ 186              		.thumb_func
+ 188              	strncmp:
+ 189              		@ args = 0, pretend = 0, frame = 0
+ 190              		@ frame_needed = 0, uses_anonymous_args = 0
+ 191 00b8 70B5     		push	{r4, r5, r6, lr}
+ 192 00ba 1AB9     		cbnz	r2, .L35
+ 193 00bc 0FE0     		b	.L38
+ 194              	.L37:
+ 195 00be 013A     		subs	r2, r2, #1
+ 196 00c0 09D0     		beq	.L36
+ 197 00c2 44B1     		cbz	r4, .L36
+ 198              	.L35:
+ 199 00c4 0B46     		mov	r3, r1
+ 200 00c6 0546     		mov	r5, r0
+ 201 00c8 2AB1     		cbz	r2, .L36
+ 202 00ca 10F8016B 		ldrb	r6, [r0], #1	@ zero_extendqisi2
+ 203 00ce 1C78     		ldrb	r4, [r3, #0]	@ zero_extendqisi2
+ 204 00d0 0131     		adds	r1, r1, #1
+ 205 00d2 B442     		cmp	r4, r6
+ 206 00d4 F3D0     		beq	.L37
+ 207              	.L36:
+ 208 00d6 2878     		ldrb	r0, [r5, #0]	@ zero_extendqisi2
+ 209 00d8 1B78     		ldrb	r3, [r3, #0]	@ zero_extendqisi2
+ 210 00da C01A     		subs	r0, r0, r3
+ 211 00dc 70BD     		pop	{r4, r5, r6, pc}
+ 212              	.L38:
+ 213 00de 1046     		mov	r0, r2
+ 214 00e0 70BD     		pop	{r4, r5, r6, pc}
+ 216              		.align	1
+ 217              		.global	strncpy
+ 218              		.thumb
+ 219              		.thumb_func
+ 221              	strncpy:
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224 00e2 30B5     		push	{r4, r5, lr}
+ 225 00e4 0346     		mov	r3, r0
+ 226 00e6 08E0     		b	.L40
+ 227              	.L42:
+ 228 00e8 11F8015B 		ldrb	r5, [r1], #1	@ zero_extendqisi2
+ 229 00ec 03F8015B 		strb	r5, [r3], #1
+ 230 00f0 013A     		subs	r2, r2, #1
+ 231 00f2 1C46     		mov	r4, r3
+ 232 00f4 0DB9     		cbnz	r5, .L40
+ 233              	.L43:
+ 234 00f6 0023     		movs	r3, #0
+ 235 00f8 06E0     		b	.L41
+ 236              	.L40:
+ 237 00fa 002A     		cmp	r2, #0
+ 238 00fc 1C46     		mov	r4, r3
+ 239 00fe F3DC     		bgt	.L42
+ 240 0100 F9E7     		b	.L43
+ 241              	.L44:
+ 242 0102 04F8013B 		strb	r3, [r4], #1
+ 243 0106 013A     		subs	r2, r2, #1
+ 244              	.L41:
+ 245 0108 002A     		cmp	r2, #0
+ 246 010a FADC     		bgt	.L44
+ 247 010c 30BD     		pop	{r4, r5, pc}
+ 249              		.align	1
+ 250              		.global	strstr
+ 251              		.thumb
+ 252              		.thumb_func
+ 254              	strstr:
+ 255              		@ args = 0, pretend = 0, frame = 0
+ 256              		@ frame_needed = 0, uses_anonymous_args = 0
+ 257 010e 30B5     		push	{r4, r5, lr}
+ 258 0110 0378     		ldrb	r3, [r0, #0]	@ zero_extendqisi2
+ 259 0112 0246     		mov	r2, r0
+ 260 0114 5BB9     		cbnz	r3, .L48
+ 261 0116 0B78     		ldrb	r3, [r1, #0]	@ zero_extendqisi2
+ 262 0118 002B     		cmp	r3, #0
+ 263 011a 18BF     		it	ne
+ 264 011c 0020     		movne	r0, #0
+ 265 011e 30BD     		pop	{r4, r5, pc}
+ 266              	.L50:
+ 267 0120 CC5C     		ldrb	r4, [r1, r3]	@ zero_extendqisi2
+ 268 0122 5CB1     		cbz	r4, .L49
+ 269 0124 C55C     		ldrb	r5, [r0, r3]	@ zero_extendqisi2
+ 270 0126 A542     		cmp	r5, r4
+ 271 0128 01D1     		bne	.L48
+ 272 012a 0133     		adds	r3, r3, #1
+ 273 012c F8E7     		b	.L50
+ 274              	.L48:
+ 275 012e 1046     		mov	r0, r2
+ 276 0130 0132     		adds	r2, r2, #1
+ 277 0132 0378     		ldrb	r3, [r0, #0]	@ zero_extendqisi2
+ 278 0134 0BB1     		cbz	r3, .L51
+ 279 0136 0023     		movs	r3, #0
+ 280 0138 F2E7     		b	.L50
+ 281              	.L51:
+ 282 013a 1846     		mov	r0, r3
+ 283              	.L49:
+ 284 013c 30BD     		pop	{r4, r5, pc}
+ 286              		.align	1
+ 287              		.global	strrchr
+ 288              		.thumb
+ 289              		.thumb_func
+ 291              	strrchr:
+ 292              		@ args = 0, pretend = 0, frame = 0
+ 293              		@ frame_needed = 0, uses_anonymous_args = 0
+ 294 013e 38B5     		push	{r3, r4, r5, lr}
+ 295 0140 CCB2     		uxtb	r4, r1
+ 296 0142 54B1     		cbz	r4, .L54
+ 297 0144 0025     		movs	r5, #0
+ 298 0146 01E0     		b	.L55
+ 299              	.L56:
+ 300 0148 581C     		adds	r0, r3, #1
+ 301 014a 1D46     		mov	r5, r3
+ 302              	.L55:
+ 303 014c 2146     		mov	r1, r4
+ 304 014e FFF7FEFF 		bl	strchr
+ 305 0152 0346     		mov	r3, r0
+ 306 0154 0028     		cmp	r0, #0
+ 307 0156 F7D1     		bne	.L56
+ 308 0158 03E0     		b	.L59
+ 309              	.L54:
+ 310 015a 2146     		mov	r1, r4
+ 311 015c BDE83840 		pop	{r3, r4, r5, lr}
+ 312 0160 FEE7     		b	strchr
+ 313              	.L59:
+ 314 0162 2846     		mov	r0, r5
+ 315 0164 38BD     		pop	{r3, r4, r5, pc}
+ 317              		.align	1
+ 318              		.global	do_str2num
+ 319              		.thumb
+ 320              		.thumb_func
+ 322              	do_str2num:
+ 323              		@ args = 0, pretend = 0, frame = 0
+ 324              		@ frame_needed = 0, uses_anonymous_args = 0
+ 325 0166 0023     		movs	r3, #0
+ 326 0168 70B5     		push	{r4, r5, r6, lr}
+ 327 016a 0125     		movs	r5, #1
+ 328 016c 1C46     		mov	r4, r3
+ 329 016e 22E0     		b	.L72
+ 330              	.L68:
+ 331 0170 242A     		cmp	r2, #36
+ 332 0172 1CD0     		beq	.L69
+ 333 0174 2D2A     		cmp	r2, #45
+ 334 0176 1CD0     		beq	.L70
+ 335 0178 A2F13006 		sub	r6, r2, #48
+ 336 017c F6B2     		uxtb	r6, r6
+ 337 017e 092E     		cmp	r6, #9
+ 338 0180 07D8     		bhi	.L63
+ 339 0182 0029     		cmp	r1, #0
+ 340 0184 0CBF     		ite	eq
+ 341 0186 0A24     		moveq	r4, #10
+ 342 0188 1024     		movne	r4, #16
+ 343 018a 04FB0323 		mla	r3, r4, r3, r2
+ 344 018e 303B     		subs	r3, r3, #48
+ 345 0190 09E0     		b	.L73
+ 346              	.L63:
+ 347 0192 51B1     		cbz	r1, .L65
+ 348 0194 02F0DF02 		and	r2, r2, #223
+ 349 0198 A2F14106 		sub	r6, r2, #65
+ 350 019c 052E     		cmp	r6, #5
+ 351 019e 04D8     		bhi	.L65
+ 352 01a0 02EB0313 		add	r3, r2, r3, lsl #4
+ 353 01a4 373B     		subs	r3, r3, #55
+ 354              	.L73:
+ 355 01a6 0124     		movs	r4, #1
+ 356 01a8 05E0     		b	.L72
+ 357              	.L65:
+ 358 01aa 24B1     		cbz	r4, .L72
+ 359 01ac 07E0     		b	.L67
+ 360              	.L69:
+ 361 01ae 0121     		movs	r1, #1
+ 362 01b0 01E0     		b	.L72
+ 363              	.L70:
+ 364 01b2 4FF0FF35 		mov	r5, #-1
+ 365              	.L72:
+ 366 01b6 10F8012B 		ldrb	r2, [r0], #1	@ zero_extendqisi2
+ 367 01ba 002A     		cmp	r2, #0
+ 368 01bc D8D1     		bne	.L68
+ 369              	.L67:
+ 370 01be 05FB03F0 		mul	r0, r5, r3
+ 371 01c2 70BD     		pop	{r4, r5, r6, pc}
+ 373              		.ident	"GCC: (GNU) 4.6.2"
+DEFINED SYMBOLS
+                            *ABS*:00000000 string.c
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:17     .text:00000000 $t
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:22     .text:00000000 strcat
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:45     .text:0000001c strchr
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:70     .text:00000034 strcmp
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:92     .text:0000004c strcpy
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:109    .text:0000005c strcspn
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:137    .text:0000007e strlen
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:156    .text:0000008e strncat
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:188    .text:000000b8 strncmp
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:221    .text:000000e2 strncpy
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:254    .text:0000010e strstr
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:291    .text:0000013e strrchr
+C:\Users\TAJS\AppData\Local\Temp\ccSnJJ2V.s:322    .text:00000166 do_str2num
+
+NO UNDEFINED SYMBOLS

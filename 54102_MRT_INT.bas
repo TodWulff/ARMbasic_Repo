@@ -27,7 +27,7 @@ main:
 	SCB_AHBCLKCTRL(1) or= SYSCON_CLOCK_MRT	' set the MRT bit to enable the clock to the register interface.
 	SCB_PRESETCTRL(1) and= 0xFFFFFFFE 		' Clear reset to the MRT.
 	
-	MRT_INTVAL(0) = 0x800EA600				' immediately load the MRT IntVal
+	MRT_INTVAL(0) = 0x80FFFFFF				' immediately load the MRT IntVal
 	'100hz = 0x800EA600	250Hz=0x8005DC00	500Hz=0x8002EE00  1000Hz=0x80017700 -  b31 set too per UM.
 	'max is 0x80FFFFFF  which is ~175mS - I don't get why the time range is so different from the 824 design
 	'but it is what it is - per the UM:  24-bit interrupt timer clocked from CPU clock
@@ -38,8 +38,8 @@ main:
 	' default MRT int priority is fine - so noeffwidit
 	
 	' set up the MRT Interrupt here
-	MRT_IRQn = (addressof _MRT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
-	VICIntEnable0 or= (1<<10)				' enable the MRT interrupt
+	MRT_ISR = (addressof _MRT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
+	VICIntEnSet0 or= (1<<MRT_IRQn)				' enable the MRT interrupt
 
 	do
 		if MRT_INT_Flag then _MRT_INT_Handler

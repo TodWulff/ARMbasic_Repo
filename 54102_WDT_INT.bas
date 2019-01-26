@@ -38,8 +38,8 @@ main:
 	WD_WDMOD = 0x00000001					' clears int bit(b2=0) and enables wwdt (once fed) & config to force an interrupt if it starves (b1=0=Int & b0=1=Enabled) 
 
 	' default wwdt int priority is fine - so noeff widit
-	WWDT_IRQn = (addressof _WDT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for wwdt_irq  (the 'or 1' is for thumb code purposes)
-	VICIntEnable0 or= 0x00000001				' enable the wwdt interrupt
+	WWDT_ISR = (addressof _WDT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for wwdt_irq  (the 'or 1' is for thumb code purposes)
+	VICIntEnSet0 or= 0x00000001				' enable the wwdt interrupt
 
 	WD_WDFEED = 0xAA						' feed the wdt to start it
 	WD_WDFEED = 0x55

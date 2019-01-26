@@ -1,21 +1,21 @@
 'ABT
 
-#warning ********** This is ABT Printy **********
+#warning ********** This is ABT Task `Printy` **********
 
 #define _54102_Printy_Cycles 20
 #define _54102_Printy_Dwell	500 
 
-function	ABT_FunctionA
+function ABT_FunctionA
 
 	return 0
 	endfunction
 
-function	ABT_FunctionB
+function ABT_FunctionB
 
 	return 0
 	endfunction
 
-function	ABT_FunctionC
+function ABT_FunctionC
 
 	return 0
 	endfunction
@@ -24,7 +24,6 @@ function	ABT_FunctionC
 sub ABT_SubA
 
 	endsub
-
 
 sub ABT_SubB
 

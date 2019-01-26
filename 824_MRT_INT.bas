@@ -1,52 +1,76 @@
-#include "LPC8xx.bas"				' needed for the header #defs 
+#include "LPC8xx.bas"							' needed for the header #defs 
+	
+#define MRT_IRQ_GFLAG			*0x400040F8		' mia from LPC8xx lib
+#define MRT_Channel0_TIMER		*&H40004004		' fix an error in LPC8xx lib
 
-#define MRT_IRQ_GFLAG 	   *0x400040F8			'mia from LPC8xx lib
-#define MRT_Channel0_TIMER       *&H40004004		'fix an error in LPC8xx lib
+#define RedLED	15					' NXP 800-DIP has a red led on this IO
+#define GrnLED	16					' NXP 800-DIP has a green led on this IO
+#define BluLED	17					' NXP 800-DIP has a blue led on this IO
 
-
-_MRT_InitGlobals:
-	dim MRT_INT_Flag,MRT_INT_Time as integer		' this is a MRT user flag
+_MRT_Init:
+	dim MRT_USER_Flag as integer		' this is a MRT user flag
+	dim MRT_INT_Time as integer		' set inside the ISR for reporting purposes
+	output(RedLED)  				' set GPIO as outputs to drive led
+	output(GrnLED)  				' set GPIO as outputs to drive led
+	output(BluLED)  				' set GPIO as outputs to drive led
+	out(RedLED) = 1					' turn off led (active low)
+	out(GrnLED) = 1					' turn off led (active low)
+	out(BluLED) = 1					' turn off led (active low)
+	dim i as integer				' used to toggle the three leds w/ b0-b2
+	dim mrt_default_timer_count as integer
 	return
-	
-interrupt sub _MRT_INT_ISR			' this isr only sets a flag, clears the interrupt and exits - a handler will perform outside of an interrupt context
-	MRT_INT_Flag = MRT_IRQ_GFLAG		' assert the user flag during the ISR, saving the GFLAG0-4
-	MRT_IRQ_GFLAG = MRT_IRQ_GFLAG		' clear the MRT interrupt 
-	MRT_INT_Time = timer
+
+interrupt sub _MRT_INT_ISR			' this isr only sets a flag, clears the interrupt and exits - a handler will perform servicing outside of an interrupt context
+	' set flag herein and clear the int only - keep long code sections in a handler outside of an interrupt state context
+	MRT_USER_Flag = MRT_IRQ_GFLAG	' assert the user flag during the ISR, saving the GFLAG0-4 in a user flag var
+	MRT_IRQ_GFLAG = MRT_IRQ_GFLAG		' clear the MRT interrupt - writing a 1 to the set bits clears them.
+	MRT_INT_Time = timer			' capture time for reporting purposes
 	endsub
-	
-sub _MRT_INT_Handler				' this is the handler to do more stuff at time of interrupt, outside the isr
-	print "Interrupt ";MRT_INT_Flag;" Fired @ "; MRT_INT_Time
+
+sub _MRT_INT_Handler				' this is the handler to do more stuff at time of interrupt, outside of the isr routine
 	'do stuff here
-	MRT_INT_Flag = 0				' clear the user flag
+	print i;") MRT Interrupt ";MRT_USER_Flag;" Fired @ "; MRT_INT_Time  ' this is stuff...
+	i += 1
+	out(RedLED) = (-(i+1) and 4) >> 2	' illuminate the active low led w/ b2
+	out(GrnLED) = (-(i+1) and 2) >> 1	' illuminate the active low led w/ b1
+	out(BluLED) = (-(i+1) and 1)		' illuminate the active low led w/ b0
+	MRT_Channel0_INTVAL = 0x80000000 or (mrt_default_timer_count)	' immediately load the MRT IntVal (must happen after the clock is enabled or the registers won't latch)
+	MRT_Channel0_CTRL = 0x00000003					' enable TIMERn Interrupt in repeat interrupt mode
+	MRT_IRQ_GFLAG = MRT_IRQ_GFLAG		' clear the MRT interrupt - writing a 1 to the set bits clears them.
+	VICIntEnable or= (1<<10)						' enable the MRT interrupt
+	MRT_USER_Flag = 0				' and clear the user flag to acknowledge MRT Int handled
 	endsub
-	
+
+sub Init_MRT_INT (MRT_count as integer, ISR_addy as integer)
+	SYSCON_SYSAHBCLKCTRL or= (1<<10)				' set the MRT bit to enable the clock to the register interface.
+	SYSCON_PRESETCTRL or= (1<<7) 					' clear a reset on the MRT
+	MRT_Channel0_INTVAL = 0x80000000 or (MRT_count)	' immediately load the MRT IntVal (must happen after the clock is enabled or the registers won't latch)
+	mrt_default_timer_count = MRT_Count
+	MRT_Channel0_CTRL = 0x00000003					' enable TIMERn Interrupt in repeat interrupt mode
+	MRT_ISR = (ISR_addy) or 1						' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
+	VICIntEnable or= (1<<10)						' enable the MRT interrupt
+	endsub
+
 main:
 	print "Started @ Timer:", timer
-	
-	call _MRT_InitGlobals
-	MRT_INT_Flag = 0				' deassert the MRT user flag
-
-	'set up the MRT timer here
-	SYSCON_SYSAHBCLKCTRL or= (1<<10)	' set the MRT bit to enable the clock to the register interface.
-	SYSCON_PRESETCTRL or= (1<<7) 		' Clear reset to the MRT.
-	
-	MRT_Channel0_INTVAL = 0x80E4E1C0				' immediately load the MRT IntVal
-	'824	= 100hz = 0x493E0	250Hz=0x1D4C0	500Hz=0xEA60	1000Hz=0x7530
-	'max is 0x7FFFFFFF  which is 71.6 Seconds  -  set b31 too, to force immediate load, per UM.
-	' 1hz=0x81C9C380  2hz=0x80E4E1C0
-	
-	
-	MRT_Channel0_CTRL = 0x00000001			' enable TIMERn Interrupt in repeat interrupt mode
-
-	' default MRT int priority is fine - so noeffwidit
-	
-	' set up the MRT Interrupt here
-	MRT_ISR = (addressof _MRT_INT_ISR) or 1	' assign the isr sub addy to the NVIC vector table for MRT_irq  (the 'or 1' is for thumb code purposes)
-	VICIntEnable or= (1<<10)				' enable the MRT interrupt
-
-	do
-		if MRT_INT_Flag then _MRT_INT_Handler
-		print MRT_Channel0_TIMER
+	call _MRT_Init									' using brucee's little trick to get globals instantiated from within a sub/func/main
+	MRT_USER_Flag = 0								' deassert the MRT user flag
+	Init_MRT_INT (30000000, addressof(_MRT_INT_ISR)) ' and turn on the MRT - 3000000 yields a .1S (30000000 for 1Hz) interrupt (30MHz clock, no prescaler)
+	do												' and wait for it to fire
+		if MRT_USER_Flag then _MRT_INT_Handler		' when it does fire, handle it
+'		print MRT_Channel0_TIMER					' enable this line to see the mrt timer counting down on each pass thru the loop
+/* 	if ((i <> 0) and ((i mod 11) = 0))
+		MRT_Channel0_INTVAL = 0x80000000 or (1)	' immediately load the MRT IntVal (must happen after the clock is enabled or the registers won't latch)
+		' VICIntSetPend or= (1<<10)
+		endif
+ */
+ ' if ((i <> 0) and ((i mod 50) = 0))
+		' print
+		' print "Breaking for Debug - Use Target Explorer, or console, as needed:"
+		' print "@ hex1 hex2  <-- Displays hex2 words starting at (word aligned) address hex1"
+		' print "! hex1 hex2  <-- Writes value hex2 to (word aligned) address hex1"
+		' print "Press Resume (or enter '^') to restart"
+		' stop
+		' endif
 	loop
-	
 end

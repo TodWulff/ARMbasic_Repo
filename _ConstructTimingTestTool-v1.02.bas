@@ -120,6 +120,11 @@ sub ByteArrayBubbleSort(byref _ByteArray() as byte, _ElementCount as integer)
 dim i,j,k,m,x as integer
 dim n,p,r as single
 
+
+
+
+
+
 /* dim SortEndIdx as integer
 dim SortArray(SortArrayElements) as byte
  */
@@ -134,6 +139,7 @@ _do_test_setup:
 	
 	output(32)
 	out(32) = 1
+	
 
 /* 	'generate and fill an array with randomness
 	SortEndIdx=0
@@ -186,17 +192,17 @@ sub _pre_process
 	// if things are taking forever during the testing.
 
 // these three #defs are a mirror of the Default #defs - useful to demonstrate the testing loop's overhead removal
-	#define Test_Construct_Name 	   "'NullConstruct'"
-	#define Test_Construct_Code0		' null
-	#define Test_Construct_Code1		' null
+	' #define Test_Construct_Name 	   "'NullConstruct'"
+	' #define Test_Construct_Code0		' null
+	' #define Test_Construct_Code1		' null
 
  // the rest of these are samples (actual constructs I used to generate sample device-specific timings in the forum post)
 
 	' #define Test_Construct_Name 	   "'intvar=timer'"
 	' #define Test_Construct_Code0		j = timer
 
-	#define Test_Construct_Name 	   "'intvar=int'"
-	#define Test_Construct_Code0		j=$55555555
+	#define Test_Construct_Name 	   "Float Division"
+	#define Test_Construct_Code0		x=1000000 / 1.0001
 
 	' #define Test_Construct_Name 	   "'intvar=intvar'"
 	' #define Test_Construct_Code0		j=k
@@ -333,7 +339,7 @@ sub _test_code_constructs	// uses globals - using DU loops for test loops, as th
 endsub
 
 main:					// the main test app code - using DU loops for test loops, as they are fastest - shouldn't need to mess with this...
-
+	wait(100) ' for the M0 to do it's thing, when connected to said target
 '	_itime=timer		// grab timer for restoration at the end, as this tool violates it pretty effin hard...
 	_pre_process
 	print "Performing "&_test_iterations&" iterations of "&_test_density&" loops of test construct to develop averages."

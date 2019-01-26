@@ -20,8 +20,8 @@ ABmt_WDT_init_824:
 	WAITMICRO(500)
 	WDT_K = SYSCON_SYSAHBCLKCTRL
 	SYSCON_SYSAHBCLKCTRL = (WDT_K OR &H20000) '(1<<16)' enable the WDT clock to run from the WDT Osc. bit 17
-	WD_WDT_TC = 0x00098968	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (500KHz clock)
-	WD_WDT_MOD = 0x00000003	' enables WDT (once fed) & reset if it starves (b0 & b1)
+	WWDT_TC = 0x00098968	'Twdclk * 625000 * 4 = Twdclk * 2500000 = 5 sec (500KHz clock)
+	WWDT_MOD = 0x00000003	' enables WDT (once fed) & reset if it starves (b0 & b1)
 							' a RESET clears the bits
 			'Remark:  [from the UM]
 			'Because of the synchronization step, software must add a delay of three 
@@ -30,14 +30,14 @@ ABmt_WDT_init_824:
 			'clock WDCLK.
 	VICIntEnable = &H1008	'ENABLES INTERRUPT IN NVIC
 	wait(10)		'"This is the time delay - not optimized, as WDTclock can vary +- 40%"
-	WD_WDT_FEED = 0xAA	' WDT init'd - feeding now to start it up...
-	WD_WDT_FEED = 0x55
+	WWDT_FEED = 0xAA	' WDT init'd - feeding now to start it up...
+	WWDT_FEED = 0x55
 RETURN
 
 ABmt_WDT_feed_824:
  'feed the dog
-			WD_WDT_FEED = 0xAA
-			WD_WDT_FEED = 0x55
+			WWDT_FEED = 0xAA
+			WWDT_FEED = 0x55
 RETURN
 '
 SUB ABmt_WDT_824
@@ -46,12 +46,12 @@ ENDSUB
 '
 '=================================================
 '------------- Watchdog Timer (WWDT) -----------------------------------------
-'#define WD_WDT_MOD      *&H40000000' mode register (R/W)
-'#define WD_WDT_TC       *&H40000004' timer constant register (R/W)
-'#define WD_WDT_FEED     *&H40000008' feed sequence register (W)
-'#define WD_WDT_TV       *&H4000000C' timer value register (R)
-'#define WD_WDT_WARNINT  *&H40000014' timer warning int. register (R/W)
-'#define WD_WDT_WINDOW   *&H40000018' timer window value register (R/W)
+'#define WWDT_MOD      *&H40000000' mode register (R/W)
+'#define WWDT_TC       *&H40000004' timer constant register (R/W)
+'#define WWDT_FEED     *&H40000008' feed sequence register (W)
+'#define WWDT_TV       *&H4000000C' timer value register (R)
+'#define WWDT_WARNINT  *&H40000014' timer warning int. register (R/W)
+'#define WWDT_WINDOW   *&H40000018' timer window value register (R/W)
 
 
 

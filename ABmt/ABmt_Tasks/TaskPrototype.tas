@@ -1,8 +1,13 @@
 /*
-Have ABT_ Precede any and all variable, function, sub and label names.  #defs are replace at compile time, so no need to worry about them att.
-main: must be main:
- - there may be a restriction on having main in the label name
-all end blah constructs must take the form endblah  The only end should be the end for main.  (endsub, endfunction, endif, endselect)
-design all tasks as endless loops
+- Have 'ABT_' Precede ANY and ALL variable, function, sub and label names.
+- #defs are replace at compile time, so no need to worry about them att, except to ensure that if they resolve to 
+	a variable, function, sub, or label name that they expansion includes the ABT_ prefix - i.e. ABT_foobar
+- 'main:' must be main:
+ - there may be a restriction on having the word main as part of other label names - tbd
+- All 'end bar' constructs must take the form 'endbar'.  
+- The only discrete 'end' statement should be the 'end' for 'main:'.  
+	i.e. endsub, endfunction, endif, endselect
+- Design all tasks as endless loops, or have the task overtly exit/park/suspend/... itself via the task scheduler
+- See https://i.imgur.com/BM3X3Fx.png for a simple example.
 */
 
